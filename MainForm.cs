@@ -11,13 +11,13 @@ using System.Windows.Forms;
 
 namespace VisualizerApp_3
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         public string startTime = "";
         public string endTime = "";
 
         public List<string[]> myObjectList;
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
