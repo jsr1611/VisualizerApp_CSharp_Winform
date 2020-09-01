@@ -57,12 +57,18 @@ namespace VisualizerApp_3
             else  {
                 Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " ");
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine("Time elapsed: ");
+                
+                Console.WriteLine("Time elapsed since data read started: ");
             List<string[]> DataGotten = myDataQuery.MyDataGetter(startTime, endTime);
                 watch.Stop();
                 Console.WriteLine(watch.ElapsedMilliseconds.ToString() + " " + DateTime.Now.ToString("HH:mm:ss.fff"));
-            ChartingForm form = new ChartingForm(startTime, endTime, DataGotten);
+                var watch2 = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine("Time elapsed since charting started: ");
+                ChartingForm form = new ChartingForm(startTime, endTime, DataGotten);
             form.Show();
+                watch2.Stop();
+                Console.WriteLine(watch2.ElapsedMilliseconds.ToString() + " " + DateTime.Now.ToString("HH:mm:ss.fff"));
+
             }
 
         }
@@ -128,14 +134,14 @@ namespace VisualizerApp_3
                 //Console.WriteLine("SQL: " + sql);
                 using (var cmd = new SqlCommand(sql, myConnection))
                 {
-                    string[] myObj = {"0", "0", "0", "0", "0", "0"};
+                    //string[] myObj = {"0", "0", "0", "0", "0", "0"};
                     myConnection.Open();
                     using (var myReader = cmd.ExecuteReader())
                     {
                         while (myReader.Read())
                         {
-                            string[] myObj2 = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString(), myReader.GetValue(4).ToString(), myReader.GetValue(5).ToString() };
-                            arrList.Add(myObj2);
+                            string[] myObj = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString(), myReader.GetValue(4).ToString(), myReader.GetValue(5).ToString() };
+                            arrList.Add(myObj);
                             /*
                             myObj[0] = myReader.GetValue(0).ToString();
                             myObj[1] = myReader.GetValue(1).ToString();
@@ -143,6 +149,7 @@ namespace VisualizerApp_3
                             myObj[3] = myReader.GetValue(3).ToString();
                             myObj[4] = myReader.GetValue(4).ToString();
                             myObj[5] = myReader.GetValue(5).ToString();
+                            arrList.Add(myObj);
                             */
                         }
                     }

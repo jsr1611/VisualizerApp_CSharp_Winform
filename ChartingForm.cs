@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,13 +36,13 @@ namespace VisualizerApp_3
             var tempVal = new GearedValues<double>();
             var timeVal = new GearedValues<string>();
             var humidVal = new GearedValues<double>();
-            var part03Val = new GearedValues<Int32>();
-            var part05Val = new GearedValues<Int32>();
+            var part03Val = new GearedValues<Int64>();
+            var part05Val = new GearedValues<Int64>();
 
             var defaultTemp = new GearedValues<double>();
             var defaultHumid = new GearedValues<double>();
-            var defaultPart03 = new GearedValues<Int32>();
-            var defaultPart05 = new GearedValues<Int32>();
+            var defaultPart03 = new GearedValues<Int64>();
+            var defaultPart05 = new GearedValues<Int64>();
 
             tempVal.Quality = Quality.Low;
             humidVal.Quality = Quality.Low;
@@ -61,14 +62,14 @@ namespace VisualizerApp_3
 
             var tempTempVal = new double[graphData.Count];
             var tempHumidVal = new double[graphData.Count];
-            var tempPart03Val = new Int32[graphData.Count];
-            var tempPart05Val = new Int32[graphData.Count];
+            var tempPart03Val = new Int64[graphData.Count];
+            var tempPart05Val = new Int64[graphData.Count];
             var tempTimeVal = new string[graphData.Count];
 
             var tempDefTemp = new double[graphData.Count];
             var tempDefHumid = new double[graphData.Count];
-            var tempDefPart03Val = new Int32[graphData.Count];
-            var tempDefPart05Val = new Int32[graphData.Count];
+            var tempDefPart03Val = new Int64[graphData.Count];
+            var tempDefPart05Val = new Int64[graphData.Count];
 
             Console.WriteLine("len1 " + graphData.Count.ToString());
             for (int i =0; i<graphData.Count; i++)
@@ -80,8 +81,10 @@ namespace VisualizerApp_3
 
                 tempTempVal[i] = Math.Round(Convert.ToSingle(graphData[i][1]), 2);
                 tempHumidVal[i] = Math.Round(Convert.ToSingle(graphData[i][2]), 2);
-                tempPart03Val[i] = Int32.Parse(graphData[i][3], NumberStyles.AllowThousands, new CultureInfo("en-au"));
-                tempPart05Val[i] = Int32.Parse(graphData[i][4], NumberStyles.AllowThousands, new CultureInfo("en-au"));
+                tempPart03Val[i] = Int64.Parse(graphData[i][3], NumberStyles.Any, new CultureInfo("en-au"));
+                tempPart05Val[i] = Int64.Parse(graphData[i][4], NumberStyles.Any, new CultureInfo("en-au"));
+                //string textim = tempPart03Val[i].ToString() + " " + tempPart05Val[i].ToString();
+                //File.AppendAllText("myText01.txt", textim + Environment.NewLine);
                 tempTimeVal[i] = graphData[i][5];
 
                 /*defaultTemp.Add(21);
