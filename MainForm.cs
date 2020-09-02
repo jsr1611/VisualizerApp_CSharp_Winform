@@ -55,19 +55,17 @@ namespace VisualizerApp_3
                 MessageBox.Show("Wrong dates are selected. Please try again!", "Error message");
             }
             else  {
-                Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " ");
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                
-                Console.WriteLine("Time elapsed since data read started: ");
-            List<string[]> DataGotten = myDataQuery.MyDataGetter(startTime, endTime);
-                watch.Stop();
-                Console.WriteLine(watch.ElapsedMilliseconds.ToString() + " " + DateTime.Now.ToString("HH:mm:ss.fff"));
-                var watch2 = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine("Time elapsed since charting started: ");
-                ChartingForm form = new ChartingForm(startTime, endTime, DataGotten);
-            form.Show();
-                watch2.Stop();
-                Console.WriteLine(watch2.ElapsedMilliseconds.ToString() + " " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                var watch = System.Diagnostics.Stopwatch.StartNew();    //FOR DEBUG PURPOSE = FDP
+                Console.Write("SQL서버에서 데이터 불러오는 시간: "); //FDP
+                List<string[]> DataGotten = myDataQuery.MyDataGetter(startTime, endTime);
+                watch.Stop(); //FDP
+                Console.WriteLine(watch.ElapsedMilliseconds.ToString()); //FDP
+                var watch2 = System.Diagnostics.Stopwatch.StartNew(); //FDP
+                Console.Write("시각화 하는 시간: "); //FDP
+                ChartingForm form = new ChartingForm(startTime, endTime, DataGotten);   //sending time and data in List<string[]> for to new winform
+                form.Show(); //displaying the form in a seperate window FDP
+                watch2.Stop(); //stop the stopwatch to count time spent for displaying the charts FDP
+                Console.WriteLine(watch2.ElapsedMilliseconds.ToString()); //FDP
 
             }
 
@@ -123,18 +121,14 @@ namespace VisualizerApp_3
         /// <returns></returns>
         public virtual List<string[]> MyDataGetter(string startDate, string endDate)
         {
-            
             List<string[]> arrList = new List<string[]>();
             string sql = "";
             try
             {
-                //Console.WriteLine("startDate.ToString() + endDate.ToString(): " + startDate.ToString() + " " + endDate.ToString());
                 SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-JQMGA3H;Initial Catalog=MyDatabase01;Integrated Security=True");
                 sql = "select * from MyDatabase01.dbo.SensorData a where DateAndTime >= '" + startDate + "' and DateAndTime <= '" + endDate + "' order by DateAndTime ASC";
-                //Console.WriteLine("SQL: " + sql);
                 using (var cmd = new SqlCommand(sql, myConnection))
                 {
-                    //string[] myObj = {"0", "0", "0", "0", "0", "0"};
                     myConnection.Open();
                     using (var myReader = cmd.ExecuteReader())
                     {
@@ -142,15 +136,6 @@ namespace VisualizerApp_3
                         {
                             string[] myObj = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString(), myReader.GetValue(4).ToString(), myReader.GetValue(5).ToString() };
                             arrList.Add(myObj);
-                            /*
-                            myObj[0] = myReader.GetValue(0).ToString();
-                            myObj[1] = myReader.GetValue(1).ToString();
-                            myObj[2] = myReader.GetValue(2).ToString();
-                            myObj[3] = myReader.GetValue(3).ToString();
-                            myObj[4] = myReader.GetValue(4).ToString();
-                            myObj[5] = myReader.GetValue(5).ToString();
-                            arrList.Add(myObj);
-                            */
                         }
                     }
                 }
