@@ -52,20 +52,18 @@ namespace VisualizerApp_3
             MyDataQuery myDataQuery = new MyDataQuery();
             if (datePicker1_start.Value > datePicker2_end.Value)
             {
-                MessageBox.Show("Wrong dates are selected. Please try again!", "Error message");
+                MessageBox.Show("잘못된 날짜가 선택되었습니다. 날짜와 시간을 다시 선택해 보세요!", "에러 메시지");
             }
             else  {
-                var watch = System.Diagnostics.Stopwatch.StartNew();    //FOR DEBUG PURPOSE = FDP
-                Console.Write("SQL서버에서 데이터 불러오는 시간: "); //FDP
+                var watch = System.Diagnostics.Stopwatch.StartNew();    //FOR DEBUGGING PURPOSE = FDP
                 List<string[]> DataGotten = myDataQuery.MyDataGetter(startTime, endTime);
                 watch.Stop(); //FDP
-                Console.WriteLine(watch.ElapsedMilliseconds.ToString()); //FDP
+                Console.WriteLine("SQL서버에서 데이터를 불러오는 시간: " + watch.ElapsedMilliseconds.ToString() + " "+ "ms"); //FDP
                 var watch2 = System.Diagnostics.Stopwatch.StartNew(); //FDP
-                Console.Write("시각화 하는 시간: "); //FDP
                 ChartingForm form = new ChartingForm(startTime, endTime, DataGotten);   //sending time and data in List<string[]> for to new winform
                 form.Show(); //displaying the form in a seperate window FDP
                 watch2.Stop(); //stop the stopwatch to count time spent for displaying the charts FDP
-                Console.WriteLine(watch2.ElapsedMilliseconds.ToString()); //FDP
+                Console.WriteLine("시각화 하는 시간: " + watch2.ElapsedMilliseconds.ToString() + " " + "ms"); //FDP
 
             }
 

@@ -41,37 +41,37 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(32, 91);
+            this.textBox1.Location = new System.Drawing.Point(69, 76);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(122, 21);
+            this.textBox1.Size = new System.Drawing.Size(108, 21);
             this.textBox1.TabIndex = 1;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(32, 140);
+            this.textBox2.Location = new System.Drawing.Point(69, 125);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(122, 21);
+            this.textBox2.Size = new System.Drawing.Size(108, 21);
             this.textBox2.TabIndex = 2;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(30, 76);
+            this.label2.Location = new System.Drawing.Point(26, 81);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(114, 12);
+            this.label2.Size = new System.Drawing.Size(33, 12);
             this.label2.TabIndex = 3;
-            this.label2.Text = "Start time selected:";
+            this.label2.Text = "시작:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(30, 125);
+            this.label3.Location = new System.Drawing.Point(33, 131);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(111, 12);
+            this.label3.Size = new System.Drawing.Size(21, 12);
             this.label3.TabIndex = 4;
-            this.label3.Text = "End time selected:";
+            this.label3.Text = "끝:";
             // 
             // label1
             // 
@@ -79,12 +79,14 @@
             this.label1.Font = new System.Drawing.Font("Gulim", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.label1.Location = new System.Drawing.Point(28, 28);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(160, 20);
+            this.label1.Size = new System.Drawing.Size(122, 20);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Statistical Data ";
+            this.label1.Text = "과거 데이터";
             // 
             // cartesianChart1_temp
             // 
+            this.cartesianChart1_temp.BackColor = System.Drawing.Color.Transparent;
+            this.cartesianChart1_temp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.cartesianChart1_temp.Location = new System.Drawing.Point(235, 28);
             this.cartesianChart1_temp.Name = "cartesianChart1_temp";
             this.cartesianChart1_temp.Size = new System.Drawing.Size(509, 273);
@@ -93,6 +95,7 @@
             // 
             // cartesianChart2_humid
             // 
+            this.cartesianChart2_humid.BackColor = System.Drawing.Color.Transparent;
             this.cartesianChart2_humid.Location = new System.Drawing.Point(781, 28);
             this.cartesianChart2_humid.Name = "cartesianChart2_humid";
             this.cartesianChart2_humid.Size = new System.Drawing.Size(509, 273);
@@ -101,6 +104,7 @@
             // 
             // cartesianChart4_part05
             // 
+            this.cartesianChart4_part05.BackColor = System.Drawing.Color.Transparent;
             this.cartesianChart4_part05.Location = new System.Drawing.Point(781, 340);
             this.cartesianChart4_part05.Name = "cartesianChart4_part05";
             this.cartesianChart4_part05.Size = new System.Drawing.Size(509, 273);
@@ -109,6 +113,7 @@
             // 
             // cartesianChart3_part03
             // 
+            this.cartesianChart3_part03.BackColor = System.Drawing.Color.Transparent;
             this.cartesianChart3_part03.Location = new System.Drawing.Point(235, 340);
             this.cartesianChart3_part03.Name = "cartesianChart3_part03";
             this.cartesianChart3_part03.Size = new System.Drawing.Size(509, 273);
@@ -130,7 +135,7 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Name = "ChartingForm";
-            this.Text = "Charting window";
+            this.Text = "시각화 화면";
             this.ResumeLayout(false);
             this.PerformLayout();
 

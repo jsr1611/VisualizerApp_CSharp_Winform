@@ -71,7 +71,7 @@ namespace VisualizerApp_3
             var tempDefPart03Val = new Int64[graphData.Count];
             var tempDefPart05Val = new Int64[graphData.Count];
 
-            Console.WriteLine("len1 " + graphData.Count.ToString());
+            Console.WriteLine("서버에서 불러오는 데이터 (행) 수량 (=Number of Rows Retrieved): " + graphData.Count.ToString() + "개 행");
             for (int i =0; i<graphData.Count; i++)
             {
                 tempDefTemp[i] = 21;
@@ -104,7 +104,7 @@ namespace VisualizerApp_3
             defaultHumid.AddRange(tempDefHumid);
             defaultPart03.AddRange(tempDefPart03Val);
             defaultPart05.AddRange(tempDefPart05Val);
-            Console.WriteLine("len2 " + tempDefTemp.Length.ToString());
+            //Console.WriteLine("len2 " + tempDefTemp.Length.ToString());
 
 
             tempVal.AddRange(tempTempVal);
@@ -112,18 +112,18 @@ namespace VisualizerApp_3
             part03Val.AddRange(tempPart03Val);
             part05Val.AddRange(tempPart05Val);
             timeVal.AddRange(tempTimeVal);
-            Console.WriteLine("len3 " + tempVal.Count.ToString());
+            //Console.WriteLine("len3 " + tempVal.Count.ToString());
 
             cartesianChart1_temp.Series = new SeriesCollection
             {
                 new GLineSeries
                 {
-                    Title = "Temperature",
+                    Title = "온도(°C)",
                     Values = tempVal,
                 },
                 new GLineSeries
                 {
-                    Title = "Max. Threshold",
+                    Title = "최고 임계치",
                     Values = defaultTemp,
                 }
             };
@@ -132,13 +132,13 @@ namespace VisualizerApp_3
             {
                 new GLineSeries
                 {
-                    Title = "Humidity",
+                    Title = "습도(%)",
                     Values = humidVal
 
                 },
                 new GLineSeries
                 {
-                    Title = "Max. Threshold",
+                    Title = "최고 임계치",
                     Values = defaultHumid,
                 }
             };
@@ -147,12 +147,12 @@ namespace VisualizerApp_3
             {
                 new GLineSeries
                 {
-                    Title = "Particle(0.3u)",
+                    Title = "파티클(0.3μm)",
                     Values = part03Val
                 },
                 new GLineSeries
                 {
-                    Title = "Max. Threshold",
+                    Title = "최고 임계치",
                     Values = defaultPart03,
                 }
             };
@@ -161,12 +161,12 @@ namespace VisualizerApp_3
             {
                 new GLineSeries
                 {
-                    Title = "Particle(0.5u)",
+                    Title = "파티클(0.5μm)",
                     Values = part05Val
                 },
                 new GLineSeries
                 {
-                    Title = "Max. Threshold",
+                    Title = "최고 임계치",
                     Values = defaultPart05,
                 }
             };
@@ -174,25 +174,25 @@ namespace VisualizerApp_3
 
             cartesianChart1_temp.AxisX.Add(new Axis
             {
-                Title = "Time",
+                Title = "시간",
                 Labels = timeVal,
             }
             );
             cartesianChart2_humid.AxisX.Add(new Axis
             {
-                Title = "Time",
+                Title = "시간",
                 Labels = timeVal,
             }
             );
             cartesianChart3_part03.AxisX.Add(new Axis
             {
-                Title = "Time",
+                Title = "시간",
                 Labels = timeVal,
             }
             );
             cartesianChart4_part05.AxisX.Add(new Axis
             {
-                Title = "Time",
+                Title = "시간",
                 Labels = timeVal,
             }
             );
