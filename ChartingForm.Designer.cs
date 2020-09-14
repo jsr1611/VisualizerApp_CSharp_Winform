@@ -28,32 +28,39 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1_startTime = new System.Windows.Forms.TextBox();
+            this.textBox2_endTime = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.cartesianChart1_temp = new LiveCharts.WinForms.CartesianChart();
-            this.cartesianChart2_humid = new LiveCharts.WinForms.CartesianChart();
-            this.cartesianChart4_part05 = new LiveCharts.WinForms.CartesianChart();
-            this.cartesianChart3_part03 = new LiveCharts.WinForms.CartesianChart();
+            this.cartesianChart1 = new LiveCharts.WinForms.CartesianChart();
+            this.cartesianChart4 = new LiveCharts.WinForms.CartesianChart();
+            this.cartesianChart3 = new LiveCharts.WinForms.CartesianChart();
+            this.textBox_CF_1 = new System.Windows.Forms.TextBox();
+            this.textBox_CF_2 = new System.Windows.Forms.TextBox();
+            this.textBox_CF_big = new System.Windows.Forms.TextBox();
+            this.textBox_CF_4 = new System.Windows.Forms.TextBox();
+            this.textBox_CF_3 = new System.Windows.Forms.TextBox();
+            this.cartesianChart2 = new LiveCharts.WinForms.CartesianChart();
             this.SuspendLayout();
             // 
-            // textBox1
+            // textBox1_startTime
             // 
-            this.textBox1.Location = new System.Drawing.Point(69, 76);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(108, 21);
-            this.textBox1.TabIndex = 1;
+            this.textBox1_startTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1_startTime.Location = new System.Drawing.Point(69, 81);
+            this.textBox1_startTime.Name = "textBox1_startTime";
+            this.textBox1_startTime.ReadOnly = true;
+            this.textBox1_startTime.Size = new System.Drawing.Size(108, 14);
+            this.textBox1_startTime.TabIndex = 1;
             // 
-            // textBox2
+            // textBox2_endTime
             // 
-            this.textBox2.Location = new System.Drawing.Point(69, 125);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(108, 21);
-            this.textBox2.TabIndex = 2;
+            this.textBox2_endTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox2_endTime.Location = new System.Drawing.Point(69, 130);
+            this.textBox2_endTime.Name = "textBox2_endTime";
+            this.textBox2_endTime.ReadOnly = true;
+            this.textBox2_endTime.Size = new System.Drawing.Size(108, 14);
+            this.textBox2_endTime.TabIndex = 2;
             // 
             // label2
             // 
@@ -83,56 +90,104 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "과거 데이터";
             // 
-            // cartesianChart1_temp
+            // cartesianChart1
             // 
-            this.cartesianChart1_temp.BackColor = System.Drawing.Color.Transparent;
-            this.cartesianChart1_temp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.cartesianChart1_temp.Location = new System.Drawing.Point(235, 28);
-            this.cartesianChart1_temp.Name = "cartesianChart1_temp";
-            this.cartesianChart1_temp.Size = new System.Drawing.Size(509, 273);
-            this.cartesianChart1_temp.TabIndex = 5;
-            this.cartesianChart1_temp.Text = "cartesianChart1_temp";
+            this.cartesianChart1.BackColor = System.Drawing.Color.Transparent;
+            this.cartesianChart1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.cartesianChart1.Location = new System.Drawing.Point(199, 12);
+            this.cartesianChart1.Name = "cartesianChart1";
+            this.cartesianChart1.Size = new System.Drawing.Size(509, 273);
+            this.cartesianChart1.TabIndex = 5;
+            this.cartesianChart1.Text = "cartesianChart1_temp";
             // 
-            // cartesianChart2_humid
+            // cartesianChart4
             // 
-            this.cartesianChart2_humid.BackColor = System.Drawing.Color.Transparent;
-            this.cartesianChart2_humid.Location = new System.Drawing.Point(781, 28);
-            this.cartesianChart2_humid.Name = "cartesianChart2_humid";
-            this.cartesianChart2_humid.Size = new System.Drawing.Size(509, 273);
-            this.cartesianChart2_humid.TabIndex = 6;
-            this.cartesianChart2_humid.Text = "cartesianChart2_humid";
+            this.cartesianChart4.BackColor = System.Drawing.Color.Transparent;
+            this.cartesianChart4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.cartesianChart4.Location = new System.Drawing.Point(748, 382);
+            this.cartesianChart4.Name = "cartesianChart4";
+            this.cartesianChart4.Size = new System.Drawing.Size(509, 273);
+            this.cartesianChart4.TabIndex = 8;
+            this.cartesianChart4.Text = "cartesianChart4_part05";
             // 
-            // cartesianChart4_part05
+            // cartesianChart3
             // 
-            this.cartesianChart4_part05.BackColor = System.Drawing.Color.Transparent;
-            this.cartesianChart4_part05.Location = new System.Drawing.Point(781, 340);
-            this.cartesianChart4_part05.Name = "cartesianChart4_part05";
-            this.cartesianChart4_part05.Size = new System.Drawing.Size(509, 273);
-            this.cartesianChart4_part05.TabIndex = 8;
-            this.cartesianChart4_part05.Text = "cartesianChart4_part05";
+            this.cartesianChart3.BackColor = System.Drawing.Color.Transparent;
+            this.cartesianChart3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.cartesianChart3.Location = new System.Drawing.Point(199, 382);
+            this.cartesianChart3.Name = "cartesianChart3";
+            this.cartesianChart3.Size = new System.Drawing.Size(509, 273);
+            this.cartesianChart3.TabIndex = 7;
+            this.cartesianChart3.Text = "cartesianChart3_part03";
             // 
-            // cartesianChart3_part03
+            // textBox_CF_1
             // 
-            this.cartesianChart3_part03.BackColor = System.Drawing.Color.Transparent;
-            this.cartesianChart3_part03.Location = new System.Drawing.Point(235, 340);
-            this.cartesianChart3_part03.Name = "cartesianChart3_part03";
-            this.cartesianChart3_part03.Size = new System.Drawing.Size(509, 273);
-            this.cartesianChart3_part03.TabIndex = 7;
-            this.cartesianChart3_part03.Text = "cartesianChart3_part03";
+            this.textBox_CF_1.Location = new System.Drawing.Point(410, 303);
+            this.textBox_CF_1.Multiline = true;
+            this.textBox_CF_1.Name = "textBox_CF_1";
+            this.textBox_CF_1.Size = new System.Drawing.Size(100, 21);
+            this.textBox_CF_1.TabIndex = 9;
+            // 
+            // textBox_CF_2
+            // 
+            this.textBox_CF_2.Location = new System.Drawing.Point(965, 303);
+            this.textBox_CF_2.Multiline = true;
+            this.textBox_CF_2.Name = "textBox_CF_2";
+            this.textBox_CF_2.Size = new System.Drawing.Size(100, 21);
+            this.textBox_CF_2.TabIndex = 10;
+            // 
+            // textBox_CF_big
+            // 
+            this.textBox_CF_big.Location = new System.Drawing.Point(12, 473);
+            this.textBox_CF_big.Multiline = true;
+            this.textBox_CF_big.Name = "textBox_CF_big";
+            this.textBox_CF_big.Size = new System.Drawing.Size(165, 77);
+            this.textBox_CF_big.TabIndex = 12;
+            // 
+            // textBox_CF_4
+            // 
+            this.textBox_CF_4.Location = new System.Drawing.Point(965, 692);
+            this.textBox_CF_4.Multiline = true;
+            this.textBox_CF_4.Name = "textBox_CF_4";
+            this.textBox_CF_4.Size = new System.Drawing.Size(100, 21);
+            this.textBox_CF_4.TabIndex = 14;
+            // 
+            // textBox_CF_3
+            // 
+            this.textBox_CF_3.Location = new System.Drawing.Point(410, 692);
+            this.textBox_CF_3.Multiline = true;
+            this.textBox_CF_3.Name = "textBox_CF_3";
+            this.textBox_CF_3.Size = new System.Drawing.Size(100, 21);
+            this.textBox_CF_3.TabIndex = 13;
+            // 
+            // cartesianChart2
+            // 
+            this.cartesianChart2.BackColor = System.Drawing.Color.Transparent;
+            this.cartesianChart2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.cartesianChart2.Location = new System.Drawing.Point(748, 12);
+            this.cartesianChart2.Name = "cartesianChart2";
+            this.cartesianChart2.Size = new System.Drawing.Size(509, 273);
+            this.cartesianChart2.TabIndex = 15;
+            this.cartesianChart2.Text = "cartesianChart2_humid";
             // 
             // ChartingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1326, 639);
-            this.Controls.Add(this.cartesianChart4_part05);
-            this.Controls.Add(this.cartesianChart3_part03);
-            this.Controls.Add(this.cartesianChart2_humid);
-            this.Controls.Add(this.cartesianChart1_temp);
+            this.ClientSize = new System.Drawing.Size(1427, 741);
+            this.Controls.Add(this.cartesianChart2);
+            this.Controls.Add(this.textBox_CF_4);
+            this.Controls.Add(this.textBox_CF_3);
+            this.Controls.Add(this.textBox_CF_big);
+            this.Controls.Add(this.textBox_CF_2);
+            this.Controls.Add(this.textBox_CF_1);
+            this.Controls.Add(this.cartesianChart4);
+            this.Controls.Add(this.cartesianChart3);
+            this.Controls.Add(this.cartesianChart1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.textBox2_endTime);
+            this.Controls.Add(this.textBox1_startTime);
             this.Controls.Add(this.label1);
             this.Name = "ChartingForm";
             this.Text = "시각화 화면";
@@ -142,14 +197,19 @@
         }
 
         #endregion
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1_startTime;
+        private System.Windows.Forms.TextBox textBox2_endTime;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label1;
-        internal LiveCharts.WinForms.CartesianChart cartesianChart1_temp;
-        internal LiveCharts.WinForms.CartesianChart cartesianChart2_humid;
-        internal LiveCharts.WinForms.CartesianChart cartesianChart4_part05;
-        internal LiveCharts.WinForms.CartesianChart cartesianChart3_part03;
+        internal LiveCharts.WinForms.CartesianChart cartesianChart1;
+        internal LiveCharts.WinForms.CartesianChart cartesianChart4;
+        internal LiveCharts.WinForms.CartesianChart cartesianChart3;
+        private System.Windows.Forms.TextBox textBox_CF_1;
+        private System.Windows.Forms.TextBox textBox_CF_2;
+        private System.Windows.Forms.TextBox textBox_CF_big;
+        private System.Windows.Forms.TextBox textBox_CF_4;
+        private System.Windows.Forms.TextBox textBox_CF_3;
+        internal LiveCharts.WinForms.CartesianChart cartesianChart2;
     }
 }

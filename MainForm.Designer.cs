@@ -47,12 +47,18 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.button_show = new System.Windows.Forms.Button();
+            this.Test2_button = new System.Windows.Forms.Button();
+            this.csChart_button = new System.Windows.Forms.Button();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.radioButton4 = new System.Windows.Forms.RadioButton();
+            this.radioButton5 = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
             // 
-            this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // panel1
@@ -61,32 +67,33 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(704, 60);
+            this.panel1.Size = new System.Drawing.Size(254, 60);
             this.panel1.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Gulim", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(153, 21);
+            this.label1.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label1.Location = new System.Drawing.Point(12, 21);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(292, 19);
+            this.label1.Size = new System.Drawing.Size(230, 14);
             this.label1.TabIndex = 2;
             this.label1.Text = "Clean Room 모니터링 대시보드";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // textBox1_temp
             // 
-            this.textBox1_temp.Location = new System.Drawing.Point(113, 115);
+            this.textBox1_temp.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1_temp.Location = new System.Drawing.Point(113, 99);
             this.textBox1_temp.Name = "textBox1_temp";
-            this.textBox1_temp.Size = new System.Drawing.Size(100, 21);
+            this.textBox1_temp.Size = new System.Drawing.Size(100, 14);
             this.textBox1_temp.TabIndex = 2;
             this.textBox1_temp.Text = "0";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 118);
+            this.label2.Location = new System.Drawing.Point(13, 102);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(52, 12);
             this.label2.TabIndex = 3;
@@ -105,7 +112,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 157);
+            this.label4.Location = new System.Drawing.Point(13, 124);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(49, 12);
             this.label4.TabIndex = 6;
@@ -113,16 +120,17 @@
             // 
             // textBox2_humid
             // 
-            this.textBox2_humid.Location = new System.Drawing.Point(113, 154);
+            this.textBox2_humid.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox2_humid.Location = new System.Drawing.Point(113, 121);
             this.textBox2_humid.Name = "textBox2_humid";
-            this.textBox2_humid.Size = new System.Drawing.Size(100, 21);
+            this.textBox2_humid.Size = new System.Drawing.Size(100, 14);
             this.textBox2_humid.TabIndex = 5;
             this.textBox2_humid.Text = "0";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(13, 237);
+            this.label5.Location = new System.Drawing.Point(13, 170);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(85, 12);
             this.label5.TabIndex = 10;
@@ -130,16 +138,17 @@
             // 
             // textBox4_part05
             // 
-            this.textBox4_part05.Location = new System.Drawing.Point(113, 234);
+            this.textBox4_part05.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox4_part05.Location = new System.Drawing.Point(113, 167);
             this.textBox4_part05.Name = "textBox4_part05";
-            this.textBox4_part05.Size = new System.Drawing.Size(100, 21);
+            this.textBox4_part05.Size = new System.Drawing.Size(100, 14);
             this.textBox4_part05.TabIndex = 9;
             this.textBox4_part05.Text = "0";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(13, 198);
+            this.label6.Location = new System.Drawing.Point(13, 147);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(85, 12);
             this.label6.TabIndex = 8;
@@ -147,9 +156,10 @@
             // 
             // textBox3_part03
             // 
-            this.textBox3_part03.Location = new System.Drawing.Point(113, 195);
+            this.textBox3_part03.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox3_part03.Location = new System.Drawing.Point(113, 144);
             this.textBox3_part03.Name = "textBox3_part03";
-            this.textBox3_part03.Size = new System.Drawing.Size(100, 21);
+            this.textBox3_part03.Size = new System.Drawing.Size(100, 14);
             this.textBox3_part03.TabIndex = 7;
             this.textBox3_part03.Text = "0";
             // 
@@ -157,7 +167,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label7.Location = new System.Drawing.Point(317, 72);
+            this.label7.Location = new System.Drawing.Point(12, 197);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(156, 16);
             this.label7.TabIndex = 11;
@@ -169,7 +179,7 @@
             this.datePicker2_end.CustomFormat = "";
             this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker2_end.Location = new System.Drawing.Point(507, 119);
+            this.datePicker2_end.Location = new System.Drawing.Point(12, 252);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker2_end.Name = "datePicker2_end";
             this.datePicker2_end.Size = new System.Drawing.Size(132, 20);
@@ -181,7 +191,7 @@
             this.datePicker1_start.CustomFormat = "";
             this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker1_start.Location = new System.Drawing.Point(330, 118);
+            this.datePicker1_start.Location = new System.Drawing.Point(12, 228);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker1_start.Name = "datePicker1_start";
             this.datePicker1_start.Size = new System.Drawing.Size(132, 20);
@@ -190,7 +200,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(467, 123);
+            this.label8.Location = new System.Drawing.Point(149, 233);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(29, 12);
             this.label8.TabIndex = 42;
@@ -199,7 +209,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(645, 124);
+            this.label9.Location = new System.Drawing.Point(150, 257);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(29, 12);
             this.label9.TabIndex = 43;
@@ -207,19 +217,103 @@
             // 
             // button_show
             // 
-            this.button_show.Location = new System.Drawing.Point(421, 157);
+            this.button_show.Location = new System.Drawing.Point(78, 486);
             this.button_show.Name = "button_show";
             this.button_show.Size = new System.Drawing.Size(121, 23);
             this.button_show.TabIndex = 44;
             this.button_show.Text = "보기";
             this.button_show.UseVisualStyleBackColor = true;
-            this.button_show.Click += new System.EventHandler(this.button1_Click);
+            this.button_show.Click += new System.EventHandler(this.show_button_Click);
+            // 
+            // Test2_button
+            // 
+            this.Test2_button.Location = new System.Drawing.Point(23, 550);
+            this.Test2_button.Name = "Test2_button";
+            this.Test2_button.Size = new System.Drawing.Size(100, 23);
+            this.Test2_button.TabIndex = 45;
+            this.Test2_button.Text = "Test2_scatter";
+            this.Test2_button.UseVisualStyleBackColor = true;
+            this.Test2_button.Visible = false;
+            this.Test2_button.Click += new System.EventHandler(this.Test2_button_Click);
+            // 
+            // csChart_button
+            // 
+            this.csChart_button.Location = new System.Drawing.Point(15, 579);
+            this.csChart_button.Name = "csChart_button";
+            this.csChart_button.Size = new System.Drawing.Size(112, 23);
+            this.csChart_button.TabIndex = 46;
+            this.csChart_button.Text = "Test_csChart";
+            this.csChart_button.UseVisualStyleBackColor = true;
+            this.csChart_button.Visible = false;
+            this.csChart_button.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(12, 292);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(47, 16);
+            this.radioButton1.TabIndex = 47;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "온도";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(12, 314);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(47, 16);
+            this.radioButton2.TabIndex = 48;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "습도";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            // 
+            // radioButton3
+            // 
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Location = new System.Drawing.Point(12, 336);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(69, 16);
+            this.radioButton3.TabIndex = 49;
+            this.radioButton3.TabStop = true;
+            this.radioButton3.Text = "파티클 1";
+            this.radioButton3.UseVisualStyleBackColor = true;
+            // 
+            // radioButton4
+            // 
+            this.radioButton4.AutoSize = true;
+            this.radioButton4.Location = new System.Drawing.Point(12, 358);
+            this.radioButton4.Name = "radioButton4";
+            this.radioButton4.Size = new System.Drawing.Size(69, 16);
+            this.radioButton4.TabIndex = 50;
+            this.radioButton4.TabStop = true;
+            this.radioButton4.Text = "파티클 2";
+            this.radioButton4.UseVisualStyleBackColor = true;
+            // 
+            // radioButton5
+            // 
+            this.radioButton5.AutoSize = true;
+            this.radioButton5.Location = new System.Drawing.Point(12, 380);
+            this.radioButton5.Name = "radioButton5";
+            this.radioButton5.Size = new System.Drawing.Size(47, 16);
+            this.radioButton5.TabIndex = 51;
+            this.radioButton5.TabStop = true;
+            this.radioButton5.Text = "모두";
+            this.radioButton5.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(704, 289);
+            this.ClientSize = new System.Drawing.Size(254, 614);
+            this.Controls.Add(this.radioButton5);
+            this.Controls.Add(this.radioButton4);
+            this.Controls.Add(this.radioButton3);
+            this.Controls.Add(this.radioButton2);
+            this.Controls.Add(this.radioButton1);
+            this.Controls.Add(this.csChart_button);
+            this.Controls.Add(this.Test2_button);
             this.Controls.Add(this.button_show);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
@@ -246,8 +340,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1_temp;
@@ -265,6 +357,14 @@
         private System.Windows.Forms.Button button_show;
         internal System.Windows.Forms.DateTimePicker datePicker2_end;
         internal System.Windows.Forms.DateTimePicker datePicker1_start;
+        private System.Windows.Forms.Button Test2_button;
+        internal System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button csChart_button;
+        internal System.Windows.Forms.RadioButton radioButton2;
+        internal System.Windows.Forms.RadioButton radioButton3;
+        internal System.Windows.Forms.RadioButton radioButton4;
+        internal System.Windows.Forms.RadioButton radioButton5;
+        public System.Windows.Forms.RadioButton radioButton1;
     }
 }
 
