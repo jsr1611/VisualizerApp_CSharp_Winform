@@ -164,7 +164,7 @@ namespace VisualizerApp_3
                         var watch2 = System.Diagnostics.Stopwatch.StartNew(); //FDP
                         //Console.WriteLine("\n\nCHECK HERE:\nLen(): {0} {1} {2} {3} {4}\n\n", DataGotten.Count, DataGotten[0].Count, DataGotten[1].Count, DataGotten[2].Count, DataGotten[3].Count);
                         string[] timeInterval = { startTime, endTime };
-                        TestForm formTest = new TestForm(DataGotten, timeInterval, IDs, whatToShow);
+                        NewChartingForm formTest = new NewChartingForm(DataGotten, timeInterval, IDs, whatToShow);
                         formTest.Show();
 
                         //ChartingForm form = new ChartingForm(timeInterval, DataGotten, IDs, whatToShow);   //send data in List<string[]> for to new winform
@@ -182,11 +182,6 @@ namespace VisualizerApp_3
 
         }
 
-        private void Test2_button_Click(object sender, EventArgs e)
-        {
-            TestForm2 newTest2 = new TestForm2();
-            newTest2.Show();
-        }
 
         private void button2_Click(object sender, EventArgs e)
         {
