@@ -98,13 +98,50 @@ namespace VisualizerApp_3
         public NewChartingForm(List<List<List<string[]>>> graphDataAll, string[] timeInterval, List<int> ids, string whatToShow)
         {
             InitializeComponent();
+            //this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+
+            //this.AutoScroll = true;
+            //this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            //this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+
+            IDs = ids;
+            WhatToShow = whatToShow;
+            List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
+            TableLayoutPanel tbpanels = new TableLayoutPanel();
+            tbpanels.Dock = DockStyle.Fill;
+            //List<Panel> panels = new List<Panel>();
             
-                
-            this.AutoScroll = true;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+
+            if(IDs.Count < 2) { 
+                tbpanels.RowCount = 1;
+                tbpanels.ColumnCount = 1;
+                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            }
+            else if (IDs.Count== 2) {
+                tbpanels.RowCount = 2; 
+                tbpanels.ColumnCount = 1;
+                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            
+            }
+            else if (IDs.Count > 2) {
+            
+                tbpanels.RowCount = 2; 
+                tbpanels.ColumnCount = 2;
+                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            }
+
+            tbpanels.Location = new System.Drawing.Point(0, 50);
+
+
+
             //List<List<List<string[]>>> graphDataAll_RT = new List<List<List<string[]>>>();
             textBox1_startTime.Text = timeInterval[0];
-            WhatToShow = whatToShow;
             if (timeInterval[1].Contains("RT") == false) {
                 textBox2_endTime.Text = timeInterval[1];
             }
@@ -117,9 +154,15 @@ namespace VisualizerApp_3
                 graphDataAll_RT.Add(myDataQuery.MyDataGetter(ids, whatToShow));
                 graphDataAll = new List<List<List<string[]>>>(graphDataAll_RT);
             }
+
+
+            
+
+
             Console.WriteLine("\n\nNumber of elements: {0}", graphDataAll.Count);
             Console.WriteLine("IDs.len: {0}", ids.Count);
-            List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
+            //List<Panel> panels = new List<Panel>();
+            //List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
             List<Label> avgLabels = new List<Label>();
             List<Label> maxLabels = new List<Label>();
             List<Label> minLabels = new List<Label>();
@@ -128,10 +171,55 @@ namespace VisualizerApp_3
             List<TextBox> minTextBoxes = new List<TextBox>();
             
             //textBox, Label, CartesianChart 등 컨트롤 생성
-            for (int i = 0; i < ids.Count; i++)
+            /*for (int i = 0; i < ids.Count; i++)
             {
-                var cartesianChart = new LiveCharts.WinForms.CartesianChart();
-                
+*/
+
+                for (int i = 0; i < tbpanels.ColumnCount; i++)
+                {
+                    for (int j = 0; j < tbpanels.RowCount; j++)
+                    {
+                    int cnt = 0;
+                    if (IDs.Count % 2 == 1 && cnt == 0) {
+                        Panel panel = new Panel();
+                        panel.BorderStyle = BorderStyle.FixedSingle;
+                        panel.Dock = DockStyle.Fill;
+
+                        tbpanels.Controls.Add(panel, i, j);
+
+                        LiveCharts.WinForms.CartesianChart cartesianChart = new LiveCharts.WinForms.CartesianChart();
+                        cartesianCharts.Add(cartesianChart);
+                        cartesianChart.Dock = DockStyle.Fill;
+
+                        panel.Controls.Add(cartesianChart);
+                        this.Controls.Add(tbpanels);
+                        cnt += 1;
+                        }
+                    else
+                    {
+                        Panel panel = new Panel();
+                        panel.BorderStyle = BorderStyle.FixedSingle;
+                        panel.Dock = DockStyle.Fill;
+
+                        tbpanels.Controls.Add(panel, i, j);
+
+                        LiveCharts.WinForms.CartesianChart cartesianChart = new LiveCharts.WinForms.CartesianChart();
+                        cartesianCharts.Add(cartesianChart);
+                        cartesianChart.Dock = DockStyle.Fill;
+
+                        panel.Controls.Add(cartesianChart);
+                        this.Controls.Add(tbpanels);
+                    }
+                        
+                    }
+                }
+
+
+
+            //var cartesianChart = new LiveCharts.WinForms.CartesianChart();
+            /*if (ids.Count <= 2) { cartesianChart.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; }
+            else { cartesianChart.Anchor = AnchorStyles.Top | AnchorStyles.Left; }*/
+            for (int i = 0; i < IDs.Count; i++) {
                 var avg_label = new Label();
                 var max_label = new Label();
                 var min_label = new Label();
@@ -139,12 +227,12 @@ namespace VisualizerApp_3
                 var avg_textbox = new TextBox();
                 var max_textbox = new TextBox();
                 var min_textbox = new TextBox();
-                
+
                 avg_label.Text = "평균";
                 max_label.Text = "최고";
                 min_label.Text = "최소";
 
-                cartesianCharts.Add(cartesianChart);
+                //cartesianCharts.Add(cartesianChart);
 
                 avgLabels.Add(avg_label);
                 maxLabels.Add(max_label);
@@ -153,7 +241,7 @@ namespace VisualizerApp_3
                 avgTextBoxes.Add(avg_textbox);
                 maxTextBoxes.Add(max_textbox);
                 minTextBoxes.Add(min_textbox);
-                
+                /*
                 this.Controls.Add(cartesianChart);
                 this.Controls.Add(avg_label);
                 this.Controls.Add(max_label);
@@ -161,48 +249,51 @@ namespace VisualizerApp_3
                 this.Controls.Add(avg_textbox);
                 this.Controls.Add(max_textbox);
                 this.Controls.Add(min_textbox);
-                
+                */
+
 
             }
+                        if (cartesianCharts.Count >= 3) {
+                            int x = 60; //543;
+                /*
+                            int y = 60;
+                            int avg_x = x+40; int avg_y = Screen.PrimaryScreen.Bounds.Height / 2 - 80;
+                            int max_x = x+310; int max_y = avg_y +5;
+                            int min_x = x+580; int min_y = avg_y +5;
 
-            if (cartesianCharts.Count >= 3) {
-                int x = 60; //543;
-                int y = 60;
-                int avg_x = x+40; int avg_y = Screen.PrimaryScreen.Bounds.Height / 2 - 60;
-                int max_x = x+310; int max_y = avg_y - 5;
-                int min_x = x+310; int min_y = avg_y + 25;
+                            for (int i = 0; i < cartesianCharts.Count; i++)
+                            {
+                                avgLabels[i].SetBounds(avg_x, avg_y, 30, 50);
+                                maxLabels[i].SetBounds(max_x, max_y, 30, 30);
+                                minLabels[i].SetBounds(min_x, min_y, 30, 30);
 
-                for (int i = 0; i < cartesianCharts.Count; i++)
-                {
-                    avgLabels[i].SetBounds(avg_x, avg_y, 30, 50);
-                    maxLabels[i].SetBounds(max_x, max_y, 30, 30);
-                    minLabels[i].SetBounds(min_x, min_y, 30, 30);
+                                avgTextBoxes[i].SetBounds(avg_x + 40, avg_y - 3, 150, 50);
+                                maxTextBoxes[i].SetBounds(max_x + 40, max_y - 4, 140, 40);
+                                minTextBoxes[i].SetBounds(min_x + 40, min_y - 4, 140, 40);
+                                avgTextBoxes[i].BorderStyle = BorderStyle.None;
+                                //avgTextBoxes[i].BackColor = Color.Transparent;
+                                //cartesianCharts[i].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width/2 - 60, Screen.PrimaryScreen.Bounds.Height/2-180);
+                                cartesianCharts[i].LegendLocation = LegendLocation.Top;
+                                //avgLabels[0].SetBounds(x+40, Screen.PrimaryScreen.Bounds.Height / 2 - 85, 100, 50);
 
-                    avgTextBoxes[i].SetBounds(avg_x + 40, avg_y - 3, 150, 50);
-                    maxTextBoxes[i].SetBounds(max_x + 40, max_y - 4, 140, 40);
-                    minTextBoxes[i].SetBounds(min_x + 40, min_y - 4, 140, 40);
-                    cartesianCharts[i].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width/2 - 60, Screen.PrimaryScreen.Bounds.Height/2-175);
-                    cartesianCharts[i].LegendLocation = LegendLocation.Top;
-                    //avgLabels[0].SetBounds(x+40, Screen.PrimaryScreen.Bounds.Height / 2 - 85, 100, 50);
-
-                    if (i == 0 || i % 2 == 0)
-                    {
-                        x += Screen.PrimaryScreen.Bounds.Width/2 - 60;
-                        avg_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
-                        max_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
-                        min_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
-                    }
-                    else {
-                        x = 60;
-                        avg_x = 100;
-                        max_x = 370;
-                        min_x = 370;
-                        max_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
-                        min_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
-                        avg_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
-                        y += Screen.PrimaryScreen.Bounds.Height/2 - 50;
-                    }
-                }
+                                if (i == 0 || i % 2 == 0)
+                                {
+                                    x += Screen.PrimaryScreen.Bounds.Width/2 - 60;
+                                    avg_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
+                                    max_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
+                                    min_x += Screen.PrimaryScreen.Bounds.Width / 2 - 60;
+                                }
+                                else {
+                                    x = 60;
+                                    avg_x = 100;
+                                    max_x = 370;
+                                    min_x = 370;
+                                    max_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
+                                    min_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
+                                    avg_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
+                                    y += Screen.PrimaryScreen.Bounds.Height/2 - 50;
+                                }
+                            }*/
             }
             else if (cartesianCharts.Count == 2)
             {
@@ -223,8 +314,7 @@ namespace VisualizerApp_3
                     maxTextBoxes[i].SetBounds(max_x + 40, max_y - 4, 150, 50);
                     minTextBoxes[i].SetBounds(min_x + 40, min_y - 4, 150, 50);
 
-                    cartesianCharts[i].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width-130,
-                    Screen.PrimaryScreen.Bounds.Height/2 - 130);
+                    //cartesianCharts[i].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width-130, Screen.PrimaryScreen.Bounds.Height/2 - 130);
                     cartesianCharts[i].LegendLocation = LegendLocation.Top;
                     y += Screen.PrimaryScreen.Bounds.Height/2 - 50;
                     
@@ -237,6 +327,8 @@ namespace VisualizerApp_3
             }
             else if (cartesianCharts.Count == 1)
             {
+                
+
                 int x = 60; //543;
                 int y = 60;
                 int avg_x = Screen.PrimaryScreen.Bounds.Width / 2 - 400; int avg_y = Screen.PrimaryScreen.Bounds.Height - 100;
@@ -251,7 +343,7 @@ namespace VisualizerApp_3
                 maxTextBoxes[0].SetBounds(max_x + 40, max_y - 4, 150, 50);
                 minTextBoxes[0].SetBounds(min_x + 40, min_y - 4, 150, 50);
 
-                cartesianCharts[0].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width - 100, Screen.PrimaryScreen.Bounds.Height - 190);
+                //cartesianCharts[0].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width - 100, Screen.PrimaryScreen.Bounds.Height - 190);
                 cartesianCharts[0].LegendLocation = LegendLocation.Top;
                 //MessageBox.Show("You have just a single chart to plot. Please implement it as a full screen chart.", "Message");
             }
@@ -261,7 +353,6 @@ namespace VisualizerApp_3
            
 
             int numOfElmnt = CountNumOfElmnt(graphDataAll, ids, whatToShow); //데이터 개수 : number of Elements(temp)
-            IDs = ids;                                                      //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
             Console.WriteLine("\n\nNumber of DataPoints: {0}", numOfElmnt);
 
             

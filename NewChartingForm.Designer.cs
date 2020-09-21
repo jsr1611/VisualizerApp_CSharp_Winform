@@ -98,17 +98,17 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // TestForm
+            // NewChartingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1309, 561);
+            this.ClientSize = new System.Drawing.Size(1344, 637);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox2_endTime);
             this.Controls.Add(this.textBox1_startTime);
             this.Controls.Add(this.label1);
-            this.Name = "TestForm";
+            this.Name = "NewChartingForm";
             this.Text = "TestForm";
             this.ResumeLayout(false);
             this.PerformLayout();
