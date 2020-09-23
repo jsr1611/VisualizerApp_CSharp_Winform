@@ -17,8 +17,13 @@ namespace VisualizerApp_3
     {
         public string startTime = "";
         public string endTime = "";
-        
+        /*public string prev_startTime;
+        public string prev_endTime;
+        public string currentSelection1;*/
+        public List<string[]> pastSelections = new List<string[]>();
+        public string[] currentSelection = new string[4];
 
+        public string whatToShow;
         public List<string> myObjectList { get; set; }
         public MainForm()
         {
@@ -30,8 +35,8 @@ namespace VisualizerApp_3
             datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm";
             datePicker2_end.Format = DateTimePickerFormat.Custom;
             datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
-           
-            // Get Device IDs and display them in CheckedListBox
+
+            // 시각화 하려는 센서 조회 및 CheckedListBox에서 선택할수 있게 표시
             try
             {
                 SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-JIMMY;Initial Catalog=SensorDataDB;Integrated Security=True");
@@ -50,172 +55,120 @@ namespace VisualizerApp_3
                     }
                     myConnection.Close();
                 }
-                for (int i = 0; i < IDs.Count; i++) { 
-                    checkedListBox1_DevicesList.Items.Add("센서 "+IDs[i].ToString());
-                }
-               /* if(checkedListBox1_DevicesList.Items.Count > 2)
+                for (int i = 0; i < IDs.Count; i++)
                 {
-                    checkedListBox1_DevicesList.Items.Add("모두 선택");
-                }*/
-                
+                    checkedListBox1_DevicesList.Items.Add("센서 " + IDs[i].ToString());
+                }
             }
-            catch(Exception ex) { MessageBox.Show(ex.Message);  }
-            
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            
-            /*
-            MyDataQuery myDataQuery = new MyDataQuery(); // Get data from SQL Server database
-            
-            myObjectList = myDataQuery.MyDataGetter(IDs, whatToShow);   // Get data - one row at a time
-
-            
-            textBox1_temp.Text = myObjectList[0];
-            textBox2_humid.Text = myObjectList[1];
-            textBox3_part03.Text = String.Format("{0:n0}", Convert.ToInt32(myObjectList[2]));
-            textBox4_part05.Text = String.Format("{0:n0}", Convert.ToInt32(myObjectList[3]));
-            */
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
 
         }
-
         /// <summary>
         /// Function to display results in form of chart for the selected time interval.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        //보기 버튼 누를 때에의 행위
         private void show_button_Click(object sender, EventArgs e)
         {
-            if(radioButton1.Checked || radioButton2.Checked || radioButton3.Checked || radioButton4.Checked || radioButton5.Checked) { 
+            if (radioButton1.Checked || radioButton2.Checked || radioButton3.Checked || radioButton4.Checked)
+            {
                 startTime = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
-                if(endTime.Contains("RT")== false) { endTime = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm"); }
+                if (endTime.Contains("RT") == false) { endTime = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm"); }
                 MyDataQuery myDataQuery = new MyDataQuery();
                 if (datePicker1_start.Value > datePicker2_end.Value && endTime.Contains("RT") == false)
                 {
                     MessageBox.Show("잘못된 날짜가 선택되었습니다. 확인해 보세요!", "에러 메시지");
                 }
-                else if(checkedListBox1_DevicesList.CheckedItems.Count < 1) { MessageBox.Show("조회할 센서가 선택되어 있지 않습니다! 최소 센서 1가지 선택하셔야 됩니다.", "에러 메시지"); }
-                else  {
+                else if (checkedListBox1_DevicesList.CheckedItems.Count < 1) { MessageBox.Show("조회할 센서가 선택되어 있지 않습니다! 최소 센서 1가지 선택하셔야 됩니다.", "에러 메시지"); }
+                else
+                {
                     if (checkedListBox1_DevicesList.CheckedItems.Count > 4) { MessageBox.Show("조회할 센서가 4개 이상 선택하셨습니다. 최대 센서 4개 까지 선택하실 수 있습니다.", "에러 메시지"); }
-                    else { 
+                    else {
                         var watch = System.Diagnostics.Stopwatch.StartNew();    //FOR DEBUGGING PURPOSE = FDP
                         List<List<List<string[]>>> DataGotten = new List<List<List<string[]>>>();
                         List<int> IDs = new List<int>();
-                        string whatToShow = "";
-                        foreach(var index in checkedListBox1_DevicesList.CheckedIndices)
-                        {
+                        whatToShow = "";
+                        foreach (var index in checkedListBox1_DevicesList.CheckedIndices) {
                             int i = (int)index + 1;
                             IDs.Add(i);
                         }
-                        if (radioButton1.Checked) {
-                            whatToShow = "temp";
-                            if (endTime.Contains("RT") == false)
-                            {
-                                List<List<string[]>> DataGotten_temp = myDataQuery.MyDataGetter(whatToShow, startTime, endTime, IDs);
-                                DataGotten.Add(DataGotten_temp);
-                            }
-                        }
-                        else if (radioButton2.Checked) {
-                            whatToShow = "humid";
-                            if (endTime.Contains("RT") == false)
-                            {
-                                List<List<string[]>> DataGotten_humid = myDataQuery.MyDataGetter(whatToShow, startTime, endTime, IDs);
-                                DataGotten.Add(DataGotten_humid);
-                            }
-                        }
-                        else if (radioButton3.Checked) {
-                            whatToShow = "part03";
-                            if (endTime.Contains("RT") == false)
-                            {
-                                List<List<string[]>> DataGotten_part03 = myDataQuery.MyDataGetter(whatToShow, startTime, endTime, IDs);
-                                DataGotten.Add(DataGotten_part03);
-                            }
-                        }
-                        else if (radioButton4.Checked)
+                        if (radioButton1.Checked) {      whatToShow = "temp";   }
+                        else if (radioButton2.Checked) { whatToShow = "humid";  }
+                        else if (radioButton3.Checked) { whatToShow = "part03"; }
+                        else if (radioButton4.Checked) { whatToShow = "part05"; }
+                        if (endTime.Contains("RT") == false)
                         {
-                            whatToShow = "part05";
-                            if (endTime.Contains("RT") == false)
-                            {
-                                List<List<string[]>> DataGotten_part05 = myDataQuery.MyDataGetter(whatToShow, startTime, endTime, IDs);
-                                DataGotten.Add(DataGotten_part05);
-                            }
+                            List<List<string[]>> DataGotten_temp = myDataQuery.MyDataGetter(whatToShow, startTime, endTime, IDs);
+                            DataGotten.Add(DataGotten_temp);
                         }
-                        else if (radioButton5.Checked)
-                        {
-                            whatToShow = "all";
-                            if (endTime.Contains("RT") == false)
-                            {
-                                List<List<string[]>> DataGotten_temp = myDataQuery.MyDataGetter("temp", startTime, endTime, IDs);
-                                List<List<string[]>> DataGotten_humid = myDataQuery.MyDataGetter("humid", startTime, endTime, IDs);
-                                List<List<string[]>> DataGotten_part03 = myDataQuery.MyDataGetter("part03", startTime, endTime, IDs);
-                                List<List<string[]>> DataGotten_part05 = myDataQuery.MyDataGetter("part05", startTime, endTime, IDs);
+
+                        /* else if (radioButton5.Checked)
+                         {
+                             whatToShow = "all";
+                             if (endTime.Contains("RT") == false)
+                             {
+                                 List<List<string[]>> DataGotten_temp = myDataQuery.MyDataGetter("temp", startTime, endTime, IDs);
+                                 List<List<string[]>> DataGotten_humid = myDataQuery.MyDataGetter("humid", startTime, endTime, IDs);
+                                 List<List<string[]>> DataGotten_part03 = myDataQuery.MyDataGetter("part03", startTime, endTime, IDs);
+                                 List<List<string[]>> DataGotten_part05 = myDataQuery.MyDataGetter("part05", startTime, endTime, IDs);
 
 
-                                DataGotten.Add(DataGotten_temp);
-                                DataGotten.Add(DataGotten_humid);
-                                DataGotten.Add(DataGotten_part03);
-                                DataGotten.Add(DataGotten_part05);
-                            }
+                                 DataGotten.Add(DataGotten_temp);
+                                 DataGotten.Add(DataGotten_humid);
+                                 DataGotten.Add(DataGotten_part03);
+                                 DataGotten.Add(DataGotten_part05);
+                             }
 
-                        }
+                         }*/
                         watch.Stop(); //FDP
-                        Console.WriteLine("SQL서버에서 데이터를 불러오는 시간: " + watch.ElapsedMilliseconds.ToString() + " "+ "ms"); //FDP
+                        Console.WriteLine("SQL서버에서 데이터를 불러오는 시간: " + watch.ElapsedMilliseconds.ToString() + " " + "ms"); //FDP
                         var watch2 = System.Diagnostics.Stopwatch.StartNew(); //FDP
-                        //Console.WriteLine("\n\nCHECK HERE:\nLen(): {0} {1} {2} {3} {4}\n\n", DataGotten.Count, DataGotten[0].Count, DataGotten[1].Count, DataGotten[2].Count, DataGotten[3].Count);
                         string[] timeInterval = { startTime, endTime };
-                        NewChartingForm formTest = new NewChartingForm(DataGotten, timeInterval, IDs, whatToShow);
-                        formTest.Show();
-
-                        //ChartingForm form = new ChartingForm(timeInterval, DataGotten, IDs, whatToShow);   //send data in List<string[]> for to new winform
-                        //form.Show(); //displaying the form in a seperate window FDP
+                        currentSelection = new string[] { startTime, endTime, whatToShow, IDs.Count.ToString() };
+                        if (EqualityChecker(pastSelections, currentSelection) == false) {
+                            MessageBox.Show("같은 장이 이미 열려 있습니다. 시간 간격, 센서 갯수 또는 데이터 구분을 다르게 선택해 보세요.", "에러 메시지");
+                        }
+                        else {
+                            NewChartingForm formTest = new NewChartingForm(DataGotten, timeInterval, IDs, whatToShow);
+                            pastSelections.Add(currentSelection);
+                            formTest.Show();
+                        }
+                        //ChartingForm chartingForm = new ChartingForm(timeInterval, DataGotten, IDs, whatToShow); // string[] timeInterval, List<List<List<string[]>>> graphDataAll, List<int> ids, string whatToShow
+                        //chartingForm.Show();
                         watch2.Stop(); //stop the stopwatch to count time spent for displaying the charts FDP
                         Console.WriteLine("시각화 하는 시간: " + watch2.ElapsedMilliseconds.ToString() + " " + "ms"); //FDP
                         Console.WriteLine("\nPlotting: {0}", whatToShow);
                     }
                 }
             }
-            else
-            {
-                MessageBox.Show("시각화 하려는 것을 선텍해주세요!", "에러 메시지");
+            else {
+                MessageBox.Show("시각화 하려는 데이터 구분을 선텍해 주세요!", "에러 메시지");
             }
-
         }
-
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-           
-            startTime = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
-            endTime = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
-            MyDataQuery myDataQuery = new MyDataQuery();
-            if (datePicker1_start.Value > datePicker2_end.Value)
-            {
-                MessageBox.Show("잘못된 날짜가 선택되었습니다. 날짜와 시간을 다시 선택해 보세요!", "에러 메시지");
+        /// <summary>
+        /// 똑같은 장이 1회 이상 열리지 않게 막는 함수.
+        /// </summary>
+        /// <param name="all"></param>
+        /// <param name="one"></param>
+        /// <returns></returns>
+        private bool EqualityChecker(List<string[]> all, string[] one) {
+            if (all.Count > 0) { 
+                for (int i = 0; i < all.Count; i++) {
+                        if (all[i][0].SequenceEqual(one[0]) && all[i][1].SequenceEqual(one[1]) && all[i][2].SequenceEqual(one[2]) && all[i][3].SequenceEqual(one[3]))
+                        {
+                            return false;
+                        }
+                }
+                return true;
             }
-            else
-            {
-                var watch = System.Diagnostics.Stopwatch.StartNew();    //FOR DEBUGGING PURPOSE = FDP
-                //List<List<string[]>> DataGotten = myDataQuery.MyDataGetter("temp", startTime, endTime);
-                watch.Stop(); //FDP
-                Console.WriteLine("SQL서버에서 데이터를 불러오는 시간: " + watch.ElapsedMilliseconds.ToString() + " " + "ms"); //FDP
-                var watch2 = System.Diagnostics.Stopwatch.StartNew(); //FDP
-                //TestForm testF = new TestForm(DataGotten, startTime, endTime);
-                //testF.Show();  //sending time and data in List<string[]> for to new winform
-                               //displaying the form in a seperate window FDP
-                watch2.Stop(); //stop the stopwatch to count time spent for displaying the charts FDP
-                Console.WriteLine("시각화 하는 시간: " + watch2.ElapsedMilliseconds.ToString() + " " + "ms"); //FDP
-
-
-            }
-
-
+            else { return true; }
         }
-
+        //간편한 시간 간격 선택 시 다른색으로 표시해 주는 함수
         private void LinkLabelVisited(int num)
         {
             LinkLabel[] linkLabels = { linkLabel0_30m, linkLabel1_1H, linkLabel2_24H, linkLabel3_1w, linkLabel4_1m, linkLabel5_RT };
-            for(int i=0; i < linkLabels.Length; i++)
+            for (int i = 0; i < linkLabels.Length; i++)
             {
                 if (i == num)
                 {
@@ -227,6 +180,7 @@ namespace VisualizerApp_3
                 }
             }
         }
+        //간편한 시간 간격 선택
         private void linkLabel0_30m_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             LinkLabelVisited(0);
@@ -260,7 +214,7 @@ namespace VisualizerApp_3
         private void linkLabel3_1w_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             LinkLabelVisited(3);
-            startTime = DateTime.Now.AddHours(-7).ToString();
+            startTime = DateTime.Now.AddDays(-7).ToString();
             datePicker1_start.Value = Convert.ToDateTime(startTime);
             endTime = DateTime.Now.ToString();
             datePicker2_end.Value = Convert.ToDateTime(endTime);
@@ -283,62 +237,18 @@ namespace VisualizerApp_3
             datePicker1_start.Value = DateTime.Now;
             datePicker2_end.Value = DateTime.Now;
             endTime = "RT";
-            
-        }
-    }
 
+        }
+
+    
+    }
+    /// <summary>
+    /// 데이터 쿼리를 위한 만든 클래스
+    /// </summary>
     public class MyDataQuery
     {
         /// <summary>
-        /// 실시간 데이터 쿼리 temp, humid, part03, part05 중 어느 하나민 return 됨
-        /// </summary>
-        /// <param name="IDs"></param>
-        /// <param name="whatToQuery"></param>
-        /// <returns></returns>
-        public virtual List<List<string[]>> MyDataGetter(List<int> IDs, string whatToQuery)
-        {
-            List<List<string[]>> DataArr = new List<List<string[]>>();
-            for (int i = 0; i < IDs.Count; i++)
-            {
-                DataArr.Add(new List<string[]>());
-            }
-            // 사용 가능한 센서 ID 조회하기
-            try
-            {
-                SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-JIMMY;Initial Catalog=SensorDataDB;Integrated Security=True");
-                string sql_temp = "";
-                for (int i = 0; i < IDs.Count; i++)
-                {
-                    if (whatToQuery.Contains("temp")) { sql_temp = "SELECT TOP 1 * FROM DEV_TEMP_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else if (whatToQuery.Contains("humid")) { sql_temp = "SELECT TOP 1 * FROM DEV_HUMID_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else if (whatToQuery.Contains("part03")) { sql_temp = "SELECT TOP 1 * FROM DEV_PART03_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else { sql_temp = "SELECT TOP 1 * FROM DEV_PART05_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                
-                    using (var cmd = new SqlCommand(sql_temp, myConnection))
-                        {
-                            myConnection.Open();
-                            using (var myReader = cmd.ExecuteReader())
-                            {
-                                while (myReader.Read())
-                                {
-                                    string[] myobj = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString()};
-                                    DataArr[i].Add(myobj);
-                                }
-                            }
-                            myConnection.Close();
-                        }
-                }
-            }
-            catch (Exception ee)
-            {
-                MessageBox.Show(ee.ToString());
-            }
-            
-            return new List<List<string[]>>(DataArr);
-        }
-
-        /// <summary>
-        /// GetData for the given period of startDate and endDate
+        /// 데이터 쿼리 함수
         /// </summary>
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
@@ -377,20 +287,12 @@ namespace VisualizerApp_3
                         }
                         myConnection.Close();
                     }
-                    //Console.WriteLine("\n For loop times: {0} {1} {2} {3} {4}\n", i, IDs[i], dev_temp_1.Count, dev_temp_2.Count, dev_temp_3.Count );
                 }
-                // 불러운 데이터들을 하나 하나 List<>에 집어넣는다. 
-                /*foreach(var item in DataArr)
-                {
-                    arr_temp2.Add(item);
-                }
-                Console.WriteLine("arr_temp2: {0} {1}", arr_temp2.Count, arr_temp2[0].Count);*/
             }
             catch (Exception ee)
             {
                 MessageBox.Show(ee.ToString());
             }
-            //arr_temp = db 퀴리 결과
             return new List<List<string[]>>(DataArr);
         }
     }

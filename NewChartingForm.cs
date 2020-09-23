@@ -1,45 +1,33 @@
 ﻿using LiveCharts;
-using LiveCharts.Configurations;
 using LiveCharts.Geared;
-using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using Axis = LiveCharts.Wpf.Axis;
-using Brushes = System.Windows.Media.Brushes;
-using Series = System.Windows.Forms.DataVisualization.Charting.Series;
 using SeriesCollection = LiveCharts.SeriesCollection;
-
 namespace VisualizerApp_3
 {
-
     public partial class NewChartingForm : Form
     {
         public NewChartingForm() { }
         /// <summary>
         /// 시각화되는 센서들의 ID를 가지고 있는 배열
         /// </summary>
-        public GearedValues<string> timeVal = new GearedValues<string>();
-        public List<GearedValues<double>> dblVals = new List<GearedValues<double>>();
-        public List<GearedValues<Int64>> intVals = new List<GearedValues<Int64>>();
-        public List<List<List<string[]>>> graphDataAll_RT = new List<List<List<string[]>>>();
-        List<List<string[]>> data_RT;
-
+        public GearedValues<string> timeVal = new GearedValues<string>(); // 시간 데이터를 위한 배열 생성
+        public List<GearedValues<double>> dblVals = new List<GearedValues<double>>(); // double 형식의 데이터를 위한 nested 배열 생성
+        public List<GearedValues<Int64>> intVals = new List<GearedValues<Int64>>(); // int 형식의 데이터를 위한 nested 배열 생성
+        public List<List<List<string[]>>> graphDataAll_RT = new List<List<List<string[]>>>(); // 실시간 데이터를 위한 임시 nested 배열 생성
+        List<List<string[]>> data_RT; // 실시간 데이터를 위한 nested 배열
+        /// <summary>
+        /// 센서들의 ID를 가지고 있는 배열
+        /// </summary>
         public List<int> IDs { get; set; }
         /// <summary>
         /// 호출되는 센서 데이터: 온도, 습도, 파티클(0.3), 파티클(0.5)중에서 어느 하나 또는 모두
         /// </summary>
         public string WhatToShow { get; set; }
-
         /// <summary>
         /// x axis에 string형식인 시간 값을 추가해 주는 함수. 
         /// </summary>
@@ -98,50 +86,49 @@ namespace VisualizerApp_3
         public NewChartingForm(List<List<List<string[]>>> graphDataAll, string[] timeInterval, List<int> ids, string whatToShow)
         {
             InitializeComponent();
-            //this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
-            //this.AutoScroll = true;
-            //this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            //this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-
-            IDs = ids;
-            WhatToShow = whatToShow;
+            IDs = ids; // 시각화 하려는 센서들의 ID가 들어가 있는 배열
+            WhatToShow = whatToShow; // 시각화 하려는 데이터 구분(온습도 또는 파티클)
             List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
-            TableLayoutPanel tbpanels = new TableLayoutPanel();
-            tbpanels.Dock = DockStyle.Fill;
-            //List<Panel> panels = new List<Panel>();
-            
+            Panel headerPanel = new Panel(); // 해더 패널 생성 및 주소 지정, 이 패널에 관련 콘트롤 추가
+            headerPanel.Dock = DockStyle.Top; 
+            headerPanel.SetBounds(0, 0, this.Bounds.Width, 30);
+            headerPanel.Controls.Add(label1_selectedTimeInter);
+            headerPanel.Controls.Add(textBox1_startTime);
+            headerPanel.Controls.Add(label2_from);
+            headerPanel.Controls.Add(textBox2_endTime);
+            headerPanel.Controls.Add(label3_upto);
+            this.Controls.Add(headerPanel); 
+            TableLayoutPanel tbpanel = new TableLayoutPanel(); //테이블레이아웃패널 생성
+            tbpanel.Dock = DockStyle.Fill;
+            tbpanel.BringToFront();
 
-            if(IDs.Count < 2) { 
-                tbpanels.RowCount = 1;
-                tbpanels.ColumnCount = 1;
-                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            if (IDs.Count < 2) {
+                tbpanel.RowCount = 1;
+                tbpanel.ColumnCount = 1;
+                tbpanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             }
             else if (IDs.Count== 2) {
-                tbpanels.RowCount = 2; 
-                tbpanels.ColumnCount = 1;
-                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowCount = 2; 
+                tbpanel.ColumnCount = 1;
+                tbpanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             
             }
             else if (IDs.Count > 2) {
             
-                tbpanels.RowCount = 2; 
-                tbpanels.ColumnCount = 2;
-                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tbpanels.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowCount = 2; 
+                tbpanel.ColumnCount = 2;
+                tbpanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                tbpanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             }
 
-            tbpanels.Location = new System.Drawing.Point(0, 50);
-
-
-
-            //List<List<List<string[]>>> graphDataAll_RT = new List<List<List<string[]>>>();
             textBox1_startTime.Text = timeInterval[0];
+            //실시간 시각화 구분, if문은 시간 간격 시각화, else문은 실시간 시각화
             if (timeInterval[1].Contains("RT") == false) {
                 textBox2_endTime.Text = timeInterval[1];
             }
@@ -150,19 +137,11 @@ namespace VisualizerApp_3
                 timer1.Enabled = true;
                 timer1.Start();
                 textBox2_endTime.Text = "현재";
-                MyDataQuery myDataQuery = new MyDataQuery();
-                graphDataAll_RT.Add(myDataQuery.MyDataGetter(ids, whatToShow));
+                graphDataAll_RT.Add(MyDataGetter(ids, whatToShow));
                 graphDataAll = new List<List<List<string[]>>>(graphDataAll_RT);
             }
 
-
-            
-
-
             Console.WriteLine("\n\nNumber of elements: {0}", graphDataAll.Count);
-            Console.WriteLine("IDs.len: {0}", ids.Count);
-            //List<Panel> panels = new List<Panel>();
-            //List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
             List<Label> avgLabels = new List<Label>();
             List<Label> maxLabels = new List<Label>();
             List<Label> minLabels = new List<Label>();
@@ -171,13 +150,9 @@ namespace VisualizerApp_3
             List<TextBox> minTextBoxes = new List<TextBox>();
             
             //textBox, Label, CartesianChart 등 컨트롤 생성
-            /*for (int i = 0; i < ids.Count; i++)
-            {
-*/
-
-                for (int i = 0; i < tbpanels.ColumnCount; i++)
+            for (int i = 0; i < tbpanel.ColumnCount; i++)
                 {
-                    for (int j = 0; j < tbpanels.RowCount; j++)
+                    for (int j = 0; j < tbpanel.RowCount; j++)
                     {
                     int cnt = 0;
                     if (IDs.Count % 2 == 1 && cnt == 0) {
@@ -185,14 +160,14 @@ namespace VisualizerApp_3
                         panel.BorderStyle = BorderStyle.FixedSingle;
                         panel.Dock = DockStyle.Fill;
 
-                        tbpanels.Controls.Add(panel, i, j);
+                        tbpanel.Controls.Add(panel, i, j);
 
                         LiveCharts.WinForms.CartesianChart cartesianChart = new LiveCharts.WinForms.CartesianChart();
                         cartesianCharts.Add(cartesianChart);
                         cartesianChart.Dock = DockStyle.Fill;
 
                         panel.Controls.Add(cartesianChart);
-                        this.Controls.Add(tbpanels);
+                        this.Controls.Add(tbpanel);
                         cnt += 1;
                         }
                     else
@@ -201,24 +176,18 @@ namespace VisualizerApp_3
                         panel.BorderStyle = BorderStyle.FixedSingle;
                         panel.Dock = DockStyle.Fill;
 
-                        tbpanels.Controls.Add(panel, i, j);
+                        tbpanel.Controls.Add(panel, i, j);
 
                         LiveCharts.WinForms.CartesianChart cartesianChart = new LiveCharts.WinForms.CartesianChart();
                         cartesianCharts.Add(cartesianChart);
                         cartesianChart.Dock = DockStyle.Fill;
 
                         panel.Controls.Add(cartesianChart);
-                        this.Controls.Add(tbpanels);
+                        this.Controls.Add(tbpanel);
                     }
                         
                     }
                 }
-
-
-
-            //var cartesianChart = new LiveCharts.WinForms.CartesianChart();
-            /*if (ids.Count <= 2) { cartesianChart.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; }
-            else { cartesianChart.Anchor = AnchorStyles.Top | AnchorStyles.Left; }*/
             for (int i = 0; i < IDs.Count; i++) {
                 var avg_label = new Label();
                 var max_label = new Label();
@@ -253,8 +222,8 @@ namespace VisualizerApp_3
 
 
             }
-                        if (cartesianCharts.Count >= 3) {
-                            int x = 60; //543;
+            if (cartesianCharts.Count >= 3) {
+                            //cartesianChart.LegendLocation = LegendLocation.Bottom;
                 /*
                             int y = 60;
                             int avg_x = x+40; int avg_y = Screen.PrimaryScreen.Bounds.Height / 2 - 80;
@@ -315,7 +284,7 @@ namespace VisualizerApp_3
                     minTextBoxes[i].SetBounds(min_x + 40, min_y - 4, 150, 50);
 
                     //cartesianCharts[i].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width-130, Screen.PrimaryScreen.Bounds.Height/2 - 130);
-                    cartesianCharts[i].LegendLocation = LegendLocation.Top;
+                    //cartesianCharts[i].LegendLocation = LegendLocation.Top;
                     y += Screen.PrimaryScreen.Bounds.Height/2 - 50;
                     
                     avg_y += Screen.PrimaryScreen.Bounds.Height / 2 - 50;
@@ -344,20 +313,16 @@ namespace VisualizerApp_3
                 minTextBoxes[0].SetBounds(min_x + 40, min_y - 4, 150, 50);
 
                 //cartesianCharts[0].SetBounds(x, y, Screen.PrimaryScreen.Bounds.Width - 100, Screen.PrimaryScreen.Bounds.Height - 190);
-                cartesianCharts[0].LegendLocation = LegendLocation.Top;
+                //cartesianCharts[0].LegendLocation = LegendLocation.Top;
                 //MessageBox.Show("You have just a single chart to plot. Please implement it as a full screen chart.", "Message");
             }
 
-
-            //////////////////////////////////////////////////////
-           
-
             int numOfElmnt = CountNumOfElmnt(graphDataAll, ids, whatToShow); //데이터 개수 : number of Elements(temp)
             Console.WriteLine("\n\nNumber of DataPoints: {0}", numOfElmnt);
-
             
-            double[][] tempDblVals = new double[IDs.Count][];
-            Int64[][] tempIntVals = new Int64[IDs.Count][];
+            double[][] tempDblVals = new double[IDs.Count][]; // double형식의 데이터를 위한 임시 배열 생성
+            Int64[][] tempIntVals = new Int64[IDs.Count][];   // int형식의 데이터를 위한 임시 배열 생성
+            //실제 배열 생성
             for (int i = 0; i < IDs.Count; i++)
             {
                 dblVals.Add(new GearedValues<double>());
@@ -370,7 +335,7 @@ namespace VisualizerApp_3
             // 차트 Legend 주소 설정하기
             for (int i = 0; i < IDs.Count; i++)
             {
-                cartesianCharts[i].LegendLocation = LegendLocation.Top;
+                cartesianCharts[i].LegendLocation = LegendLocation.Bottom;
             }
 
             var tempTimeVal1 = new string[numOfElmnt];
@@ -421,14 +386,12 @@ namespace VisualizerApp_3
             Console.WriteLine("\n\nNumber of elem2plot: {0} {1} ", dblVals[0].Count, dblVals.Count);
 
             //dblVals 및 intVals 배열에 쌓아있는 데이터를 해당 차트의 Y axis Values 부분에 추가하기
-            if (whatToShow.Contains("temp"))
-            {
+            if (whatToShow.Contains("temp")) {
                 this.Text = "온도 시각화 화면";
                 List<double> avgDbl = Avg(dblVals);
                 List<double> maxDbl = Max(dblVals);
                 List<double> minDbl = Min(dblVals);
-                for (int i = 0; i < IDs.Count; i++)
-                {
+                for (int i = 0; i < IDs.Count; i++) {
                     avgTextBoxes[i].Text = Math.Round(avgDbl[i], 2).ToString() + " °C";
                     maxTextBoxes[i].Text = Math.Round(maxDbl[i], 2).ToString() + " °C";
                     minTextBoxes[i].Text = Math.Round(minDbl[i], 2).ToString() + " °C";
@@ -619,7 +582,11 @@ namespace VisualizerApp_3
             }
             return MaxArr;
         }
-
+        /// <summary>
+        /// double 형식의 데이터의 최소 값을 계산하는 함수
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public List<double> Min(List<GearedValues<double>> data)
         {
             List<double> MinArr = new List<double>();
@@ -638,6 +605,11 @@ namespace VisualizerApp_3
             }
             return MinArr;
         }
+        /// <summary>
+        /// int 형식의 데이터의 최소 값을 계산하는 함수
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public List<Int64> Min(List<GearedValues<Int64>> data)
         {
             List<Int64> MinArr = new List<Int64>();
@@ -656,6 +628,12 @@ namespace VisualizerApp_3
             }
             return MinArr;
         }
+        /// <summary>
+        /// 실시간 데이터 쿼리를 위한 쿼리 함수
+        /// </summary>
+        /// <param name="IDs"></param>
+        /// <param name="whatToQuery"></param>
+        /// <returns></returns>
         public List<List<string[]>> MyDataGetter(List<int> IDs, string whatToQuery)
         {
             List<List<string[]>> DataArr = new List<List<string[]>>();
@@ -697,44 +675,28 @@ namespace VisualizerApp_3
 
             return new List<List<string[]>>(DataArr);
         }
+        /// <summary>
+        /// 실시간 시각화를 위한 타이머 세팅. 1초 시간 간격
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //MyDataQuery myDataQuery2 = new MyDataQuery();
             data_RT = MyDataGetter(IDs, WhatToShow);
-            //graphDataAll = new List<List<List<string[]>>>(graphDataAll_RT);
-
-            //tempDefTemp[i] = 21;
             timeVal.Add(Convert.ToString(data_RT[0][0][1]));
 
-                //tempTempVal1[i] = Math.Round(Convert.ToSingle(graphData_temp[0][i][0]), 2);
-
-                for (int index = 0; index < IDs.Count; index++)
-                {
-                    if (WhatToShow.Contains("temp") || WhatToShow.Contains("humid"))
-                    {
+                for (int index = 0; index < IDs.Count; index++) {
+                    if (WhatToShow.Contains("temp") || WhatToShow.Contains("humid")) {
                         if (dblVals[index].Count > 1000 || dblVals[index][0] == 0) { dblVals[index].RemoveAt(0); }
                         dblVals[index].Add(Math.Round(Convert.ToSingle(data_RT[index][0][0]), 2));
-
                     }
-                    else
-                    {
+                    else {
                         if (intVals[index].Count > 1000 || intVals[index][0] == 0) { intVals[index].RemoveAt(0); }
                         intVals[index].Add(Int64.Parse(data_RT[index][0][0], NumberStyles.Any, new CultureInfo("en-au")));
-
                     }
-
                 }
-
-            timer1.Interval = 1000;
+            timer1.Interval = 1000; //1초 시간 간격 
         }
     }
 }
-
-
-
-    public class DateModel
-    {
-        public System.DateTime DateTime { get; set; }
-        public double Value { get; set; }
-    }
 

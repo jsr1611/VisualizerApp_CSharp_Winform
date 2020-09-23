@@ -17,11 +17,6 @@ namespace VisualizerApp_3
 {
     public partial class ChartingForm : Form
     {
-        public MainForm ParentFormm { get; set; }
-        /// <summary>
-        /// 시각화되는 데이터를 가지고 있는 배열
-        /// </summary>
-        public List<List<string[]>> GraphData { get; set; }
         /// <summary>
         /// 시각화되는 센서들의 ID를 가지고 있는 배열
         /// </summary>
@@ -30,9 +25,7 @@ namespace VisualizerApp_3
         /// 호출되는 센서 데이터: 온도, 습도, 파티클(0.3), 파티클(0.5)중에서 어느 하나 또는 모두
         /// </summary>
         public string WhatToShow { get; set; }
-
-        // 기본 컨스트럭터
-        public ChartingForm() { }
+        public ChartingForm() { } // 기본 컨스트럭터
 
         /// <summary>
         /// x axis에 string형식인 시간 값을 추가해 주는 함수. 
@@ -112,133 +105,114 @@ namespace VisualizerApp_3
             int numOfElmnt = CountNumOfElmnt(graphDataAll, ids, whatToShow); //데이터 개수 : number of Elements(temp)
             IDs = ids;                                                      //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
             Console.WriteLine("\n\nNumber of DataPoints: {0}", numOfElmnt);
-            
-            var timeVal = new GearedValues<string>();
-
-            var dblVals = new List<GearedValues<double>>();
-            var intVals = new List<GearedValues<Int64>>();
-            double[][] tempDblVals = new double[IDs.Count][];
-            Int64[][] tempIntVals = new Int64[IDs.Count][];
-            for (int i=0; i<IDs.Count; i++)
-            {
+            var timeVal = new GearedValues<string>(); //시간 데이터를 위한 배열
+            var dblVals = new List<GearedValues<double>>(); // double형식의 데이터를 위한 nested배열
+            var intVals = new List<GearedValues<Int64>>(); //int형식의 데이터를 위한 nested배열
+            double[][] tempDblVals = new double[IDs.Count][]; //double형식의 데이터를 위한 nested임시 배열
+            Int64[][] tempIntVals = new Int64[IDs.Count][]; ////int형식의 데이터를 위한 임시 nested배열
+            //각 데이터를 위한 실제 배열
+            for (int i=0; i<IDs.Count; i++){
                 dblVals.Add(new GearedValues<double>());
                 intVals.Add(new GearedValues<Int64>());
                 tempDblVals[i] = new double[numOfElmnt];
                 tempIntVals[i] = new Int64[numOfElmnt];
             }
 
-            //var defaultTemp = new GearedValues<double>();
-
-            for (int i = 0; i < IDs.Count; i++)
-            {
+            //차트의 legend 주소 지정
+            for (int i = 0; i < IDs.Count; i++){
                 cartesianCharts[i].LegendLocation = LegendLocation.Top;
             }
 
-            var tempTimeVal1 = new string[numOfElmnt];
+            var tempTimeVal1 = new string[numOfElmnt]; // 시간 데이터를 위한 임시 배열
 
-            //var tempDefTemp = new double[numOfElmnt];
             Console.WriteLine("서버에서 불러오는 데이터 (행) 수량 (=Number of Rows Retrieved): " + numOfElmnt.ToString() + "개 행");
+            //실제 데이터를 차트의 임시 배열에 추가하기(추가 대신 배열 값 변경) :임시 배열 사용 이유: 속도
             for (int i = 0; i < numOfElmnt; i++)
             {
-                //tempDefTemp[i] = 21;
                 tempTimeVal1[i] = Convert.ToString(graphDataAll[0][0][i][1]);
-
-                //tempTempVal1[i] = Math.Round(Convert.ToSingle(graphData_temp[0][i][0]), 2);
-
-                for (int index = 0; index < IDs.Count; index++)
-                {
-                    if (whatToShow.Contains("temp") || whatToShow.Contains("humid"))
-                    {
+                for (int index = 0; index < IDs.Count; index++) {
+                    if (whatToShow.Contains("temp") || whatToShow.Contains("humid")) {
                         tempDblVals[index][i] = Math.Round(Convert.ToSingle(graphDataAll[0][index][i][0]), 2);
                     }
-                    else
-                    {
+                    else {
                         tempIntVals[index][i] = Int64.Parse(graphDataAll[0][index][i][0], NumberStyles.Any, new CultureInfo("en-au"));
-
                     }
                 }
             }
             Console.WriteLine("\n\n Num: {0} {1} \n", tempIntVals[0].Length, intVals.Count);
             //defaultTemp.AddRange(tempDefTemp);
+            //실제 데이터를 차트의 Values부분에 추가하기
             timeVal.AddRange(tempTimeVal1);
-            for (int index = 0; index < IDs.Count; index++)
-            {
-                if (whatToShow.Contains("temp") || whatToShow.Contains("humid"))
-                {
+            for (int index = 0; index < IDs.Count; index++) {
+                if (whatToShow.Contains("temp") || whatToShow.Contains("humid")) {
                     dblVals[index].AddRange(tempDblVals[index]);
-
                 }
-                else
-                {
+                else {
                     intVals[index].AddRange(tempIntVals[index]);
                 }
-
             }
             Console.WriteLine("\n\nNumber of elem2plot: {0} {1} ", dblVals[0].Count, dblVals.Count);
             
-            
-            if (whatToShow.Contains("temp"))
-            {
+            // 실제 시각화를 하는 부분
+            if (whatToShow.Contains("temp")) {
                 List<double> avgDbl = Avg(dblVals);
                 List<double> maxDbl = Max(dblVals);
                 List<double> minDbl = Min(dblVals);
-                for (int i = 0; i < IDs.Count; i++)
-                {
+                for (int i = 0; i < IDs.Count; i++) {
                     textboxes_avg[i].Text = Math.Round(avgDbl[i], 2).ToString() + " °C";
                     textboxes_max[i].Text = Math.Round(maxDbl[i], 2).ToString() + " °C";
                     textboxes_min[i].Text = Math.Round(minDbl[i], 2).ToString() + " °C";
                     yAxisFuncTmpHmd(cartesianCharts[i], "온도센서 (°C) " + IDs[i].ToString(), dblVals[i]);
                 }
             }
-            else if (whatToShow.Contains("humid"))
-            {
+            else if (whatToShow.Contains("humid")) {
                 List<double> avgDbl = Avg(dblVals);
                 List<double> maxDbl = Max(dblVals);
                 List<double> minDbl = Min(dblVals);
-                for (int i = 0; i < IDs.Count; i++)
-                {
-                    textboxes_avg[i].Text = Math.Round(avgDbl[i], 2).ToString("{0:n0}") + " %";
-                    textboxes_avg[i].Text = Math.Round(avgDbl[i], 2).ToString("{0:n0}") + " %";
-                    textboxes_min[i].Text = Math.Round(minDbl[i], 2).ToString("{0:n0}") + " %";
+                for (int i = 0; i < IDs.Count; i++) {
+                    textboxes_avg[i].Text = Math.Round(avgDbl[i], 2).ToString() + " %";
+                    textboxes_max[i].Text = Math.Round(maxDbl[i], 2).ToString() + " %";
+                    textboxes_min[i].Text = Math.Round(minDbl[i], 2).ToString() + " %";
                     yAxisFuncTmpHmd(cartesianCharts[i], "습도센서 (%) " + IDs[i].ToString(), dblVals[i]);
                 }
             }
-            else if (whatToShow.Contains("part03"))
-            {
+            else if (whatToShow.Contains("part03")) {
                 List<Int64> avgInt = Avg(intVals);
                 List<Int64> maxInt = Max(intVals);
                 List<Int64> minInt = Min(intVals);
-                for (int i = 0; i < IDs.Count; i++)
-                {
+                for (int i = 0; i < IDs.Count; i++) {
                     textboxes_avg[i].Text = String.Format("{0:n0}", avgInt[i]) + " 0.3μm";
                     textboxes_max[i].Text = String.Format("{0:n0}", maxInt[i]) + " 0.3μm";
                     textboxes_min[i].Text = String.Format("{0:n0}", minInt[i]) + " 0.3μm";
                     yAxisFuncPcl(cartesianCharts[i], "파티클센서 (0.3μm) " + IDs[i].ToString(), intVals[i]);
                 }
             }
-            else if (whatToShow.Contains("part05"))
-            {
+            else if (whatToShow.Contains("part05")) {
                 List<Int64> avgInt = Avg(intVals);
                 List<Int64> maxInt = Max(intVals);
                 List<Int64> minInt = Min(intVals);
-                for (int i = 0; i < IDs.Count; i++)
-                {
+                for (int i = 0; i < IDs.Count; i++) {
                     textboxes_avg[i].Text = String.Format("{0:n0}", avgInt[i]) + " 0.5μm";
                     textboxes_max[i].Text = String.Format("{0:n0}", maxInt[i]) + " 0.5μm";
                     textboxes_min[i].Text = String.Format("{0:n0}", minInt[i]) + " 0.5μm";
                     yAxisFuncPcl(cartesianCharts[i], "파티클센서 (0.5μm) " + IDs[i].ToString(), intVals[i]);
                 }
             }
-            else
-            {
-                MessageBox.Show("Currently this feature is under construction. ");
+            else {
+                MessageBox.Show("아직 구현이 안 된 부분입니다. 에러가 발생했습니다. ");
             }
-            for (int i = 0; i < IDs.Count; i++)
-            {
+            for (int i = 0; i < IDs.Count; i++) {
                 xAxesFunc(cartesianCharts[i], timeVal);
             }
-            Console.WriteLine("Finished");
+            Console.WriteLine("작업 끝");
         }
+        /// <summary>
+        /// 시각화 되는 데이터 갯수를 계산해 주는 함수
+        /// </summary>
+        /// <param name="datalist"></param>
+        /// <param name="IDs"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public int CountNumOfElmnt(List<List<List<string[]>>> datalist, List<int> IDs, string flag)
         {
             if (flag.Contains("all"))
@@ -260,8 +234,7 @@ namespace VisualizerApp_3
                 }
                 return numOfElmnt;
             }
-            else
-            {
+            else {
                 int numOfElmnt = datalist[0][0].Count; // 데이터 개수 : number of Elements(temp, humid, part03, part05)
                 //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
                 for (int ind = 0; ind < IDs.Count; ind++)
@@ -275,6 +248,7 @@ namespace VisualizerApp_3
                 return numOfElmnt;
             }
         }
+        // 평균값, 최고 값, 그리고 최소 값을 계산해 주는 함수들.
         public List<double> Avg(List<GearedValues<double>> data)
         {
             List<double> AvgArr = new List<double>();
@@ -343,7 +317,6 @@ namespace VisualizerApp_3
             }
             return MaxArr;
         }
-        
         public List<double> Min(List<GearedValues<double>> data)
         {
             List<double> MinArr = new List<double>();
@@ -380,23 +353,21 @@ namespace VisualizerApp_3
             }
             return MinArr;
         }
-
     }
 }
 
 
 
-/*
-    new GStepLineSeries
-    {
-        Stroke = System.Windows.Media.Brushes.Red,
-        StrokeThickness = 1,
-        Fill = System.Windows.Media.Brushes.Transparent,
-        Title = "최고 임계치",
-        Values = defaultHumid,
-    }
-            
-*/
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -804,3 +775,15 @@ else if (whatToShow.Contains("all"))
 
         }
             */
+
+/*
+    new GStepLineSeries
+    {
+        Stroke = System.Windows.Media.Brushes.Red,
+        StrokeThickness = 1,
+        Fill = System.Windows.Media.Brushes.Transparent,
+        Title = "최고 임계치",
+        Values = defaultHumid,
+    }
+            
+*/
