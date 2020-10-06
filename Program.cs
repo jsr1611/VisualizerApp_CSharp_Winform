@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VisualizerApp_3;
 
-namespace VisualizerApp_3
+namespace VisualizerApp
 {
     static class Program
     {

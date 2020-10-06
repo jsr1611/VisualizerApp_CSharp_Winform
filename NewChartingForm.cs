@@ -3,11 +3,12 @@ using LiveCharts.Geared;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using Axis = LiveCharts.Wpf.Axis;
 using SeriesCollection = LiveCharts.SeriesCollection;
-namespace VisualizerApp_3
+namespace VisualizerApp
 {
     public partial class NewChartingForm : Form
     {
@@ -23,11 +24,11 @@ namespace VisualizerApp_3
         /// <summary>
         /// 센서들의 ID를 가지고 있는 배열
         /// </summary>
-        public List<int> IDs { get; set; }
+        public List<int> IDs;
         /// <summary>
         /// 호출되는 센서 데이터: 온도, 습도, 파티클(0.3), 파티클(0.5)중에서 어느 하나 또는 모두
         /// </summary>
-        public string WhatToShow { get; set; }
+        public string WhatToShow;
         /// <summary>
         /// x axis에 string형식인 시간 값을 추가해 주는 함수. 
         /// </summary>
@@ -86,7 +87,7 @@ namespace VisualizerApp_3
         public NewChartingForm(List<List<List<string[]>>> graphDataAll, string[] timeInterval, List<int> ids, string whatToShow)
         {
             InitializeComponent();
-
+            //this.Location = new Point(MainForm.ActiveForm.Bounds.Width, 0);
             IDs = ids; // 시각화 하려는 센서들의 ID가 들어가 있는 배열
             WhatToShow = whatToShow; // 시각화 하려는 데이터 구분(온습도 또는 파티클)
             List<LiveCharts.WinForms.CartesianChart> cartesianCharts = new List<LiveCharts.WinForms.CartesianChart>();
@@ -141,7 +142,6 @@ namespace VisualizerApp_3
                 graphDataAll = new List<List<List<string[]>>>(graphDataAll_RT);
             }
 
-            Console.WriteLine("\n\nNumber of elements: {0}", graphDataAll.Count);
             List<Label> avgLabels = new List<Label>();
             List<Label> maxLabels = new List<Label>();
             List<Label> minLabels = new List<Label>();
@@ -318,8 +318,6 @@ namespace VisualizerApp_3
             }
 
             int numOfElmnt = CountNumOfElmnt(graphDataAll, ids, whatToShow); //데이터 개수 : number of Elements(temp)
-            Console.WriteLine("\n\nNumber of DataPoints: {0}", numOfElmnt);
-            
             double[][] tempDblVals = new double[IDs.Count][]; // double형식의 데이터를 위한 임시 배열 생성
             Int64[][] tempIntVals = new Int64[IDs.Count][];   // int형식의 데이터를 위한 임시 배열 생성
             //실제 배열 생성
@@ -339,9 +337,8 @@ namespace VisualizerApp_3
             }
 
             var tempTimeVal1 = new string[numOfElmnt];
-
             //var tempDefTemp = new double[numOfElmnt];
-            Console.WriteLine("서버에서 불러오는 데이터 (행) 수량 (=Number of Rows Retrieved): " + numOfElmnt.ToString() + "개 행");
+            Console.WriteLine("서버에서 불러오는 데이터 (행) 수량 (=Number of Rows Retrieved): {0}개 행 * {1}개 센서 = {2}", numOfElmnt, IDs.Count, numOfElmnt*IDs.Count);
             //실시간이 아닌 시간 간격 선택 시 불러운 데이터를 임시 배열에 담기기 //임시 배열 사용이유: 속도
             if (timeInterval[1].Contains("RT") == false)
             {
@@ -367,7 +364,6 @@ namespace VisualizerApp_3
                 }
                 timeVal.AddRange(tempTimeVal1);
             }
-            Console.WriteLine("\n\n Num: {0} {1} \n", tempIntVals[0].Length, intVals.Count);
             //defaultTemp.AddRange(tempDefTemp);
             // 임시 배열에 있는 데이터를 dblVals 및 intVals (실제) 배열에 한번에 담기기
             for (int index = 0; index < IDs.Count; index++)
@@ -381,11 +377,8 @@ namespace VisualizerApp_3
                 {
                     intVals[index].AddRange(tempIntVals[index]);
                 }
-
+                xAxesFunc(cartesianCharts[index], timeVal);
             }
-            Console.WriteLine("\n\nNumber of elem2plot: {0} {1} ", dblVals[0].Count, dblVals.Count);
-
-            //dblVals 및 intVals 배열에 쌓아있는 데이터를 해당 차트의 Y axis Values 부분에 추가하기
             if (whatToShow.Contains("temp")) {
                 this.Text = "온도 시각화 화면";
                 List<double> avgDbl = Avg(dblVals);
@@ -443,13 +436,13 @@ namespace VisualizerApp_3
             //모두 시각화 기능, 아직 작업중임.
             else
             {
-                MessageBox.Show("Currently this feature is under construction. ");
+                MessageBox.Show("Currently this feature is not implemented. ", "에러 매시지");
             }
             //timeVal 배열에 있는 데이터를 해당 차트의 X axis Values 부분에 추가하기 
-            for (int i = 0; i < IDs.Count; i++)
+           /* for (int i = 0; i < IDs.Count; i++)
             {
                 xAxesFunc(cartesianCharts[i], timeVal);
-            }
+            }*/
             Console.WriteLine("Finished");
         }
 
@@ -512,7 +505,7 @@ namespace VisualizerApp_3
                     total += data[h][i];
                 }
                 AvgArr.Add(total / data[h].Count);
-                Console.WriteLine("\nAvgDbl[{0}]: {1}", h, total / data[h].Count);
+                //Console.WriteLine("\nAvgDbl[{0}]: {1}", h, total / data[h].Count);
             }
             return AvgArr;
         }
@@ -532,7 +525,7 @@ namespace VisualizerApp_3
                     total += data[h][i];
                 }
                 AvgArr.Add(total / data[h].Count);
-                Console.WriteLine("\nAvgInt[{0}]: {1}", h, total / data[h].Count);
+                //Console.WriteLine("\nAvgInt[{0}]: {1}", h, total / data[h].Count);
             }
             return AvgArr;
         }
@@ -555,7 +548,7 @@ namespace VisualizerApp_3
                     }
                 }
                 MaxArr.Add(max);
-                Console.WriteLine("\nMaxDbl[{0}]: {1}", h, max);
+                //Console.WriteLine("\nMaxDbl[{0}]: {1}", h, max);
             }
             return MaxArr;
         }
@@ -578,7 +571,7 @@ namespace VisualizerApp_3
                     }
                 }
                 MaxArr.Add(max);
-                Console.WriteLine("\nMaxDbl[{0}]: {1}", h, max);
+                //Console.WriteLine("\nMaxDbl[{0}]: {1}", h, max);
             }
             return MaxArr;
         }
@@ -601,7 +594,7 @@ namespace VisualizerApp_3
                     }
                 }
                 MinArr.Add(min);
-                Console.WriteLine("\nMaxDbl[{0}]: {1}", h, min);
+               // Console.WriteLine("\nMaxDbl[{0}]: {1}", h, min);
             }
             return MinArr;
         }
@@ -624,7 +617,7 @@ namespace VisualizerApp_3
                     }
                 }
                 MinArr.Add(min);
-                Console.WriteLine("\nMaxDbl[{0}]: {1}", h, min);
+               // Console.WriteLine("\nMaxDbl[{0}]: {1}", h, min);
             }
             return MinArr;
         }
@@ -637,42 +630,55 @@ namespace VisualizerApp_3
         public List<List<string[]>> MyDataGetter(List<int> IDs, string whatToQuery)
         {
             List<List<string[]>> DataArr = new List<List<string[]>>();
+            string sql_name = ""; // 데이터 변수명 
+
+            if (whatToQuery.Contains("temp")) { sql_name = "Temperature"; }
+            else if (whatToQuery.Contains("humid")) { sql_name = "Humidity"; }
+            else if (whatToQuery.Contains("part03")) { sql_name = "Particle03"; }
+            else { sql_name = "Particle05"; }
+            
+            string sql_head = "select sensor_id, " + sql_name + ", dateandtime from( "; 
+            string sql_connector = " union all "; // 테이블 연결하는 것
+            string sql_tail = " )a";
+
+            for (int i = 0; i < IDs.Count; i++) {
+                sql_head += "select " + IDs[i].ToString() + " as sensor_id, " + sql_name + ", dateandtime from dev_" + whatToQuery + "_" + IDs[i].ToString() + " where dateandtime = (select max(dateandtime) from dev_" + whatToQuery + "_" + IDs[i].ToString() + ") ";
+                if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+            }
+            sql_head += sql_tail;
+
+            Console.WriteLine("sql_temp0" + sql_head);
             for (int i = 0; i < IDs.Count; i++)
             {
                 DataArr.Add(new List<string[]>());
             }
+
             // 사용 가능한 센서 ID 조회하기
             try
             {
-                SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-JIMMY;Initial Catalog=SensorDataDB;Integrated Security=True");
-                string sql_temp = "";
-                for (int i = 0; i < IDs.Count; i++)
+                //SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-DLIT\SQLEXPRESS;Initial Catalog=SensorDataDB;Integrated Security=True");
+                SqlConnection myConnection = new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
+                myConnection.Open();
+                
+                using (var cmd = new SqlCommand(sql_head, myConnection))
                 {
-                    if (whatToQuery.Contains("temp")) { sql_temp = "SELECT TOP 1 * FROM DEV_TEMP_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else if (whatToQuery.Contains("humid")) { sql_temp = "SELECT TOP 1 * FROM DEV_HUMID_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else if (whatToQuery.Contains("part03")) { sql_temp = "SELECT TOP 1 * FROM DEV_PART03_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-                    else { sql_temp = "SELECT TOP 1 * FROM DEV_PART05_" + IDs[i].ToString() + " ORDER BY DateAndTime DESC"; }
-
-                    using (var cmd = new SqlCommand(sql_temp, myConnection))
+                    using (var myReader = cmd.ExecuteReader())
                     {
-                        myConnection.Open();
-                        using (var myReader = cmd.ExecuteReader())
+                        int i = 0;
+                        while (myReader.Read())
                         {
-                            while (myReader.Read())
-                            {
-                                string[] myobj = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString() };
-                                DataArr[i].Add(myobj);
-                            }
+                            string[] myobj = { myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString() };
+                            DataArr[i].Add(myobj);
+                            i += 1;
                         }
-                        myConnection.Close();
                     }
                 }
+                myConnection.Close();
             }
             catch (Exception ee)
             {
-                MessageBox.Show(ee.ToString());
+                MessageBox.Show(ee.ToString(), "에러 매시지");
             }
-
             return new List<List<string[]>>(DataArr);
         }
         /// <summary>
@@ -682,17 +688,20 @@ namespace VisualizerApp_3
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
+            Console.WriteLine("\n\nIDs.Count {0}, dblVals.Count {1}, intVals.Count {2}\n\n", IDs.Count, dblVals.Count, intVals.Count);
             data_RT = MyDataGetter(IDs, WhatToShow);
             timeVal.Add(Convert.ToString(data_RT[0][0][1]));
 
                 for (int index = 0; index < IDs.Count; index++) {
                     if (WhatToShow.Contains("temp") || WhatToShow.Contains("humid")) {
-                        if (dblVals[index].Count > 1000 || dblVals[index][0] == 0) { dblVals[index].RemoveAt(0); }
-                        dblVals[index].Add(Math.Round(Convert.ToSingle(data_RT[index][0][0]), 2));
+                    dblVals[index].Add(Math.Round(Convert.ToSingle(data_RT[index][0][0]), 2));
+                    if (dblVals[index].Count > 1000 || dblVals[index][0] == 0) { dblVals[index].RemoveAt(0); }
+                        
                     }
                     else {
-                        if (intVals[index].Count > 1000 || intVals[index][0] == 0) { intVals[index].RemoveAt(0); }
-                        intVals[index].Add(Int64.Parse(data_RT[index][0][0], NumberStyles.Any, new CultureInfo("en-au")));
+                    intVals[index].Add(Int64.Parse(data_RT[index][0][0], NumberStyles.Any, new CultureInfo("en-au")));
+                    if (intVals[index].Count > 1000 || intVals[index][0] == 0) { intVals[index].RemoveAt(0); }
+                        
                     }
                 }
             timer1.Interval = 1000; //1초 시간 간격 

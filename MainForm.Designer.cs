@@ -1,4 +1,4 @@
-﻿namespace VisualizerApp_3
+﻿namespace VisualizerApp
 {
     partial class MainForm
     {
@@ -28,321 +28,283 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1_header = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.datePicker2_end = new System.Windows.Forms.DateTimePicker();
             this.datePicker1_start = new System.Windows.Forms.DateTimePicker();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
+            this.label1_from = new System.Windows.Forms.Label();
+            this.label2_end = new System.Windows.Forms.Label();
             this.button_show = new System.Windows.Forms.Button();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.label2 = new System.Windows.Forms.Label();
-            this.linkLabel1_1H = new System.Windows.Forms.LinkLabel();
-            this.linkLabel2_24H = new System.Windows.Forms.LinkLabel();
-            this.linkLabel3_1w = new System.Windows.Forms.LinkLabel();
-            this.linkLabel4_1m = new System.Windows.Forms.LinkLabel();
-            this.checkedListBox1_DevicesList = new System.Windows.Forms.CheckedListBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.linkLabel0_30m = new System.Windows.Forms.LinkLabel();
-            this.linkLabel5_RT = new System.Windows.Forms.LinkLabel();
-            this.panel1.SuspendLayout();
+            this.panel2_menu = new System.Windows.Forms.Panel();
+            this.button3_solbi4 = new System.Windows.Forms.Button();
+            this.button3_solbi3 = new System.Windows.Forms.Button();
+            this.button3_solbi2 = new System.Windows.Forms.Button();
+            this.button3_solbi1 = new System.Windows.Forms.Button();
+            this.button2_part05 = new System.Windows.Forms.Button();
+            this.button2_part03 = new System.Windows.Forms.Button();
+            this.button2_humid = new System.Windows.Forms.Button();
+            this.button2_temp = new System.Windows.Forms.Button();
+            this.button1_datepicker = new System.Windows.Forms.Button();
+            this.button1_24h = new System.Windows.Forms.Button();
+            this.button1_realtime = new System.Windows.Forms.Button();
+            this.panel1_header.SuspendLayout();
+            this.panel2_menu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // panel1_header
             // 
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(861, 60);
-            this.panel1.TabIndex = 1;
+            this.panel1_header.BackColor = System.Drawing.Color.Transparent;
+            this.panel1_header.Controls.Add(this.label1);
+            this.panel1_header.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1_header.Location = new System.Drawing.Point(0, 0);
+            this.panel1_header.Name = "panel1_header";
+            this.panel1_header.Size = new System.Drawing.Size(402, 36);
+            this.panel1_header.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(78, 20);
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Gulim", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label1.Location = new System.Drawing.Point(33, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(363, 24);
+            this.label1.Size = new System.Drawing.Size(264, 20);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Clean Room 모니터링 대시보드";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Gulim", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label7.Location = new System.Drawing.Point(25, 87);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(302, 19);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "1. 시각화 하려는 시간 간격 선택";
+            this.label1.Text = "클린 룸 모니터링 컨트롤러";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // datePicker2_end
             // 
             this.datePicker2_end.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.CustomFormat = "";
-            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker2_end.Location = new System.Drawing.Point(253, 153);
+            this.datePicker2_end.Location = new System.Drawing.Point(214, 72);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker2_end.Name = "datePicker2_end";
-            this.datePicker2_end.Size = new System.Drawing.Size(167, 24);
+            this.datePicker2_end.Size = new System.Drawing.Size(147, 23);
             this.datePicker2_end.TabIndex = 40;
+            this.datePicker2_end.Visible = false;
             // 
             // datePicker1_start
             // 
             this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.CustomFormat = "";
-            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker1_start.Location = new System.Drawing.Point(28, 153);
+            this.datePicker1_start.Location = new System.Drawing.Point(25, 72);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker1_start.Name = "datePicker1_start";
-            this.datePicker1_start.Size = new System.Drawing.Size(167, 24);
+            this.datePicker1_start.Size = new System.Drawing.Size(152, 23);
             this.datePicker1_start.TabIndex = 41;
+            this.datePicker1_start.Visible = false;
             // 
-            // label8
+            // label1_from
             // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label8.Location = new System.Drawing.Point(204, 158);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(37, 15);
-            this.label8.TabIndex = 42;
-            this.label8.Text = "부터";
+            this.label1_from.AutoSize = true;
+            this.label1_from.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label1_from.Location = new System.Drawing.Point(179, 77);
+            this.label1_from.Name = "label1_from";
+            this.label1_from.Size = new System.Drawing.Size(35, 14);
+            this.label1_from.TabIndex = 42;
+            this.label1_from.Text = "부터";
+            this.label1_from.Visible = false;
             // 
-            // label9
+            // label2_end
             // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label9.Location = new System.Drawing.Point(440, 158);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(37, 15);
-            this.label9.TabIndex = 43;
-            this.label9.Text = "까지";
+            this.label2_end.AutoSize = true;
+            this.label2_end.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label2_end.Location = new System.Drawing.Point(363, 77);
+            this.label2_end.Name = "label2_end";
+            this.label2_end.Size = new System.Drawing.Size(35, 14);
+            this.label2_end.TabIndex = 43;
+            this.label2_end.Text = "까지";
+            this.label2_end.Visible = false;
             // 
             // button_show
             // 
-            this.button_show.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button_show.Location = new System.Drawing.Point(28, 370);
+            this.button_show.Font = new System.Drawing.Font("Gulim", 12F);
+            this.button_show.Location = new System.Drawing.Point(114, 246);
             this.button_show.Name = "button_show";
-            this.button_show.Size = new System.Drawing.Size(139, 47);
+            this.button_show.Size = new System.Drawing.Size(172, 40);
             this.button_show.TabIndex = 44;
-            this.button_show.Text = "보기";
+            this.button_show.Text = "확인";
             this.button_show.UseVisualStyleBackColor = true;
             this.button_show.Click += new System.EventHandler(this.show_button_Click);
             // 
-            // radioButton1
+            // panel2_menu
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.radioButton1.Location = new System.Drawing.Point(28, 239);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(58, 20);
-            this.radioButton1.TabIndex = 47;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "온도";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.panel2_menu.BackColor = System.Drawing.Color.Transparent;
+            this.panel2_menu.Controls.Add(this.button3_solbi4);
+            this.panel2_menu.Controls.Add(this.button3_solbi3);
+            this.panel2_menu.Controls.Add(this.button3_solbi2);
+            this.panel2_menu.Controls.Add(this.button3_solbi1);
+            this.panel2_menu.Controls.Add(this.button2_part05);
+            this.panel2_menu.Controls.Add(this.button2_part03);
+            this.panel2_menu.Controls.Add(this.button2_humid);
+            this.panel2_menu.Controls.Add(this.button2_temp);
+            this.panel2_menu.Controls.Add(this.button1_datepicker);
+            this.panel2_menu.Controls.Add(this.button1_24h);
+            this.panel2_menu.Controls.Add(this.button1_realtime);
+            this.panel2_menu.Controls.Add(this.datePicker1_start);
+            this.panel2_menu.Controls.Add(this.datePicker2_end);
+            this.panel2_menu.Controls.Add(this.label1_from);
+            this.panel2_menu.Controls.Add(this.label2_end);
+            this.panel2_menu.Controls.Add(this.button_show);
+            this.panel2_menu.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2_menu.Location = new System.Drawing.Point(0, 36);
+            this.panel2_menu.Name = "panel2_menu";
+            this.panel2_menu.Size = new System.Drawing.Size(402, 318);
+            this.panel2_menu.TabIndex = 62;
             // 
-            // radioButton2
+            // button3_solbi4
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.radioButton2.Location = new System.Drawing.Point(28, 261);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(58, 20);
-            this.radioButton2.TabIndex = 48;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "습도";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.button3_solbi4.Location = new System.Drawing.Point(292, 183);
+            this.button3_solbi4.Name = "button3_solbi4";
+            this.button3_solbi4.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi4.TabIndex = 73;
+            this.button3_solbi4.Text = "설비 4";
+            this.button3_solbi4.UseVisualStyleBackColor = true;
+            this.button3_solbi4.Click += new System.EventHandler(this.button10__solbi4_Click);
             // 
-            // radioButton3
+            // button3_solbi3
             // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.radioButton3.Location = new System.Drawing.Point(28, 283);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(87, 20);
-            this.radioButton3.TabIndex = 49;
-            this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "파티클 1";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.button3_solbi3.Location = new System.Drawing.Point(203, 183);
+            this.button3_solbi3.Name = "button3_solbi3";
+            this.button3_solbi3.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi3.TabIndex = 72;
+            this.button3_solbi3.Text = "설비 3";
+            this.button3_solbi3.UseVisualStyleBackColor = true;
+            this.button3_solbi3.Click += new System.EventHandler(this.button9_solbi3_Click);
             // 
-            // radioButton4
+            // button3_solbi2
             // 
-            this.radioButton4.AutoSize = true;
-            this.radioButton4.Font = new System.Drawing.Font("Gulim", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.radioButton4.Location = new System.Drawing.Point(28, 305);
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.Size = new System.Drawing.Size(87, 20);
-            this.radioButton4.TabIndex = 50;
-            this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "파티클 2";
-            this.radioButton4.UseVisualStyleBackColor = true;
+            this.button3_solbi2.Location = new System.Drawing.Point(114, 183);
+            this.button3_solbi2.Name = "button3_solbi2";
+            this.button3_solbi2.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi2.TabIndex = 71;
+            this.button3_solbi2.Text = "설비 2";
+            this.button3_solbi2.UseVisualStyleBackColor = true;
+            this.button3_solbi2.Click += new System.EventHandler(this.button8_solbi2_Click);
             // 
-            // label2
+            // button3_solbi1
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Gulim", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label2.Location = new System.Drawing.Point(25, 205);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(121, 19);
-            this.label2.TabIndex = 52;
-            this.label2.Text = "3. 구분 선택";
+            this.button3_solbi1.Location = new System.Drawing.Point(25, 183);
+            this.button3_solbi1.Name = "button3_solbi1";
+            this.button3_solbi1.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi1.TabIndex = 70;
+            this.button3_solbi1.Text = "설비 1";
+            this.button3_solbi1.UseVisualStyleBackColor = true;
+            this.button3_solbi1.Click += new System.EventHandler(this.button7_solbi1_Click);
             // 
-            // linkLabel1_1H
+            // button2_part05
             // 
-            this.linkLabel1_1H.AutoSize = true;
-            this.linkLabel1_1H.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel1_1H.Location = new System.Drawing.Point(98, 124);
-            this.linkLabel1_1H.Name = "linkLabel1_1H";
-            this.linkLabel1_1H.Size = new System.Drawing.Size(80, 15);
-            this.linkLabel1_1H.TabIndex = 54;
-            this.linkLabel1_1H.TabStop = true;
-            this.linkLabel1_1H.Text = "최근 1시간";
-            this.linkLabel1_1H.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_1H_LinkClicked);
+            this.button2_part05.Location = new System.Drawing.Point(292, 113);
+            this.button2_part05.Name = "button2_part05";
+            this.button2_part05.Size = new System.Drawing.Size(83, 35);
+            this.button2_part05.TabIndex = 69;
+            this.button2_part05.Text = "파티클(0.5)";
+            this.button2_part05.UseVisualStyleBackColor = true;
+            this.button2_part05.Click += new System.EventHandler(this.button6_part05_Click);
             // 
-            // linkLabel2_24H
+            // button2_part03
             // 
-            this.linkLabel2_24H.AutoSize = true;
-            this.linkLabel2_24H.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel2_24H.Location = new System.Drawing.Point(179, 124);
-            this.linkLabel2_24H.Name = "linkLabel2_24H";
-            this.linkLabel2_24H.Size = new System.Drawing.Size(88, 15);
-            this.linkLabel2_24H.TabIndex = 55;
-            this.linkLabel2_24H.TabStop = true;
-            this.linkLabel2_24H.Text = "최근 24시간";
-            this.linkLabel2_24H.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_24H_LinkClicked);
+            this.button2_part03.Location = new System.Drawing.Point(203, 113);
+            this.button2_part03.Name = "button2_part03";
+            this.button2_part03.Size = new System.Drawing.Size(83, 35);
+            this.button2_part03.TabIndex = 68;
+            this.button2_part03.Text = "파티클(0.3)";
+            this.button2_part03.UseVisualStyleBackColor = true;
+            this.button2_part03.Click += new System.EventHandler(this.button6_part03_Click);
             // 
-            // linkLabel3_1w
+            // button2_humid
             // 
-            this.linkLabel3_1w.AutoSize = true;
-            this.linkLabel3_1w.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel3_1w.Location = new System.Drawing.Point(266, 124);
-            this.linkLabel3_1w.Name = "linkLabel3_1w";
-            this.linkLabel3_1w.Size = new System.Drawing.Size(80, 15);
-            this.linkLabel3_1w.TabIndex = 56;
-            this.linkLabel3_1w.TabStop = true;
-            this.linkLabel3_1w.Text = "최근 1주일";
-            this.linkLabel3_1w.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel3_1w_LinkClicked);
+            this.button2_humid.Location = new System.Drawing.Point(114, 113);
+            this.button2_humid.Name = "button2_humid";
+            this.button2_humid.Size = new System.Drawing.Size(83, 35);
+            this.button2_humid.TabIndex = 67;
+            this.button2_humid.Text = "습도";
+            this.button2_humid.UseVisualStyleBackColor = true;
+            this.button2_humid.Click += new System.EventHandler(this.button5_humid_Click);
             // 
-            // linkLabel4_1m
+            // button2_temp
             // 
-            this.linkLabel4_1m.AutoSize = true;
-            this.linkLabel4_1m.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel4_1m.Location = new System.Drawing.Point(347, 124);
-            this.linkLabel4_1m.Name = "linkLabel4_1m";
-            this.linkLabel4_1m.Size = new System.Drawing.Size(80, 15);
-            this.linkLabel4_1m.TabIndex = 57;
-            this.linkLabel4_1m.TabStop = true;
-            this.linkLabel4_1m.Text = "최근 1개월";
-            this.linkLabel4_1m.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel4_1m_LinkClicked);
+            this.button2_temp.Location = new System.Drawing.Point(25, 113);
+            this.button2_temp.Name = "button2_temp";
+            this.button2_temp.Size = new System.Drawing.Size(83, 35);
+            this.button2_temp.TabIndex = 66;
+            this.button2_temp.Text = "온도";
+            this.button2_temp.UseVisualStyleBackColor = true;
+            this.button2_temp.Click += new System.EventHandler(this.button4_temp_Click);
             // 
-            // checkedListBox1_DevicesList
+            // button1_datepicker
             // 
-            this.checkedListBox1_DevicesList.CheckOnClick = true;
-            this.checkedListBox1_DevicesList.FormattingEnabled = true;
-            this.checkedListBox1_DevicesList.Location = new System.Drawing.Point(589, 151);
-            this.checkedListBox1_DevicesList.Name = "checkedListBox1_DevicesList";
-            this.checkedListBox1_DevicesList.Size = new System.Drawing.Size(190, 228);
-            this.checkedListBox1_DevicesList.TabIndex = 59;
+            this.button1_datepicker.Location = new System.Drawing.Point(249, 22);
+            this.button1_datepicker.Name = "button1_datepicker";
+            this.button1_datepicker.Size = new System.Drawing.Size(106, 35);
+            this.button1_datepicker.TabIndex = 65;
+            this.button1_datepicker.Text = "기간설정";
+            this.button1_datepicker.UseVisualStyleBackColor = true;
+            this.button1_datepicker.Click += new System.EventHandler(this.button3_Click);
             // 
-            // label3
+            // button1_24h
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Gulim", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label3.Location = new System.Drawing.Point(568, 87);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(255, 19);
-            this.label3.TabIndex = 60;
-            this.label3.Text = "2. 시각화 하려는 센서 선택";
+            this.button1_24h.Location = new System.Drawing.Point(137, 22);
+            this.button1_24h.Name = "button1_24h";
+            this.button1_24h.Size = new System.Drawing.Size(106, 35);
+            this.button1_24h.TabIndex = 64;
+            this.button1_24h.Text = "24시간";
+            this.button1_24h.UseVisualStyleBackColor = true;
+            this.button1_24h.Click += new System.EventHandler(this.button2_Click);
             // 
-            // linkLabel0_30m
+            // button1_realtime
             // 
-            this.linkLabel0_30m.AutoSize = true;
-            this.linkLabel0_30m.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel0_30m.Location = new System.Drawing.Point(26, 124);
-            this.linkLabel0_30m.Name = "linkLabel0_30m";
-            this.linkLabel0_30m.Size = new System.Drawing.Size(73, 15);
-            this.linkLabel0_30m.TabIndex = 58;
-            this.linkLabel0_30m.TabStop = true;
-            this.linkLabel0_30m.Text = "최근 30분";
-            this.linkLabel0_30m.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel0_30m_LinkClicked);
-            // 
-            // linkLabel5_RT
-            // 
-            this.linkLabel5_RT.AutoSize = true;
-            this.linkLabel5_RT.Font = new System.Drawing.Font("Gulim", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.linkLabel5_RT.LinkColor = System.Drawing.Color.Blue;
-            this.linkLabel5_RT.Location = new System.Drawing.Point(427, 124);
-            this.linkLabel5_RT.Name = "linkLabel5_RT";
-            this.linkLabel5_RT.Size = new System.Drawing.Size(52, 15);
-            this.linkLabel5_RT.TabIndex = 61;
-            this.linkLabel5_RT.TabStop = true;
-            this.linkLabel5_RT.Text = "실시간";
-            this.linkLabel5_RT.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.button1_realtime.Location = new System.Drawing.Point(25, 22);
+            this.button1_realtime.Name = "button1_realtime";
+            this.button1_realtime.Size = new System.Drawing.Size(106, 35);
+            this.button1_realtime.TabIndex = 63;
+            this.button1_realtime.Text = "실시간";
+            this.button1_realtime.UseVisualStyleBackColor = true;
+            this.button1_realtime.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(861, 478);
-            this.Controls.Add(this.linkLabel5_RT);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.checkedListBox1_DevicesList);
-            this.Controls.Add(this.linkLabel0_30m);
-            this.Controls.Add(this.linkLabel4_1m);
-            this.Controls.Add(this.linkLabel3_1w);
-            this.Controls.Add(this.linkLabel2_24H);
-            this.Controls.Add(this.linkLabel1_1H);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.radioButton4);
-            this.Controls.Add(this.radioButton3);
-            this.Controls.Add(this.radioButton2);
-            this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.button_show);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.datePicker2_end);
-            this.Controls.Add(this.datePicker1_start);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.panel1);
+            this.ClientSize = new System.Drawing.Size(402, 354);
+            this.Controls.Add(this.panel2_menu);
+            this.Controls.Add(this.panel1_header);
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "메인화면";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel1_header.ResumeLayout(false);
+            this.panel1_header.PerformLayout();
+            this.panel2_menu.ResumeLayout(false);
+            this.panel2_menu.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel1_header;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label1_from;
+        private System.Windows.Forms.Label label2_end;
         private System.Windows.Forms.Button button_show;
         internal System.Windows.Forms.DateTimePicker datePicker2_end;
         internal System.Windows.Forms.DateTimePicker datePicker1_start;
-        internal System.Windows.Forms.RadioButton radioButton2;
-        internal System.Windows.Forms.RadioButton radioButton3;
-        internal System.Windows.Forms.RadioButton radioButton4;
-        public System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.LinkLabel linkLabel1_1H;
-        private System.Windows.Forms.LinkLabel linkLabel2_24H;
-        private System.Windows.Forms.LinkLabel linkLabel3_1w;
-        private System.Windows.Forms.LinkLabel linkLabel4_1m;
-        private System.Windows.Forms.CheckedListBox checkedListBox1_DevicesList;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.LinkLabel linkLabel0_30m;
-        private System.Windows.Forms.LinkLabel linkLabel5_RT;
+        public System.Windows.Forms.Panel panel2_menu;
+        private System.Windows.Forms.Button button1_datepicker;
+        private System.Windows.Forms.Button button1_24h;
+        private System.Windows.Forms.Button button1_realtime;
+        private System.Windows.Forms.Button button2_part05;
+        private System.Windows.Forms.Button button2_part03;
+        private System.Windows.Forms.Button button2_humid;
+        private System.Windows.Forms.Button button2_temp;
+        private System.Windows.Forms.Button button3_solbi4;
+        private System.Windows.Forms.Button button3_solbi3;
+        private System.Windows.Forms.Button button3_solbi2;
+        private System.Windows.Forms.Button button3_solbi1;
     }
 }
 

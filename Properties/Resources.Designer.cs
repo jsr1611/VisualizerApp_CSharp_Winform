@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VisualizerApp_3.Properties
+namespace VisualizerApp.Properties
 {
 
 

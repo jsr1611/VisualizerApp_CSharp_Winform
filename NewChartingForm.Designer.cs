@@ -1,4 +1,4 @@
-﻿namespace VisualizerApp_3
+﻿namespace VisualizerApp
 {
     partial class NewChartingForm
     {
@@ -109,6 +109,7 @@
             this.Controls.Add(this.textBox1_startTime);
             this.Controls.Add(this.label1_selectedTimeInter);
             this.Name = "NewChartingForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "TestForm";
             this.ResumeLayout(false);
             this.PerformLayout();
