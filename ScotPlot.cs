@@ -19,17 +19,17 @@ namespace VisualizerApp_3
         {
             InitializeComponent();
 
-            string[] dataVal = new string[dataArr[0][0].Count];
+            int numOfElmnt = CountNumOfElmnt(dataArr, IDs, whatToShow); //데이터 개수 : number of Elements(temp)
+            string[] dataVal = new string[numOfElmnt];
             string[] timeVal = new string[1];
             this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 100);
             TableLayoutPanel tableLayoutPanel = new TableLayoutPanel();
             tableLayoutPanel.Dock = DockStyle.Fill;
             this.Controls.Add(tableLayoutPanel);
             List<FormsPlot> formsPlots = new List<FormsPlot>();
+
             string[][] dataArr2 = new string[IDs.Count][]; //dataArr[0][0].Count
-            for(int i=0; i<IDs.Count; i++) { dataArr2[i] = new string[dataArr[0][0].Count]; }
-
-
+            for(int i=0; i<IDs.Count; i++) { dataArr2[i] = new string[numOfElmnt]; }
 
             if (IDs.Count < 2)
             {
@@ -98,8 +98,6 @@ namespace VisualizerApp_3
 
                 }
             }
-
-
             
             
             for (int i = 0; i < IDs.Count; i++)
@@ -107,7 +105,7 @@ namespace VisualizerApp_3
 
                 var plt = formsPlots[i]; // new ScottPlot.Plot(600, 400);
 
-                for (int j = 0; j < dataVal.Length; j++)
+                for (int j = 0; j < numOfElmnt; j++)
                 {
                     dataArr2[i][j] = dataArr[0][i][j][0];
                     //dataVal[j] = dataArr[0][0][j][0];
@@ -139,6 +137,55 @@ namespace VisualizerApp_3
                 formsPlots[i].Render();
 
             }
+            
+        }
+       
+        /// <summary>
+        /// 시각화하려는 데이터 갯수를 계산하는 함수
+        /// </summary>
+        /// <param name="datalist"></param>
+        /// <param name="IDs"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        public int CountNumOfElmnt(List<List<List<string[]>>> datalist, List<int> IDs, string flag)
+        {
+            if (flag.Contains("all"))
+            {
+                int cntr_tmp = 0; //임시 카운터변수
+                int numOfElmnt = datalist[0][0].Count; // 데이터 개수 : number of Elements(temp, humid, part03, part05)
+                                                       //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
+                for (int ind = 0; ind < datalist.Count; ind++)
+                {
+                    for (int ind2 = 0; ind2 < IDs.Count; ind2++)
+                    {
+                        if (numOfElmnt > datalist[ind][ind2].Count && datalist[ind][ind2].Count != 0)
+                        {
+                            numOfElmnt = datalist[ind][ind2].Count;
+                        }
+                        //Console.WriteLine("\n\n\nCOUNTERlength: "+graphDataAll[ind][ind2].Count.ToString());
+                        cntr_tmp += 1;
+                    }
+                }
+                return numOfElmnt;
+            }
+            else
+            {
+                int numOfElmnt = datalist[0][0].Count; // 데이터 개수 : number of Elements(temp, humid, part03, part05)
+                //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
+                for (int ind = 0; ind < IDs.Count; ind++)
+                {
+                    if (numOfElmnt > datalist[0][ind].Count && datalist[0][ind].Count != 0)
+                    {
+                        numOfElmnt = datalist[0][ind].Count;
+                    }
+                    //Console.WriteLine("\n\n\nCOUNTERlength: "+graphDataAll[ind][ind2].Count.ToString());
+                }
+                return numOfElmnt;
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
             
         }
     }
