@@ -35,7 +35,9 @@
             this.label2_end = new System.Windows.Forms.Label();
             this.button_show = new System.Windows.Forms.Button();
             this.panel1_menu = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.panel4peakVal = new System.Windows.Forms.Panel();
+            this.label1_mainHeader = new System.Windows.Forms.Label();
             this.button3_solbi4 = new System.Windows.Forms.Button();
             this.button3_solbi3 = new System.Windows.Forms.Button();
             this.button3_solbi2 = new System.Windows.Forms.Button();
@@ -49,6 +51,7 @@
             this.button1_realtime = new System.Windows.Forms.Button();
             this.panel2_ChartArea = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1_menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,35 +59,35 @@
             // 
             this.datePicker2_end.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.CustomFormat = "";
-            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker2_end.Location = new System.Drawing.Point(201, 136);
+            this.datePicker2_end.Location = new System.Drawing.Point(201, 181);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker2_end.Name = "datePicker2_end";
-            this.datePicker2_end.Size = new System.Drawing.Size(147, 23);
+            this.datePicker2_end.Size = new System.Drawing.Size(164, 26);
             this.datePicker2_end.TabIndex = 40;
             this.datePicker2_end.Visible = false;
             // 
             // datePicker1_start
             // 
-            this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.CustomFormat = "";
-            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker1_start.Location = new System.Drawing.Point(12, 136);
+            this.datePicker1_start.Location = new System.Drawing.Point(4, 181);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker1_start.Name = "datePicker1_start";
-            this.datePicker1_start.Size = new System.Drawing.Size(152, 23);
+            this.datePicker1_start.Size = new System.Drawing.Size(164, 26);
             this.datePicker1_start.TabIndex = 41;
             this.datePicker1_start.Visible = false;
             // 
             // label1_from
             // 
             this.label1_from.AutoSize = true;
-            this.label1_from.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1_from.Location = new System.Drawing.Point(166, 141);
+            this.label1_from.Font = new System.Drawing.Font("Gulim", 12F);
+            this.label1_from.Location = new System.Drawing.Point(163, 186);
             this.label1_from.Name = "label1_from";
-            this.label1_from.Size = new System.Drawing.Size(35, 14);
+            this.label1_from.Size = new System.Drawing.Size(40, 16);
             this.label1_from.TabIndex = 42;
             this.label1_from.Text = "부터";
             this.label1_from.Visible = false;
@@ -92,20 +95,20 @@
             // label2_end
             // 
             this.label2_end.AutoSize = true;
-            this.label2_end.Font = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label2_end.Location = new System.Drawing.Point(350, 141);
+            this.label2_end.Font = new System.Drawing.Font("Gulim", 12F);
+            this.label2_end.Location = new System.Drawing.Point(363, 186);
             this.label2_end.Name = "label2_end";
-            this.label2_end.Size = new System.Drawing.Size(35, 14);
+            this.label2_end.Size = new System.Drawing.Size(40, 16);
             this.label2_end.TabIndex = 43;
             this.label2_end.Text = "까지";
             this.label2_end.Visible = false;
             // 
             // button_show
             // 
-            this.button_show.Font = new System.Drawing.Font("Gulim", 12F);
-            this.button_show.Location = new System.Drawing.Point(101, 310);
+            this.button_show.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button_show.Location = new System.Drawing.Point(104, 461);
             this.button_show.Name = "button_show";
-            this.button_show.Size = new System.Drawing.Size(172, 40);
+            this.button_show.Size = new System.Drawing.Size(182, 64);
             this.button_show.TabIndex = 44;
             this.button_show.Text = "확인";
             this.button_show.UseVisualStyleBackColor = true;
@@ -114,7 +117,10 @@
             // panel1_menu
             // 
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
-            this.panel1_menu.Controls.Add(this.label1);
+            this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1_menu.Controls.Add(this.comboBox1);
+            this.panel1_menu.Controls.Add(this.panel4peakVal);
+            this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button3_solbi4);
             this.panel1_menu.Controls.Add(this.button3_solbi3);
             this.panel1_menu.Controls.Add(this.button3_solbi2);
@@ -134,26 +140,49 @@
             this.panel1_menu.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1_menu.Location = new System.Drawing.Point(0, 0);
             this.panel1_menu.Name = "panel1_menu";
-            this.panel1_menu.Size = new System.Drawing.Size(402, 821);
+            this.panel1_menu.Size = new System.Drawing.Size(400, 920);
             this.panel1_menu.TabIndex = 62;
             // 
-            // label1
+            // comboBox1
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Font = new System.Drawing.Font("Gulim", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(54, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(264, 20);
-            this.label1.TabIndex = 74;
-            this.label1.Text = "클린 룸 모니터링 컨트롤러";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.comboBox1.Font = new System.Drawing.Font("Gulim", 15F);
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Line Chart",
+            "Scatter Chart",
+            "Bar Chart"});
+            this.comboBox1.Location = new System.Drawing.Point(15, 531);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(363, 28);
+            this.comboBox1.TabIndex = 78;
+            // 
+            // panel4peakVal
+            // 
+            this.panel4peakVal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.panel4peakVal.BackColor = System.Drawing.Color.Transparent;
+            this.panel4peakVal.Location = new System.Drawing.Point(0, 569);
+            this.panel4peakVal.Name = "panel4peakVal";
+            this.panel4peakVal.Size = new System.Drawing.Size(394, 349);
+            this.panel4peakVal.TabIndex = 77;
+            // 
+            // label1_mainHeader
+            // 
+            this.label1_mainHeader.AutoSize = true;
+            this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
+            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
+            this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
+            this.label1_mainHeader.Name = "label1_mainHeader";
+            this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
+            this.label1_mainHeader.TabIndex = 74;
+            this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
+            this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button3_solbi4
             // 
-            this.button3_solbi4.Location = new System.Drawing.Point(279, 247);
+            this.button3_solbi4.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button3_solbi4.Location = new System.Drawing.Point(288, 364);
             this.button3_solbi4.Name = "button3_solbi4";
-            this.button3_solbi4.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi4.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi4.TabIndex = 73;
             this.button3_solbi4.Text = "설비 4";
             this.button3_solbi4.UseVisualStyleBackColor = true;
@@ -161,9 +190,10 @@
             // 
             // button3_solbi3
             // 
-            this.button3_solbi3.Location = new System.Drawing.Point(190, 247);
+            this.button3_solbi3.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button3_solbi3.Location = new System.Drawing.Point(196, 364);
             this.button3_solbi3.Name = "button3_solbi3";
-            this.button3_solbi3.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi3.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi3.TabIndex = 72;
             this.button3_solbi3.Text = "설비 3";
             this.button3_solbi3.UseVisualStyleBackColor = true;
@@ -171,9 +201,10 @@
             // 
             // button3_solbi2
             // 
-            this.button3_solbi2.Location = new System.Drawing.Point(101, 247);
+            this.button3_solbi2.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button3_solbi2.Location = new System.Drawing.Point(104, 364);
             this.button3_solbi2.Name = "button3_solbi2";
-            this.button3_solbi2.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi2.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi2.TabIndex = 71;
             this.button3_solbi2.Text = "설비 2";
             this.button3_solbi2.UseVisualStyleBackColor = true;
@@ -181,9 +212,10 @@
             // 
             // button3_solbi1
             // 
-            this.button3_solbi1.Location = new System.Drawing.Point(12, 247);
+            this.button3_solbi1.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button3_solbi1.Location = new System.Drawing.Point(12, 364);
             this.button3_solbi1.Name = "button3_solbi1";
-            this.button3_solbi1.Size = new System.Drawing.Size(83, 35);
+            this.button3_solbi1.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi1.TabIndex = 70;
             this.button3_solbi1.Text = "설비 1";
             this.button3_solbi1.UseVisualStyleBackColor = true;
@@ -191,9 +223,10 @@
             // 
             // button2_part05
             // 
-            this.button2_part05.Location = new System.Drawing.Point(279, 177);
+            this.button2_part05.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button2_part05.Location = new System.Drawing.Point(288, 238);
             this.button2_part05.Name = "button2_part05";
-            this.button2_part05.Size = new System.Drawing.Size(83, 35);
+            this.button2_part05.Size = new System.Drawing.Size(90, 65);
             this.button2_part05.TabIndex = 69;
             this.button2_part05.Text = "파티클(0.5)";
             this.button2_part05.UseVisualStyleBackColor = true;
@@ -201,9 +234,10 @@
             // 
             // button2_part03
             // 
-            this.button2_part03.Location = new System.Drawing.Point(190, 177);
+            this.button2_part03.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button2_part03.Location = new System.Drawing.Point(196, 238);
             this.button2_part03.Name = "button2_part03";
-            this.button2_part03.Size = new System.Drawing.Size(83, 35);
+            this.button2_part03.Size = new System.Drawing.Size(90, 65);
             this.button2_part03.TabIndex = 68;
             this.button2_part03.Text = "파티클(0.3)";
             this.button2_part03.UseVisualStyleBackColor = true;
@@ -211,9 +245,10 @@
             // 
             // button2_humid
             // 
-            this.button2_humid.Location = new System.Drawing.Point(101, 177);
+            this.button2_humid.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button2_humid.Location = new System.Drawing.Point(104, 238);
             this.button2_humid.Name = "button2_humid";
-            this.button2_humid.Size = new System.Drawing.Size(83, 35);
+            this.button2_humid.Size = new System.Drawing.Size(90, 65);
             this.button2_humid.TabIndex = 67;
             this.button2_humid.Text = "습도";
             this.button2_humid.UseVisualStyleBackColor = true;
@@ -221,9 +256,10 @@
             // 
             // button2_temp
             // 
-            this.button2_temp.Location = new System.Drawing.Point(12, 177);
+            this.button2_temp.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button2_temp.Location = new System.Drawing.Point(12, 238);
             this.button2_temp.Name = "button2_temp";
-            this.button2_temp.Size = new System.Drawing.Size(83, 35);
+            this.button2_temp.Size = new System.Drawing.Size(90, 65);
             this.button2_temp.TabIndex = 66;
             this.button2_temp.Text = "온도";
             this.button2_temp.UseVisualStyleBackColor = true;
@@ -231,9 +267,10 @@
             // 
             // button1_datepicker
             // 
-            this.button1_datepicker.Location = new System.Drawing.Point(236, 86);
+            this.button1_datepicker.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_datepicker.Location = new System.Drawing.Point(258, 93);
             this.button1_datepicker.Name = "button1_datepicker";
-            this.button1_datepicker.Size = new System.Drawing.Size(106, 35);
+            this.button1_datepicker.Size = new System.Drawing.Size(120, 65);
             this.button1_datepicker.TabIndex = 65;
             this.button1_datepicker.Text = "기간설정";
             this.button1_datepicker.UseVisualStyleBackColor = true;
@@ -241,9 +278,10 @@
             // 
             // button1_24h
             // 
-            this.button1_24h.Location = new System.Drawing.Point(124, 86);
+            this.button1_24h.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_24h.Location = new System.Drawing.Point(135, 93);
             this.button1_24h.Name = "button1_24h";
-            this.button1_24h.Size = new System.Drawing.Size(106, 35);
+            this.button1_24h.Size = new System.Drawing.Size(120, 65);
             this.button1_24h.TabIndex = 64;
             this.button1_24h.Text = "24시간";
             this.button1_24h.UseVisualStyleBackColor = true;
@@ -251,9 +289,10 @@
             // 
             // button1_realtime
             // 
-            this.button1_realtime.Location = new System.Drawing.Point(12, 86);
+            this.button1_realtime.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_realtime.Location = new System.Drawing.Point(12, 93);
             this.button1_realtime.Name = "button1_realtime";
-            this.button1_realtime.Size = new System.Drawing.Size(106, 35);
+            this.button1_realtime.Size = new System.Drawing.Size(120, 65);
             this.button1_realtime.TabIndex = 63;
             this.button1_realtime.Text = "실시간";
             this.button1_realtime.UseVisualStyleBackColor = true;
@@ -262,20 +301,20 @@
             // panel2_ChartArea
             // 
             this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2_ChartArea.Location = new System.Drawing.Point(402, 0);
+            this.panel2_ChartArea.Location = new System.Drawing.Point(400, 0);
             this.panel2_ChartArea.Name = "panel2_ChartArea";
-            this.panel2_ChartArea.Size = new System.Drawing.Size(872, 821);
+            this.panel2_ChartArea.Size = new System.Drawing.Size(1142, 920);
             this.panel2_ChartArea.TabIndex = 63;
             // 
             // timer1
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1274, 821);
+            this.ClientSize = new System.Drawing.Size(1542, 920);
             this.Controls.Add(this.panel2_ChartArea);
             this.Controls.Add(this.panel1_menu);
             this.Name = "MainForm";
@@ -305,9 +344,12 @@
         private System.Windows.Forms.Button button3_solbi3;
         private System.Windows.Forms.Button button3_solbi2;
         private System.Windows.Forms.Button button3_solbi1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label1_mainHeader;
         private System.Windows.Forms.Panel panel2_ChartArea;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Panel panel4peakVal;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 

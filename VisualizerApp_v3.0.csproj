@@ -115,18 +115,6 @@
     <Compile Include="ScotPlot.Designer.cs">
       <DependentUpon>ScotPlot.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControl1.Designer.cs">
-      <DependentUpon>UserControl1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UserControl2.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControl2.Designer.cs">
-      <DependentUpon>UserControl2.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="ChartingForm.resx">
       <DependentUpon>ChartingForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -147,12 +135,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ScotPlot.resx">
       <DependentUpon>ScotPlot.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControl1.resx">
-      <DependentUpon>UserControl1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControl2.resx">
-      <DependentUpon>UserControl2.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />

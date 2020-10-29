@@ -266,7 +266,7 @@ namespace VisualizerApp
             }
             else if (cartesianCharts.Count == 2)
             {
-                int x = 60; //543;
+                //int x = 60; //543;
                 int y = 60;
                 int avg_x = Screen.PrimaryScreen.Bounds.Width / 2 - 400; int avg_y = Screen.PrimaryScreen.Bounds.Height / 2 - 60;
                 int max_x = Screen.PrimaryScreen.Bounds.Width / 2 - 100; int max_y = Screen.PrimaryScreen.Bounds.Height / 2 - 60;
@@ -298,8 +298,8 @@ namespace VisualizerApp
             {
                 
 
-                int x = 60; //543;
-                int y = 60;
+            //   int x = 60; //543;
+               //int y = 60;
                 int avg_x = Screen.PrimaryScreen.Bounds.Width / 2 - 400; int avg_y = Screen.PrimaryScreen.Bounds.Height - 100;
                 int max_x = Screen.PrimaryScreen.Bounds.Width / 2 - 100; int max_y = Screen.PrimaryScreen.Bounds.Height - 100;
                 int min_x = Screen.PrimaryScreen.Bounds.Width / 2 + 200; int min_y = Screen.PrimaryScreen.Bounds.Height - 100;
