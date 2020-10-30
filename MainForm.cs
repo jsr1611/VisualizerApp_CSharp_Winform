@@ -1,20 +1,11 @@
-﻿using LiveCharts;
-using LiveCharts.Geared;
-using LiveCharts.Wpf;
-using ScottPlot;
+﻿using ScottPlot;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using VisualizerApp_3;
 
 namespace VisualizerApp
 {
@@ -37,8 +28,19 @@ namespace VisualizerApp
         public double[] realtime_date { get; set; }
         public List<List<TextBox>> RT_textBoxes = new List<List<TextBox>>();
         public List<Label> RT_Labels = new List<Label>();
+        public bool digital_flag { get; set; }
 
         public List<string> myObjectList { get; set; }
+        public List<List<List<double[]>>> RTDataArr = new List<List<List<double[]>>>();
+        public double[] RTdata = new double[100_000];
+        public double[] RTtime = new double[100_000];
+        List<List<List<double[]>>> RTDataArray = new List<List<List<double[]>>>();
+        int nextDataIndex = 1;
+        Random rand = new Random(0);
+        public List<FormsPlot> formsPlots = new List<FormsPlot>();
+        public List<PlottableSignal> plts = new List<PlottableSignal>();
+        public PlottableSignal signalPlot;
+
         public MainForm()
         {
             InitializeComponent();
@@ -59,18 +61,18 @@ namespace VisualizerApp
         }
 
 
-        private void ScotPlot(List<List<List<string[]>>> MyDataArr, List<string> MywhatToShow, List<int> MySensorIDs_sel, bool MyRT_flag)
+        private void ScotPlot(List<List<List<string[]>>> MyDataArr, List<string> MyWhatToShow, List<int> MySensorIDs_sel, bool MyRT_flag)
         {
             Color[] colorset = new Color[] { Color.DarkOrange, Color.Red, Color.Blue, Color.Green };
             panel4peakVal.Controls.Clear();
             int numOfElmnt = 0;
-            if (MywhatToShow.Count > 1)
+            if (MyWhatToShow.Count > 1)
             {
                 numOfElmnt = CountNumOfElmnt(MyDataArr, MySensorIDs_sel, "all"); //데이터 개수 : number of Elements(temp)
             }
             else
             {
-                numOfElmnt = CountNumOfElmnt(MyDataArr, MySensorIDs_sel, MywhatToShow[0]);
+                numOfElmnt = CountNumOfElmnt(MyDataArr, MySensorIDs_sel, MyWhatToShow[0]);
             }
 
             string[] dataVal = new string[numOfElmnt];
@@ -79,20 +81,29 @@ namespace VisualizerApp
             TableLayoutPanel tableLayoutPanel = new TableLayoutPanel();
             tableLayoutPanel.Dock = DockStyle.Fill;
             panel2_ChartArea.Controls.Add(tableLayoutPanel);
-            
+            formsPlots.Clear();
+            plts.Clear();
+            RTdata = new double[100_000];
+            RTtime = new double[100_000];
+            nextDataIndex = 0;
+            RTDataArray.Clear();
+            timer1.Stop();
+            timer2.Stop();
+            timer3_render.Stop();
+
 
             if (MyRT_flag == false) // 시간 설정 시각화
             {
 
                 // 시각화 화면 세탕하기 1: TableLayoutPanel 구성 세팅
-                if (MywhatToShow.Count < 2)
+                if (MyWhatToShow.Count < 2)
                 {
                     tableLayoutPanel.RowCount = 1;
                     tableLayoutPanel.ColumnCount = 1;
                     tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
                     tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
                 }
-                else if (MywhatToShow.Count == 2)
+                else if (MyWhatToShow.Count == 2)
                 {
                     tableLayoutPanel.RowCount = 2;
                     tableLayoutPanel.ColumnCount = 1;
@@ -119,42 +130,42 @@ namespace VisualizerApp
                 string[][] dataArr2 = new string[MySensorIDs_sel.Count][]; //dataArr[0][0].Count
                 string[][] timeArr2 = new string[MySensorIDs_sel.Count][];
 
-                int peak_y = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
-                int label_y = peak_y - 24;
+                int peak_yAxis = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
+                int label_yAxis = peak_yAxis - 24;
 
-                for (int i = 0; i < MySensorIDs_sel.Count; i++)
+                for (int index_sensorID = 0; index_sensorID < MySensorIDs_sel.Count; index_sensorID++)
                 {
-                    dataArr2[i] = new string[numOfElmnt];
-                    timeArr2[i] = new string[numOfElmnt];
+                    dataArr2[index_sensorID] = new string[numOfElmnt];
+                    timeArr2[index_sensorID] = new string[numOfElmnt];
 
                     // 최고값 시각화를 위한 textbox 및 label 생성 및 
                     RichTextBox richTextBox = new RichTextBox();
-                    richTextBox.SetBounds(button3_solbi1.Bounds.X, peak_y, button_show.Bounds.Width, button_show.Bounds.Height);
-                    peak_y += button_show.Bounds.Height + 25;
+                    richTextBox.SetBounds(button3_solbi1.Bounds.X, peak_yAxis, button_show.Bounds.Width, button_show.Bounds.Height);
+                    peak_yAxis += button_show.Bounds.Height + 25;
                     PeakValTextBoxes.Add(richTextBox);
                     panel4peakVal.Controls.Add(richTextBox);
 
                     Label label = new Label();
-                    label.SetBounds(richTextBox.Bounds.X, label_y, richTextBox.Bounds.Width, 24);
-                    label_y += button_show.Bounds.Height + 25;
+                    label.SetBounds(richTextBox.Bounds.X, label_yAxis, richTextBox.Bounds.Width, 24);
+                    label_yAxis += button_show.Bounds.Height + 25;
                     PeakValLabels.Add(label);
                     panel4peakVal.Controls.Add(label);
-                 
+
                 }
                 // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성
                 for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
                 {
                     for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
                     {
-                        if(MywhatToShow.Count > index_column * tableLayoutPanel.RowCount + index_row)
+                        if (MyWhatToShow.Count > index_column * tableLayoutPanel.RowCount + index_row)
                         {
                             Panel panel = new Panel();
                             panel.BorderStyle = BorderStyle.FixedSingle;
                             panel.Dock = DockStyle.Fill;
-                            tableLayoutPanel.Controls.Add(panel, index_column, index_row);
+                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
                             FormsPlot formsPlot = new FormsPlot();
                             formsPlot.Dock = DockStyle.Fill;
-                            tableLayoutPanel.Controls.Add(panel, index_column, index_row);
+                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
                             formsPlots.Add(formsPlot);
                             panel.Controls.Add(formsPlot);
 
@@ -162,12 +173,12 @@ namespace VisualizerApp
                     }
                 }
 
-                for (int index_DataType = 0; index_DataType < MywhatToShow.Count; index_DataType++)
+                for (int index_DataType = 0; index_DataType < MyWhatToShow.Count; index_DataType++)
                 {
 
-                    if (MywhatToShow[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                    else if (MywhatToShow[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                    else if (MywhatToShow[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
+                    if (MyWhatToShow[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
+                    else if (MyWhatToShow[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
+                    else if (MyWhatToShow[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
                     else { titleName = "파티클(0.5μm)"; }
 
                     int annotY = 10;
@@ -180,7 +191,7 @@ namespace VisualizerApp
                             dataArr2[index_sensorID][index_DataElem] = MyDataArr[index_DataType][index_sensorID][index_DataElem][0];
                             timeArr2[index_sensorID][index_DataElem] = MyDataArr[index_DataType][index_sensorID][index_DataElem][1];
                         }
-                      
+
                         //Console.WriteLine("num of data points: {0}", numOfElmnt);
                         double[] ys = dataArr2[index_sensorID].Select(x => double.Parse(x)).ToArray();
                         DateTime[] timeData = timeArr2[index_sensorID].Select(x => DateTime.Parse(x)).ToArray();
@@ -195,8 +206,8 @@ namespace VisualizerApp
                         }
                         else
                         {
-                            //formsPlots[i].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot);                                    // Signal Chart
                             formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
+                            //formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
 
                         }
 
@@ -206,9 +217,9 @@ namespace VisualizerApp
                         //var sig = formsPlots[i].plt.PlotSignal(ys, sampleRate: 24*60, xOffset: xs[0]);     //                   --> Needs bug fixes
                         //formsPlots[i].plt.PlotScatter(xs, ys, lineWidth: 0);                          // Scatter Chart
 
-                        //formsPlots[i].plt.PlotStep(xs, ys);                                    // Step Chart
+                        //formsPlots[index_DataType].plt.PlotStep(xs, ys);                                    // Step Chart
                         //formsPlots[i].plt.PlotFill(xs, ys);                                    // Fill Chart
-                        //formsPlots[i].plt.PlotScatterHighlight(xs, ys);                          // ScatterHighlight
+                        //formsPlots[index_DataType].plt.PlotScatterHighlight(xs, ys);                          // ScatterHighlight
                         //formsPlots[i].plt.PlotPolygon(Tools.Pad(xs, cloneEdges: true), Tools.Pad(ys));
 
                         //formsPlots[i].plt.Grid(enable: false);      //Enable-Disable Gridn
@@ -219,13 +230,13 @@ namespace VisualizerApp
                         formsPlots[index_DataType].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
                         formsPlots[index_DataType].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
                         formsPlots[index_DataType].plt.XLabel("시간", fontSize: 20);
-                        if (MywhatToShow.Count == 1)
+                        if (MyWhatToShow.Count == 1)
                         {
                             formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White);
                         }
                         else
                         {
-                            if (MywhatToShow.Count == 2)
+                            if (MyWhatToShow.Count == 2)
                             {
                                 formsPlots[index_DataType].plt.Style(figBg: Color.LimeGreen);
                             }
@@ -268,10 +279,14 @@ namespace VisualizerApp
             }
             else // 실시간 시각화
             {
+                
+                
                 // 시각화 하려는 데이터 타입 갯수에 따라 textbox 컨테이너(List<T>) 생성
-                var digital_vis = true;
-                if (digital_vis)
+                //digital_flag = true;
+                if (digital_flag)
                 {
+                    timer1.Start();
+
                     if (SensorIDs_selected.Count < 2)
                     {
                         tableLayoutPanel.RowCount = 1;
@@ -305,22 +320,22 @@ namespace VisualizerApp
                         RT_textBoxes.Add(textBoxes);
                     }
                     // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성 - 실시간
-                    int bbox_count = 0;
+                    int txtBoxCount = 0;
 
-                    for (int i = 0; i < tableLayoutPanel.ColumnCount; i++)
+                    for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
                     {
-                        
 
-                        for (int j = 0; j < tableLayoutPanel.RowCount; j++)
+
+                        for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
                         {
-                            if (SensorIDs_selected.Count > i * tableLayoutPanel.RowCount + j)
+                            if (SensorIDs_selected.Count > index_column * tableLayoutPanel.RowCount + index_row)
                             {
                                 int yBound = 0;
 
                                 Panel panel = new Panel();
                                 panel.BorderStyle = BorderStyle.FixedSingle;
                                 panel.Dock = DockStyle.Fill;
-                                tableLayoutPanel.Controls.Add(panel, i, j);
+                                tableLayoutPanel.Controls.Add(panel, index_row, index_column);
 
                                 Label label = new Label();
                                 RT_Labels.Add(label);
@@ -328,29 +343,29 @@ namespace VisualizerApp
                                 label.Font = new Font(label.Font.FontFamily, 20, System.Drawing.FontStyle.Bold);
                                 label.TextAlign = ContentAlignment.MiddleCenter;
 
-                                label.Text = "센서 "+ SensorIDs_selected[i * tableLayoutPanel.RowCount + j];
+                                label.Text = "설비 " + SensorIDs_selected[index_column * tableLayoutPanel.RowCount + index_row];
                                 panel.Controls.Add(label);
                                 //Application.DoEvents();
                                 // 시각화 하려는 센서 갯수에 따라 textbox 생성 
-                                for (int boxIndex = 0; boxIndex < MywhatToShow.Count; boxIndex++)
+                                for (int boxIndex = 0; boxIndex < MyWhatToShow.Count; boxIndex++)
                                 {
                                     int counter = 0;
-                                    if (MywhatToShow.Count > 1) { counter = MywhatToShow.Count; }
+                                    if (MyWhatToShow.Count > 1) { counter = MyWhatToShow.Count; }
                                     TextBox textBox1 = new TextBox();
-                                    textBox1.SetBounds(panel.Bounds.Width / 2 - 250, 100 + yBound, 500, 70);
+                                    textBox1.SetBounds(panel.Bounds.Width / 2 - 275, 100 + yBound, 550, 70);
                                     textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
                                     textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
                                     textBox1.BackColor = this.BackColor;
                                     textBox1.BorderStyle = BorderStyle.None;
-                                    textBox1.Name = "textBox" + bbox_count + "_" + boxIndex;
+                                    textBox1.Name = "textBox" + txtBoxCount + "_" + boxIndex;
                                     yBound += 75;
                                     panel.Controls.Add(textBox1);
-                                    RT_textBoxes[bbox_count].Add(textBox1);
+                                    RT_textBoxes[txtBoxCount].Add(textBox1);
                                     //textBox1.Text = "textBox" + bbox_count + "_" + boxIndex;
                                     //Application.DoEvents();
 
                                 }
-                                bbox_count += 1;
+                                txtBoxCount += 1;
                             }
                         }
                     }
@@ -358,7 +373,203 @@ namespace VisualizerApp
                 }
                 else // Chart form
                 {
-                    throw new NotImplementedException(); //Not Implemented Yet
+                    timer2.Start();
+                    timer3_render.Start();
+
+                    //throw new NotImplementedException(); //Not Implemented Yet
+                    // 시각화 화면 세탕하기 1: TableLayoutPanel 구성 세팅
+                    if (MyWhatToShow.Count < 2)
+                    {
+                        tableLayoutPanel.RowCount = 1;
+                        tableLayoutPanel.ColumnCount = 1;
+                        tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    }
+                    else if (MyWhatToShow.Count == 2)
+                    {
+                        tableLayoutPanel.RowCount = 2;
+                        tableLayoutPanel.ColumnCount = 1;
+                        tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    }
+                    else
+                    {
+                        tableLayoutPanel.RowCount = 2;
+                        tableLayoutPanel.ColumnCount = 2;
+                        tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    }
+
+                    // 최대값 표시를 위한 textbox 및 label 
+                    List<RichTextBox> PeakValTextBoxes = new List<RichTextBox>();
+                    List<Label> PeakValLabels = new List<Label>();
+                    // ScotPlot 차트 함수인 FormsPlot들을 위한 List 생성  
+                    //List<FormsPlot> formsPlots = new List<FormsPlot>();
+
+                    string[][] dataArr2 = new string[MySensorIDs_sel.Count][]; //dataArr[0][0].Count
+                    string[][] timeArr2 = new string[MySensorIDs_sel.Count][];
+
+                    int peak_yAxis = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
+                    int label_yAxis = peak_yAxis - 24;
+
+                    for (int index_sensorID = 0; index_sensorID < MySensorIDs_sel.Count; index_sensorID++)
+                    {
+                        dataArr2[index_sensorID] = new string[numOfElmnt];
+                        timeArr2[index_sensorID] = new string[numOfElmnt];
+
+                        // 최고값 시각화를 위한 textbox 및 label 생성 및 
+                        /*RichTextBox richTextBox = new RichTextBox();
+                        richTextBox.SetBounds(button3_solbi1.Bounds.X, peak_yAxis, button_show.Bounds.Width, button_show.Bounds.Height);
+                        peak_yAxis += button_show.Bounds.Height + 25;
+                        PeakValTextBoxes.Add(richTextBox);
+                        panel4peakVal.Controls.Add(richTextBox);
+
+                        Label label = new Label();
+                        label.SetBounds(richTextBox.Bounds.X, label_yAxis, richTextBox.Bounds.Width, 24);
+                        label_yAxis += button_show.Bounds.Height + 25;
+                        PeakValLabels.Add(label);
+                        panel4peakVal.Controls.Add(label);*/
+
+                    }
+                    // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성
+                    for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
+                    {
+                        for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
+                        {
+                            if (MyWhatToShow.Count > index_column * tableLayoutPanel.RowCount + index_row)
+                            {
+                                Panel panel = new Panel();
+                                panel.BorderStyle = BorderStyle.FixedSingle;
+                                panel.Dock = DockStyle.Fill;
+                                tableLayoutPanel.Controls.Add(panel, index_row, index_column);
+                                FormsPlot formsPlot = new FormsPlot();
+                                formsPlot.Name = "formPlot" + index_column * tableLayoutPanel.RowCount + index_row;
+                                formsPlot.Dock = DockStyle.Fill;
+                                tableLayoutPanel.Controls.Add(panel, index_row, index_column);
+                                formsPlots.Add(formsPlot);
+                                panel.Controls.Add(formsPlot);
+
+                            }
+                        }
+                    }
+
+
+                    for (int index_DataType = 0; index_DataType < MyWhatToShow.Count; index_DataType++)
+                    {
+                        List<List<double[]>> vs = new List<List<double[]>>();
+                        RTDataArray.Add(vs);
+                        if (MyWhatToShow[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
+                        else if (MyWhatToShow[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
+                        else if (MyWhatToShow[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
+                        else { titleName = "파티클(0.5μm)"; }
+
+                        /*int annotY = 10;
+                        int annotY2 = -10;*/
+                        //var plt = formsPlots[index_DataType].plt.PlotSignal(RTdata);  //formsPlots[index_DataType];
+
+                        for (int index_sensorID = 0; index_sensorID < MySensorIDs_sel.Count; index_sensorID++)
+                        {
+                            List<double[]> vs0 = new List<double[]>();
+                            RTDataArray[index_DataType].Add(vs0);
+                            double[] vs1 = new double[100_000];
+                            double[] vs2 = new double[100_000];
+
+                            RTDataArray[index_DataType][index_sensorID].Add(vs1);
+                            RTDataArray[index_DataType][index_sensorID].Add(vs2);
+
+
+                            /* for (int index_DataElem = 0; index_DataElem < numOfElmnt; index_DataElem++)
+                             {
+                                 dataArr2[index_sensorID][index_DataElem] = MyDataArr[index_DataType][index_sensorID][index_DataElem][0];
+                                 timeArr2[index_sensorID][index_DataElem] = MyDataArr[index_DataType][index_sensorID][index_DataElem][1];
+                             }
+
+                             //Console.WriteLine("num of data points: {0}", numOfElmnt);
+                             double[] ys = dataArr2[index_sensorID].Select(x => double.Parse(x)).ToArray();
+                             DateTime[] timeData = timeArr2[index_sensorID].Select(x => DateTime.Parse(x)).ToArray();
+                             double[] xs = timeData.Select(x => x.ToOADate()).ToArray();
+                             realtime_date = ys.ToArray();
+                             realtime_values = xs.ToArray();
+                             RTdata = ys.ToArray();
+                             RTtime = xs.ToArray();*/
+
+
+
+
+                            // CHARTING Functions
+
+                            //var sig = formsPlots[i].plt.PlotSignal(ys, sampleRate: 24*60, xOffset: xs[0]);     //                   --> Needs bug fixes
+
+
+                            //formsPlots[index_DataType].plt.PlotStep(xs, ys);                                    // Step Chart
+                            //formsPlots[i].plt.PlotFill(xs, ys);                                    // Fill Chart
+                            //formsPlots[index_DataType].plt.PlotScatterHighlight(xs, ys);                          // ScatterHighlight
+                            //formsPlots[i].plt.PlotPolygon(Tools.Pad(xs, cloneEdges: true), Tools.Pad(ys));
+
+                            //formsPlots[index_DataType].plt.PlotSignalXYConst(RTtime, RTdata);                                    // Signal Chart // , lineStyle: LineStyle.Dot, color: colorset[index_sensorID]
+                            //formsPlots[index_DataType].plt.PlotScatter(RTtime, RTdata, lineWidth: 0);                          // Scatter Chart
+                            //formsPlots[i].plt.Grid(enable: false);      //Enable-Disable Gridn
+                            Console.WriteLine("WTF: " + RTDataArray[index_DataType][index_sensorID][0].Length);
+                            signalPlot = formsPlots[index_DataType].plt.PlotSignal(RTDataArray[index_DataType][index_sensorID][0]);
+                             
+                            //formsPlots[i].plt.Ticks(dateTimeX: true); //formsPlot1.
+                            //formsPlots[index_DataType].plt.Ticks(dateTimeX: true); //formsPlot1.
+                            formsPlots[index_DataType].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
+                            formsPlots[index_DataType].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
+                            formsPlots[index_DataType].plt.XLabel("시간", fontSize: 20);
+                            if (MyWhatToShow.Count == 1)
+                            {
+                                formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White);
+                            }
+                            else
+                            {
+                                if (MyWhatToShow.Count == 2)
+                                {
+                                    formsPlots[index_DataType].plt.Style(figBg: Color.LimeGreen);
+                                }
+                                else
+                                {
+                                    formsPlots[index_DataType].plt.Style(figBg: Color.LightBlue);
+                                }
+
+                            }
+
+
+
+                            /*formsPlots[i].plt.PlotAnnotation("설비 " + IDs[i].ToString(), 10, 10, fontSize: 20);
+                            formsPlots[i].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
+                            formsPlots[i].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
+                            formsPlots[i].plt.XLabel("시간", fontSize: 20);
+                            formsPlots[i].plt.Style(figBg: Color.LightBlue);*/
+                            /* Tuple<double, int> tupleMax = FindMax(ys);
+                             double max = tupleMax.Item1;
+                             int indexOfMax = tupleMax.Item2;
+
+                             PeakValTextBoxes[index_sensorID].AppendText("\n" + timeData[indexOfMax].ToString());
+                             PeakValTextBoxes[index_sensorID].Text = max.ToString();
+                             PeakValTextBoxes[index_sensorID].Font = new Font(PeakValTextBoxes[index_sensorID].Font.FontFamily, 25);
+                             toolTip1.SetToolTip(PeakValTextBoxes[index_sensorID], timeData[indexOfMax].ToString());  // 마우스 포인팅 시 관련 시간을 표시함
+                             PeakValLabels[index_sensorID].Font = new Font(PeakValLabels[index_sensorID].Font.FontFamily, 16);
+                             PeakValTextBoxes[index_sensorID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+                             PeakValLabels[index_sensorID].Text = "설비 " + SensorIDs_selected[index_sensorID].ToString() + " 최고값";
+                             PeakValLabels[index_sensorID].TextAlign = ContentAlignment.MiddleCenter;
+
+                             formsPlots[index_DataType].plt.PlotAnnotation("설비 " + MySensorIDs_sel[index_sensorID].ToString(), 10, annotY, fontSize: 20, fontColor: colorset[index_sensorID]);
+                             formsPlots[index_DataType].plt.PlotAnnotation("최고값: " + max.ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_sensorID]);
+                             annotY += 35;
+                             annotY2 -= 25;*/
+
+                            //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
+                            plts.Add(signalPlot);
+                        }
+                        //formsPlots[index_DataType].Render();
+                        
+                    }
+                    //timer2.Tick += timer2_Tick;
+                    Console.WriteLine(RTDataArray.Count);
                 }
             }
         }
@@ -426,13 +637,15 @@ namespace VisualizerApp
                 {
                     Console.WriteLine("Now RealTime");
                     timer1.Enabled = true;
-                    timer1.Start();
+                    timer2.Enabled = true;
+                    timer3_render.Enabled = true;
+                    
                     SensorIDs_selected.Sort();
                     timeInterval[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                     timeInterval[1] = "RT";
                     List<List<List<string[]>>> DataRetrieved_RT = myDataQuery.RealTimeDBQuery(SensorIDs_selected, whatToShow2);
-                    IDs_SelectedNext = new List<int> (SensorIDs_selected);
-                    whatToShowNext = new List<string> (whatToShow2);
+                    IDs_SelectedNext = new List<int>(SensorIDs_selected);
+                    whatToShowNext = new List<string>(whatToShow2);
                     ScotPlot(DataRetrieved_RT, whatToShow2, SensorIDs_selected, true);
                     //RealTimeCharting(DataRetrieved_RT, timeInterval, IDs_selected, whatToShow);
 
@@ -489,10 +702,6 @@ namespace VisualizerApp
             }
             else { MessageBox.Show("시간을 선택하지 않으셨습니다. 실시간 또는 기간 설정을 해 주세요!", "에러 메시지"); }
 
-            foreach (var item in SensorIDs_selected)
-            {
-                Console.WriteLine("IDs selected: {0} ", item);
-            }
         }
 
 
@@ -597,6 +806,8 @@ namespace VisualizerApp
 
         private void button1_Click(object sender, EventArgs e)
         {
+            button1_numRT.Visible = true;
+            button1_chartRT.Visible = true;
             //"실시간" button
             highlightSelectedBtn(Btn1_time, 0, Color.Chartreuse);
             datePicker1_start.Visible = false;
@@ -611,6 +822,8 @@ namespace VisualizerApp
 
         private void button2_Click(object sender, EventArgs e)
         {
+            button1_numRT.Visible = false;
+            button1_chartRT.Visible = false;
             //"24시간" button
             highlightSelectedBtn(Btn1_time, 1, Color.Chartreuse);
 
@@ -628,6 +841,8 @@ namespace VisualizerApp
 
         private void button3_Click(object sender, EventArgs e)
         {
+            button1_numRT.Visible = false;
+            button1_chartRT.Visible = false;
             //"시간 설정" button
             highlightSelectedBtn(Btn1_time, 2, Color.Chartreuse);
             datePicker1_start.Visible = true;
@@ -789,7 +1004,7 @@ namespace VisualizerApp
             List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
             DataRetrieved_RT = myDataQuery.RealTimeDBQuery(IDs_SelectedNext, whatToShowNext);
             string printedData = "";
-            for(int ind=0; ind< RT_textBoxes.Count; ind++) { //Data_selected
+            for (int ind = 0; ind < RT_textBoxes.Count; ind++) { //Data_selected
                 for (int i = 0; i < RT_textBoxes[ind].Count; i++) //whatToShow2
                 {
                     //string[][] dataArr2 = DataRetrieved_RT[ind][i].Select(x => x.ToArray()).ToArray();
@@ -814,15 +1029,96 @@ namespace VisualizerApp
                         printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][ind][0][0])) + " (0.5μm)";
                         RT_textBoxes[ind][i].Text = printedData;
                     }
-                    Console.WriteLine("printedData " + printedData);
+                    //Console.WriteLine("printedData " + printedData);
                 }
-                
+
             }
-            Console.WriteLine();
+            //Console.WriteLine();
             timer1.Interval = 1000;
         }
 
+        private void button1_numRT_Click(object sender, EventArgs e)
+        {
+            if (button1_numRT.BackColor != Color.Transparent)
+            {
+                button1_numRT.BackColor = Color.Transparent;
+
+            }
+            else
+            {
+                button1_numRT.BackColor = Color.Chartreuse;
+                button1_chartRT.BackColor = Color.Transparent;
+                digital_flag = true;
+            }
+        }
+
+        private void button1_chartRT_Click(object sender, EventArgs e)
+        {
+            if (button1_chartRT.BackColor != Color.Transparent)
+            {
+                button1_chartRT.BackColor = Color.Transparent;
+            }
+            else
+            {
+                button1_chartRT.BackColor = Color.Chartreuse;
+                button1_numRT.BackColor = Color.Transparent;
+                digital_flag = false;
+            }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            
+            MyDataQuery myDataQuery = new MyDataQuery();
+            List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
+            DataRetrieved_RT = myDataQuery.RealTimeDBQuery(IDs_SelectedNext, whatToShowNext);
+            
+            //RTdata[nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[0][0][0][0]);
+            for(int i=0; i<whatToShowNext.Count; i++)
+            {
+                for(int id_index=0; id_index<IDs_SelectedNext.Count; id_index++)
+                {
+                   
+                    RTDataArray[i][id_index][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[i][id_index][0][0]);
+                    DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[0][0][0][1]);
+                    RTDataArray[i][id_index][1][nextDataIndex] = dtime.ToOADate();
+                    Console.WriteLine("timer2 tick() index {0} {1} {2}", nextDataIndex, RTDataArray[i][id_index][0][nextDataIndex], dtime);
+                    //RTtime[nextDataIndex] = dtime.ToOADate();
+                    //timer2.Interval = 1000;
+
+                    
+                }
+                
+            }
+            for(int pltIndex=0; pltIndex<plts.Count; pltIndex++)
+            {
+                plts[pltIndex].maxRenderIndex = nextDataIndex;
+            }
+
+            for (int i=0; i< formsPlots.Count; i++){
+                
+                Console.WriteLine(formsPlots[i].Name);
+                formsPlots[i].plt.AxisAuto();
+                formsPlots[i].Render();
+            }
+         
+            nextDataIndex += 1;
+            timer2.Interval = 1000;
+        }
+
+        private void timer3_render_Tick(object sender, EventArgs e)
+        {
+            for(int i=0; i<formsPlots.Count; i++)
+            {
+                double[] autoAxisLimits = formsPlots[i].plt.AxisAuto(verticalMargin: .5);
+                double oldX2 = autoAxisLimits[1];
+                formsPlots[i].plt.Axis(x2: oldX2 + 1000);
+            }
+            timer3_render.Interval = 1000;
+            
+        }
     }
+
     /// <summary>
     /// 데이터 쿼리를 위한 만든 클래스
     /// </summary>

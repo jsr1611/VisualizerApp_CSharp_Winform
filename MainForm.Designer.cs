@@ -35,7 +35,9 @@
             this.label2_end = new System.Windows.Forms.Label();
             this.button_show = new System.Windows.Forms.Button();
             this.panel1_menu = new System.Windows.Forms.Panel();
+            this.button1_chartRT = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.button1_numRT = new System.Windows.Forms.Button();
             this.panel4peakVal = new System.Windows.Forms.Panel();
             this.label1_mainHeader = new System.Windows.Forms.Label();
             this.button3_solbi4 = new System.Windows.Forms.Button();
@@ -52,6 +54,8 @@
             this.panel2_ChartArea = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.timer3_render = new System.Windows.Forms.Timer(this.components);
             this.panel1_menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -118,7 +122,9 @@
             // 
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
             this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1_menu.Controls.Add(this.button1_chartRT);
             this.panel1_menu.Controls.Add(this.comboBox1);
+            this.panel1_menu.Controls.Add(this.button1_numRT);
             this.panel1_menu.Controls.Add(this.panel4peakVal);
             this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button3_solbi4);
@@ -143,6 +149,17 @@
             this.panel1_menu.Size = new System.Drawing.Size(400, 920);
             this.panel1_menu.TabIndex = 62;
             // 
+            // button1_chartRT
+            // 
+            this.button1_chartRT.Location = new System.Drawing.Point(96, 181);
+            this.button1_chartRT.Name = "button1_chartRT";
+            this.button1_chartRT.Size = new System.Drawing.Size(75, 23);
+            this.button1_chartRT.TabIndex = 1;
+            this.button1_chartRT.Text = "차트형";
+            this.button1_chartRT.UseVisualStyleBackColor = true;
+            this.button1_chartRT.Visible = false;
+            this.button1_chartRT.Click += new System.EventHandler(this.button1_chartRT_Click);
+            // 
             // comboBox1
             // 
             this.comboBox1.Font = new System.Drawing.Font("Gulim", 15F);
@@ -155,6 +172,18 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(363, 28);
             this.comboBox1.TabIndex = 78;
+            this.comboBox1.Visible = false;
+            // 
+            // button1_numRT
+            // 
+            this.button1_numRT.Location = new System.Drawing.Point(15, 181);
+            this.button1_numRT.Name = "button1_numRT";
+            this.button1_numRT.Size = new System.Drawing.Size(75, 23);
+            this.button1_numRT.TabIndex = 0;
+            this.button1_numRT.Text = "숫자형";
+            this.button1_numRT.UseVisualStyleBackColor = true;
+            this.button1_numRT.Visible = false;
+            this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
             // 
             // panel4peakVal
             // 
@@ -310,6 +339,16 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
+            // timer2
+            // 
+            this.timer2.Interval = 1000;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // timer3_render
+            // 
+            this.timer3_render.Interval = 1000;
+            this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -350,6 +389,10 @@
         private System.Windows.Forms.Panel panel4peakVal;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Button button1_chartRT;
+        private System.Windows.Forms.Button button1_numRT;
+        private System.Windows.Forms.Timer timer2;
+        private System.Windows.Forms.Timer timer3_render;
     }
 }
 
