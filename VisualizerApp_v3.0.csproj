@@ -89,12 +89,6 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChartingForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ChartingForm.Designer.cs">
-      <DependentUpon>ChartingForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,15 +103,6 @@
     <Compile Include="NewChartingForm.Designer.cs">
       <DependentUpon>NewChartingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ScotPlot.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ScotPlot.Designer.cs">
-      <DependentUpon>ScotPlot.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="ChartingForm.resx">
-      <DependentUpon>ChartingForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -133,10 +118,6 @@
     <EmbeddedResource Include="NewChartingForm.resx">
       <DependentUpon>NewChartingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ScotPlot.resx">
-      <DependentUpon>ScotPlot.cs</DependentUpon>
-    </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
