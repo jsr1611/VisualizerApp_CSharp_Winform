@@ -151,9 +151,9 @@
             // 
             // button1_chartRT
             // 
-            this.button1_chartRT.Location = new System.Drawing.Point(96, 181);
+            this.button1_chartRT.Location = new System.Drawing.Point(109, 178);
             this.button1_chartRT.Name = "button1_chartRT";
-            this.button1_chartRT.Size = new System.Drawing.Size(75, 23);
+            this.button1_chartRT.Size = new System.Drawing.Size(90, 40);
             this.button1_chartRT.TabIndex = 1;
             this.button1_chartRT.Text = "차트형";
             this.button1_chartRT.UseVisualStyleBackColor = true;
@@ -176,9 +176,9 @@
             // 
             // button1_numRT
             // 
-            this.button1_numRT.Location = new System.Drawing.Point(15, 181);
+            this.button1_numRT.Location = new System.Drawing.Point(15, 178);
             this.button1_numRT.Name = "button1_numRT";
-            this.button1_numRT.Size = new System.Drawing.Size(75, 23);
+            this.button1_numRT.Size = new System.Drawing.Size(90, 40);
             this.button1_numRT.TabIndex = 0;
             this.button1_numRT.Text = "숫자형";
             this.button1_numRT.UseVisualStyleBackColor = true;
@@ -209,7 +209,7 @@
             // button3_solbi4
             // 
             this.button3_solbi4.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button3_solbi4.Location = new System.Drawing.Point(288, 364);
+            this.button3_solbi4.Location = new System.Drawing.Point(288, 353);
             this.button3_solbi4.Name = "button3_solbi4";
             this.button3_solbi4.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi4.TabIndex = 73;
@@ -220,7 +220,7 @@
             // button3_solbi3
             // 
             this.button3_solbi3.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button3_solbi3.Location = new System.Drawing.Point(196, 364);
+            this.button3_solbi3.Location = new System.Drawing.Point(196, 353);
             this.button3_solbi3.Name = "button3_solbi3";
             this.button3_solbi3.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi3.TabIndex = 72;
@@ -231,7 +231,7 @@
             // button3_solbi2
             // 
             this.button3_solbi2.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button3_solbi2.Location = new System.Drawing.Point(104, 364);
+            this.button3_solbi2.Location = new System.Drawing.Point(104, 353);
             this.button3_solbi2.Name = "button3_solbi2";
             this.button3_solbi2.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi2.TabIndex = 71;
@@ -242,7 +242,7 @@
             // button3_solbi1
             // 
             this.button3_solbi1.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button3_solbi1.Location = new System.Drawing.Point(12, 364);
+            this.button3_solbi1.Location = new System.Drawing.Point(12, 353);
             this.button3_solbi1.Name = "button3_solbi1";
             this.button3_solbi1.Size = new System.Drawing.Size(90, 65);
             this.button3_solbi1.TabIndex = 70;
@@ -253,7 +253,7 @@
             // button2_part05
             // 
             this.button2_part05.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button2_part05.Location = new System.Drawing.Point(288, 238);
+            this.button2_part05.Location = new System.Drawing.Point(288, 226);
             this.button2_part05.Name = "button2_part05";
             this.button2_part05.Size = new System.Drawing.Size(90, 65);
             this.button2_part05.TabIndex = 69;
@@ -264,7 +264,7 @@
             // button2_part03
             // 
             this.button2_part03.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button2_part03.Location = new System.Drawing.Point(196, 238);
+            this.button2_part03.Location = new System.Drawing.Point(196, 226);
             this.button2_part03.Name = "button2_part03";
             this.button2_part03.Size = new System.Drawing.Size(90, 65);
             this.button2_part03.TabIndex = 68;
@@ -275,7 +275,7 @@
             // button2_humid
             // 
             this.button2_humid.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button2_humid.Location = new System.Drawing.Point(104, 238);
+            this.button2_humid.Location = new System.Drawing.Point(104, 226);
             this.button2_humid.Name = "button2_humid";
             this.button2_humid.Size = new System.Drawing.Size(90, 65);
             this.button2_humid.TabIndex = 67;
@@ -286,7 +286,7 @@
             // button2_temp
             // 
             this.button2_temp.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button2_temp.Location = new System.Drawing.Point(12, 238);
+            this.button2_temp.Location = new System.Drawing.Point(12, 226);
             this.button2_temp.Name = "button2_temp";
             this.button2_temp.Size = new System.Drawing.Size(90, 65);
             this.button2_temp.TabIndex = 66;
@@ -297,7 +297,7 @@
             // button1_datepicker
             // 
             this.button1_datepicker.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button1_datepicker.Location = new System.Drawing.Point(258, 93);
+            this.button1_datepicker.Location = new System.Drawing.Point(258, 90);
             this.button1_datepicker.Name = "button1_datepicker";
             this.button1_datepicker.Size = new System.Drawing.Size(120, 65);
             this.button1_datepicker.TabIndex = 65;
@@ -308,7 +308,7 @@
             // button1_24h
             // 
             this.button1_24h.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button1_24h.Location = new System.Drawing.Point(135, 93);
+            this.button1_24h.Location = new System.Drawing.Point(135, 90);
             this.button1_24h.Name = "button1_24h";
             this.button1_24h.Size = new System.Drawing.Size(120, 65);
             this.button1_24h.TabIndex = 64;
@@ -319,7 +319,7 @@
             // button1_realtime
             // 
             this.button1_realtime.Font = new System.Drawing.Font("Gulim", 15F);
-            this.button1_realtime.Location = new System.Drawing.Point(12, 93);
+            this.button1_realtime.Location = new System.Drawing.Point(12, 90);
             this.button1_realtime.Name = "button1_realtime";
             this.button1_realtime.Size = new System.Drawing.Size(120, 65);
             this.button1_realtime.TabIndex = 63;
