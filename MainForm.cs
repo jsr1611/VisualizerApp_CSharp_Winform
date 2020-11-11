@@ -1110,7 +1110,6 @@ namespace VisualizerApp
                     IDs_now.Remove(btn_num);
                     button.BackColor = Color.Transparent;
                     if(IDs_now.Count < 1) { button_show.Visible = false; }
-
                 }
             
         }
@@ -1156,7 +1155,8 @@ namespace VisualizerApp
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "에러 메시지");
+                //MessageBox.Show(ex.Message, "에러 메시지");
+                throw new Exception(ex.Message);
             }
             //Console.WriteLine();
             timer1.Interval = 1000;
@@ -1202,7 +1202,8 @@ namespace VisualizerApp
                 }
             }
             catch(Exception ex) {
-                MessageBox.Show(ex.Message, "에러 메시지");
+                //MessageBox.Show(ex.Message, "에러 메시지");
+                throw new Exception(ex.Message);
             }
             nextDataIndex += 1;
             timer2.Interval = 1000;
@@ -1216,7 +1217,8 @@ namespace VisualizerApp
                 }
             }
             catch(Exception ex) {
-                MessageBox.Show(ex.Message, "에러 메시지");
+                //MessageBox.Show(ex.Message, "에러 메시지");
+                throw new Exception(ex.Message);
             }
             timer3_render.Interval = 1000;
         }
