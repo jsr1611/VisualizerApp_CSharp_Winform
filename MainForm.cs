@@ -17,7 +17,9 @@ namespace VisualizerApp
         public Button[] Btn2_DataType = new Button[4];
         public Button[] Btn3_SensorLocation { get; set; }
         public Button button_show = new Button();
-        
+        public Button Btn_MinimizeMenuPanel = new Button();
+        public Panel panel4peakVal = new Panel();
+
         public List<string> SensorLocation = new List<string>();
         public List<int> IDs_now = new List<int>();
         public List<int> IDs_next = new List<int>();
@@ -26,6 +28,8 @@ namespace VisualizerApp
         public List<string> Sql_NamesNow = new List<string>();
         public string titleName = "";
         public List<List<TextBox>> RT_textBoxes = new List<List<TextBox>>();
+        
+        public List<Label> PeakValLabels = new List<Label>();
         public Color[] colorset { get; set; }
         public bool digital_flag { get; set; }
 
@@ -41,7 +45,7 @@ namespace VisualizerApp
         public MainForm()
         {
             InitializeComponent();
-            this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 100);
+            this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height-50);
             this.AutoScroll = true;
             datePicker1_start.Format = DateTimePickerFormat.Custom;
             datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm";
@@ -100,7 +104,7 @@ namespace VisualizerApp
             }
             //(시각화) 보기 버튼 생성
             button_show.SetBounds(Btn2_DataType[1].Bounds.X, Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3/2, Btn2_DataType[2].Bounds.X - (Btn2_DataType[2].Bounds.Width + Btn2_DataType[1].Bounds.X) + Btn2_DataType[2].Bounds.Width * 2, Btn2_DataType[2].Bounds.Height);
-            button_show.Text = "확인요";
+            button_show.Text = "확인";
             button_show.Font = new Font(button_show.Font.FontFamily, 15);
             button_show.Click += new EventHandler(this.button_show_Click);
             panel1_menu.Controls.Add(button_show);
@@ -110,6 +114,22 @@ namespace VisualizerApp
             */
 
             comboBox1.SelectedIndex = 0;
+            
+            Btn_MinimizeMenuPanel.Text = "<";
+            Btn_MinimizeMenuPanel.SetBounds(panel1_menu.Bounds.Width - 15, 0, 15, 20);
+            panel1_menu.Controls.Add(Btn_MinimizeMenuPanel);
+            Btn_MinimizeMenuPanel.Click += new EventHandler(this.MinimizeMenuPanel_Click);
+            Btn_MinimizeMenuPanel.Dock = DockStyle.Right;
+            toolTip1.SetToolTip(Btn_MinimizeMenuPanel, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
+
+
+            // Panel for peak values under the select menu
+            //panel4peakVal.BackColor = Color.Transparent;
+            panel4peakVal.SetBounds(15, 569, 379, 349);
+            panel4peakVal.BorderStyle = BorderStyle.None;
+            panel4peakVal.Dock = DockStyle.Bottom;
+            panel1_menu.Controls.Add(panel4peakVal);
+            
 
         }
 
@@ -232,20 +252,20 @@ namespace VisualizerApp
                     int annotY = 10;
                     int annotY2 = -10;
                     var plt = formsPlots[index_DataType];
-                    for (int index_sensorID = 0; index_sensorID < MyIDs.Count; index_sensorID++)
+                    for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
                         for (int index_DataElem = 0; index_DataElem < numOfElmnt; index_DataElem++)
                         {
-                            dataArr2[index_sensorID][index_DataElem] = MyData[index_DataType][index_sensorID][index_DataElem][0];
-                            timeArr2[index_sensorID][index_DataElem] = MyData[index_DataType][index_sensorID][index_DataElem][1];
+                            dataArr2[index_ID][index_DataElem] = MyData[index_DataType][index_ID][index_DataElem][0];
+                            timeArr2[index_ID][index_DataElem] = MyData[index_DataType][index_ID][index_DataElem][1];
                         }
 
                         //Console.WriteLine("num of data points: {0}", numOfElmnt);
-                        double[] ys = dataArr2[index_sensorID].Select(x => double.Parse(x)).ToArray();
-                        DateTime[] timeData = timeArr2[index_sensorID].Select(x => DateTime.Parse(x)).ToArray();
+                        double[] ys = dataArr2[index_ID].Select(x => double.Parse(x)).ToArray();
+                        DateTime[] timeData = timeArr2[index_ID].Select(x => DateTime.Parse(x)).ToArray();
                         double[] xs = timeData.Select(x => x.ToOADate()).ToArray();
                         
-                            formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
+                            formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_ID]);                                    // Signal Chart
                             //formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
                         
 
@@ -265,12 +285,12 @@ namespace VisualizerApp
 
                         //formsPlots[i].plt.Ticks(dateTimeX: true); //formsPlot1.
                         formsPlots[index_DataType].plt.Ticks(dateTimeX: true); //formsPlot1.
-                        formsPlots[index_DataType].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
+                        formsPlots[index_DataType].plt.Title(titleName, fontSize: 24); // formsPlot1.
                         formsPlots[index_DataType].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
                         formsPlots[index_DataType].plt.XLabel("시간", fontSize: 20);
                         if (MyDataTypes.Count == 1)
                         {
-                            formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White);
+                            formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White, label:Color.White, title:Color.White);
                         }
                         else
                         {
@@ -287,7 +307,7 @@ namespace VisualizerApp
 
 
                         /*formsPlots[i].plt.PlotAnnotation(Btn3_SensorLocation[i].Text, 10, 10, fontSize: 20);
-                        formsPlots[i].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
+                        formsPlots[i].plt.Title(titleName, fontSize: 24); // formsPlot1.
                         formsPlots[i].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
                         formsPlots[i].plt.XLabel("시간", fontSize: 20);
                         formsPlots[i].plt.Style(figBg: Color.LightBlue);*/
@@ -295,17 +315,17 @@ namespace VisualizerApp
                         double max = tupleMax.Item1;
                         int indexOfMax = tupleMax.Item2;
 
-                        PeakValTextBoxes[index_sensorID].AppendText("\n" + timeData[indexOfMax].ToString());
-                        PeakValTextBoxes[index_sensorID].Text = max.ToString();
-                        PeakValTextBoxes[index_sensorID].Font = new Font(PeakValTextBoxes[index_sensorID].Font.FontFamily, 25);
-                        toolTip1.SetToolTip(PeakValTextBoxes[index_sensorID], timeData[indexOfMax].ToString());  // 마우스 포인팅 시 관련 시간을 표시함
-                        PeakValLabels[index_sensorID].Font = new Font(PeakValLabels[index_sensorID].Font.FontFamily, 16);
-                        PeakValTextBoxes[index_sensorID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
-                        PeakValLabels[index_sensorID].Text = Btn3_SensorLocation[MyIDs[index_sensorID]-1].Text + " 최고값";
-                        PeakValLabels[index_sensorID].TextAlign = ContentAlignment.MiddleCenter;
+                        PeakValTextBoxes[index_ID].AppendText("\n" + timeData[indexOfMax].ToString());
+                        PeakValTextBoxes[index_ID].Text = max.ToString();
+                        PeakValTextBoxes[index_ID].Font = new Font(PeakValTextBoxes[index_ID].Font.FontFamily, 25);
+                        toolTip1.SetToolTip(PeakValTextBoxes[index_ID], timeData[indexOfMax].ToString());  // 마우스 포인팅 시 관련 시간을 표시함
+                        PeakValLabels[index_ID].Font = new Font(PeakValLabels[index_ID].Font.FontFamily, 16);
+                        PeakValTextBoxes[index_ID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+                        PeakValLabels[index_ID].Text = Btn3_SensorLocation[MyIDs[index_ID]-1].Text + " 최고값";
+                        PeakValLabels[index_ID].TextAlign = ContentAlignment.MiddleCenter;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_sensorID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_sensorID]);
-                        formsPlots[index_DataType].plt.PlotAnnotation("최고값: " + max.ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_sensorID]);
+                        formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha:1);
+                        formsPlots[index_DataType].plt.PlotAnnotation("최고값: " + max.ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                         annotY += 35;
                         annotY2 -= 25;
 
@@ -419,7 +439,7 @@ namespace VisualizerApp
                         MessageBox.Show(ex.Message, "Error message");
                     }
                 }
-                //plottableAnnotations.Add(formsPlots[index_DataType].plt.PlotAnnotation(label: "하루 최고값: " + RT_Max[index_DataType][index_ID][0][RT_Max[index_DataType][index_ID][0].Count - 1].ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID]));
+                //plottableAnnotations.Add(formsPlots[index_DataType].plt.PlotAnnotation(label: "최고값: " + RT_Max[index_DataType][index_ID][0][RT_Max[index_DataType][index_ID][0].Count - 1].ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID]));
                 else // Chart form - 차트가 시각화됨
                 {
                     try
@@ -456,28 +476,10 @@ namespace VisualizerApp
                         }
 
                         // 최대값 표시를 위한 textbox 및 label 
-                        List<RichTextBox> PeakValTextBoxes = new List<RichTextBox>();
-                        List<Label> PeakValLabels = new List<Label>();
+                        
 
                         int peak_yAxis = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
                         int label_yAxis = peak_yAxis - 24;
-
-                    
-                        /*for (int index_sensorID = 0; index_sensorID < MySensorIDs_sel.Count; index_sensorID++)
-                        {
-                            // 최고값 시각화를 위한 textbox 및 label 생성 및 
-                            RichTextBox richTextBox = new RichTextBox();
-                            richTextBox.SetBounds(button3_solbi1.Bounds.X, peak_yAxis, button_show.Bounds.Width, button_show.Bounds.Height);
-                            peak_yAxis += button_show.Bounds.Height + 25;
-                            PeakValTextBoxes.Add(richTextBox);
-                            panel4peakVal.Controls.Add(richTextBox);
-
-                            Label label = new Label();
-                            label.SetBounds(richTextBox.Bounds.X, label_yAxis, richTextBox.Bounds.Width, 24);
-                            label_yAxis += button_show.Bounds.Height + 25;
-                            PeakValLabels.Add(label);
-                            panel4peakVal.Controls.Add(label);
-                            }*/
 
                         // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성
                         for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
@@ -504,6 +506,7 @@ namespace VisualizerApp
 
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
+
                             List<List<double[]>> vs = new List<List<double[]>>();
                             RTDataArray.Add(vs);
                             List<List<List<double>>> vs_max = new List<List<List<double>>>();
@@ -514,8 +517,6 @@ namespace VisualizerApp
                             else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
                             else { titleName = "파티클(0.5μm)"; }
 
-                            int annotY = 10;
-                            int annotY2 = -10;
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 List<double[]> vs0 = new List<double[]>();
@@ -568,11 +569,11 @@ namespace VisualizerApp
                                 
                                 //formsPlots[i].plt.Grid(enable: false);      //Enable-Disable Gridn
 
-                                formsPlots[index_DataType].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24);
+                                formsPlots[index_DataType].plt.Title(titleName, fontSize: 24);
                                 formsPlots[index_DataType].plt.YLabel(titleName, fontSize: 20); 
                                 formsPlots[index_DataType].plt.XLabel("시간", fontSize: 20);
                                 if (MyDataTypes.Count == 1) {
-                                    formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White);
+                                    formsPlots[index_DataType].plt.Style(figBg: Color.Black, tick: Color.White, label: Color.White, title: Color.White);
                                 }
                                 else {
                                     if (MyDataTypes.Count == 2) {
@@ -583,44 +584,57 @@ namespace VisualizerApp
                                     }
                                 }
 
-                                formsPlots[index_DataType].plt.Title(titleName + " 센서 데이터 시각화", fontSize: 24); // formsPlot1.
+                                formsPlots[index_DataType].plt.Title(titleName, fontSize: 24); // formsPlot1.
 
                                 formsPlots[index_DataType].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
                                 formsPlots[index_DataType].plt.XLabel("시간", fontSize: 20);
-                                Console.WriteLine(titleName + " 센서 데이터 시각화");
                                 //formsPlots[index_DataType].plt.Style(figBg: Color.LightBlue);
                                 // System.Drawing.ColorTranslator.FromHtml("#EB56E8")
                                 // Colors:: space blue: #023459, Sand: #EBE5D9,  
-
-                                /* Tuple<double, int> tupleMax = FindMax(RTDataArray[index_DataType][index_sensorID][0]);
+/*
+                                 Tuple<double, int> tupleMax = FindMax(RTDataArray[index_DataType][index_ID][0]);
                                  double max = tupleMax.Item1;
                                  int indexOfMax = tupleMax.Item2;
                                 
-                                 PeakValTextBoxes[index_sensorID].AppendText("\n" + timeData[indexOfMax].ToString());
-                                 PeakValTextBoxes[index_sensorID].Text = max.ToString();
-                                 PeakValTextBoxes[index_sensorID].Font = new Font(PeakValTextBoxes[index_sensorID].Font.FontFamily, 25);
-                                 toolTip1.SetToolTip(PeakValTextBoxes[index_sensorID], timeData[indexOfMax].ToString());  // 마우스 포인팅 시 관련 시간을 표시함
-                                 PeakValLabels[index_sensorID].Font = new Font(PeakValLabels[index_sensorID].Font.FontFamily, 16);
-                                 PeakValTextBoxes[index_sensorID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
-                                 PeakValLabels[index_sensorID].Text = Btn3_SensorLocation[index_sensorID].Text + " 최고값";
-                                 PeakValLabels[index_sensorID].TextAlign = ContentAlignment.MiddleCenter;
+                                 PeakValTextBoxes[index_ID].AppendText("\n" + RTDataArray[index_DataType][index_ID][1][indexOfMax].ToString());
+                                 PeakValTextBoxes[index_ID].Text = max.ToString();
+                                 PeakValTextBoxes[index_ID].Font = new Font(PeakValTextBoxes[index_ID].Font.FontFamily, 25);
+                                 toolTip1.SetToolTip(PeakValTextBoxes[index_ID], RTDataArray[index_DataType][index_ID][1][indexOfMax].ToString());  // 마우스 포인팅 시 관련 시간을 표시함
+                                 PeakValLabels[index_ID].Font = new Font(PeakValLabels[index_ID].Font.FontFamily, 16);
+                                 PeakValTextBoxes[index_ID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+                                 PeakValLabels[index_ID].Text = Btn3_SensorLocation[index_ID].Text + " 최고값";
+                                 PeakValLabels[index_ID].TextAlign = ContentAlignment.MiddleCenter;
                                 */
-                                formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID]-1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID]);
-                                annotY += 35;
-                                annotY2 -= 25;
-                                //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: "하루 최고값: " + RT_Max[index_DataType][index_ID][0][RT_Max[index_DataType][index_ID][0].Count - 1].ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID]);
-                                plottableAnnotations.Add(pltAnnot);
+                                
                                 plts.Add(signalPlot);
                                 
 
                             }
                         }
-                    }
+
+                        // Plot Annotations separately to put them above the charts.
+                        for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+                        {
+                            int annotY = 10;
+                            int annotY2 = -10;
+                            for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                            {
+                                formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
+                                annotY += 35;
+                                annotY2 -= 25;
+                                //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: "최고값: " + RT_Max[index_DataType][index_ID][0][RT_Max[index_DataType][index_ID][0].Count - 1].ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                                //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
+                                plottableAnnotations.Add(pltAnnot);
+
+                            }
+                        }
+
+                            }
                     catch(Exception ex) {
                         timer2.Stop();
                         timer3_render.Stop();
-                        MessageBox.Show(ex.Message, "Error Message"); }
+                        throw new Exception(ex.Message); }
                     //Console.WriteLine(RTDataArray.Count);
                 }
             }
@@ -719,7 +733,7 @@ namespace VisualizerApp
                     startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
                     endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                     DataRetrieved_general = myDataQuery.DBQuery(startTime, endTime, IDs_now, DataTypesNow);
-                    Console.WriteLine(DataRetrieved_general.Count);
+                   // Console.WriteLine(DataRetrieved_general.Count);
                     temp_max(DataRetrieved_general);
 
                     ScotPlot(DataRetrieved_general, DataTypesNow, IDs_now, false);
@@ -781,7 +795,7 @@ namespace VisualizerApp
                     index = i;
                 }
             }
-            Console.WriteLine("\nMax: {0}", max);
+            //Console.WriteLine("\nMax: {0}", max);
             return new Tuple<double, int>(max, index);
         }
         private List<int> IDs_AvailCheck()
@@ -940,7 +954,7 @@ namespace VisualizerApp
             datePicker1_start.Value = Convert.ToDateTime(startTime);
             endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             datePicker2_end.Value = Convert.ToDateTime(endTime);
-            Console.WriteLine(startTime + " " + endTime);
+            //Console.WriteLine(startTime + " " + endTime);
             button_show.Visible = false;
             DataTypesNow.Clear();
             IDs_now.Clear();
@@ -1174,20 +1188,21 @@ namespace VisualizerApp
                 {
                     nextDataIndex = 0;
                 }
-                for (int data_index=0; data_index < DataTypesNext.Count; data_index++) {
-                    for(int id_index=0; id_index<IDs_next.Count; id_index++) {
-                        RTDataArray[data_index][id_index][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[data_index][id_index][0][0]);
-                        DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[data_index][id_index][0][1]);
-                        RTDataArray[data_index][id_index][1][nextDataIndex] = dtime.ToOADate();
+                for (int index_DataType =0; index_DataType  < DataTypesNext.Count; index_DataType ++) {
+                    for(int index_ID=0; index_ID<IDs_next.Count; index_ID++) {
+                        RTDataArray[index_DataType ][index_ID][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[index_DataType ][index_ID][0][0]);
+                        DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[index_DataType ][index_ID][0][1]);
+                        RTDataArray[index_DataType ][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
-                        if (Convert.ToDouble(DataRetrieved_RT[data_index][id_index][0][0]) > RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][0].Count - 1])
+                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType ][index_ID][0][0]) > RT_Max[index_DataType ][index_ID][0][RT_Max[index_DataType ][index_ID][0].Count - 1])
                         {
-                            RT_Max[data_index][id_index][0].Add(Convert.ToDouble(DataRetrieved_RT[data_index][id_index][0][0]));
-                            DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[data_index][id_index][0][1]);
-                            RT_Max[data_index][id_index][1].Add(dtime_max.ToOADate());
 
-                            Console.WriteLine("New Max: {0} times changed, latestMax: {1} at {2} ",RT_Max[data_index][id_index][0].Count, RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][0].Count - 1], DateTime.FromOADate(RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][1].Count - 1]));
-                            plottableAnnotations[data_index * IDs_next.Count + id_index].label = "하루 최고값: " + RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][0].Count - 1].ToString();
+                            RT_Max[index_DataType ][index_ID][0].Add(Convert.ToDouble(DataRetrieved_RT[index_DataType ][index_ID][0][0]));
+                            DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[index_DataType ][index_ID][0][1]);
+                            RT_Max[index_DataType ][index_ID][1].Add(dtime_max.ToOADate());
+
+                            //Console.WriteLine("New Max: {0} times changed, latestMax: {1} at {2} ",RT_Max[data_index][id_index][0].Count, RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][0].Count - 1], DateTime.FromOADate(RT_Max[data_index][id_index][0][RT_Max[data_index][id_index][1].Count - 1]));
+                            plottableAnnotations[index_DataType  * IDs_next.Count + index_ID].label = "최고값: " + RT_Max[index_DataType ][index_ID][0][RT_Max[index_DataType ][index_ID][0].Count - 1].ToString();
                         }
                     }
                 }
@@ -1221,6 +1236,24 @@ namespace VisualizerApp
                 throw new Exception(ex.Message);
             }
             timer3_render.Interval = 1000;
+        }
+
+        private void MinimizeMenuPanel_Click(object sender, EventArgs e)
+        {
+
+            Button button = (Button)sender;
+            if(panel1_menu.Bounds.Width > 15)
+            {
+                panel1_menu.SetBounds(panel1_menu.Bounds.X, panel1_menu.Bounds.Y, 15, panel1_menu.Bounds.Height);
+                button.Text = ">";
+                toolTip1.SetToolTip(button, "선택메누 화면 보이기");  // 마우스 포인팅 시 관련 내용 표시
+            }
+            else
+            {
+                panel1_menu.SetBounds(panel1_menu.Bounds.X, panel1_menu.Bounds.Y, 415, panel1_menu.Bounds.Height);
+                button.Text = "<";
+                toolTip1.SetToolTip(button, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
+            }
         }
     }
 

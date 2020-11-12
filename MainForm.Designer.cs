@@ -37,7 +37,6 @@
             this.button1_chartRT = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button1_numRT = new System.Windows.Forms.Button();
-            this.panel4peakVal = new System.Windows.Forms.Panel();
             this.label1_mainHeader = new System.Windows.Forms.Label();
             this.button1_datepicker = new System.Windows.Forms.Button();
             this.button1_24h = new System.Windows.Forms.Button();
@@ -56,7 +55,7 @@
             this.datePicker2_end.CustomFormat = "";
             this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker2_end.Location = new System.Drawing.Point(201, 181);
+            this.datePicker2_end.Location = new System.Drawing.Point(212, 181);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker2_end.Name = "datePicker2_end";
             this.datePicker2_end.Size = new System.Drawing.Size(164, 26);
@@ -69,7 +68,7 @@
             this.datePicker1_start.CustomFormat = "";
             this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.datePicker1_start.Location = new System.Drawing.Point(4, 181);
+            this.datePicker1_start.Location = new System.Drawing.Point(15, 181);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker1_start.Name = "datePicker1_start";
             this.datePicker1_start.Size = new System.Drawing.Size(164, 26);
@@ -80,7 +79,7 @@
             // 
             this.label1_from.AutoSize = true;
             this.label1_from.Font = new System.Drawing.Font("Gulim", 12F);
-            this.label1_from.Location = new System.Drawing.Point(163, 186);
+            this.label1_from.Location = new System.Drawing.Point(174, 186);
             this.label1_from.Name = "label1_from";
             this.label1_from.Size = new System.Drawing.Size(40, 16);
             this.label1_from.TabIndex = 42;
@@ -91,7 +90,7 @@
             // 
             this.label2_end.AutoSize = true;
             this.label2_end.Font = new System.Drawing.Font("Gulim", 12F);
-            this.label2_end.Location = new System.Drawing.Point(363, 186);
+            this.label2_end.Location = new System.Drawing.Point(374, 186);
             this.label2_end.Name = "label2_end";
             this.label2_end.Size = new System.Drawing.Size(40, 16);
             this.label2_end.TabIndex = 43;
@@ -105,7 +104,6 @@
             this.panel1_menu.Controls.Add(this.button1_chartRT);
             this.panel1_menu.Controls.Add(this.comboBox1);
             this.panel1_menu.Controls.Add(this.button1_numRT);
-            this.panel1_menu.Controls.Add(this.panel4peakVal);
             this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button1_datepicker);
             this.panel1_menu.Controls.Add(this.button1_24h);
@@ -117,12 +115,12 @@
             this.panel1_menu.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1_menu.Location = new System.Drawing.Point(0, 0);
             this.panel1_menu.Name = "panel1_menu";
-            this.panel1_menu.Size = new System.Drawing.Size(400, 920);
+            this.panel1_menu.Size = new System.Drawing.Size(415, 920);
             this.panel1_menu.TabIndex = 62;
             // 
             // button1_chartRT
             // 
-            this.button1_chartRT.Location = new System.Drawing.Point(108, 167);
+            this.button1_chartRT.Location = new System.Drawing.Point(108, 168);
             this.button1_chartRT.Name = "button1_chartRT";
             this.button1_chartRT.Size = new System.Drawing.Size(90, 40);
             this.button1_chartRT.TabIndex = 1;
@@ -147,7 +145,7 @@
             // 
             // button1_numRT
             // 
-            this.button1_numRT.Location = new System.Drawing.Point(12, 167);
+            this.button1_numRT.Location = new System.Drawing.Point(12, 168);
             this.button1_numRT.Name = "button1_numRT";
             this.button1_numRT.Size = new System.Drawing.Size(90, 40);
             this.button1_numRT.TabIndex = 0;
@@ -155,15 +153,6 @@
             this.button1_numRT.UseVisualStyleBackColor = true;
             this.button1_numRT.Visible = false;
             this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
-            // 
-            // panel4peakVal
-            // 
-            this.panel4peakVal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.panel4peakVal.BackColor = System.Drawing.Color.Transparent;
-            this.panel4peakVal.Location = new System.Drawing.Point(0, 569);
-            this.panel4peakVal.Name = "panel4peakVal";
-            this.panel4peakVal.Size = new System.Drawing.Size(394, 349);
-            this.panel4peakVal.TabIndex = 77;
             // 
             // label1_mainHeader
             // 
@@ -213,9 +202,9 @@
             // panel2_ChartArea
             // 
             this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2_ChartArea.Location = new System.Drawing.Point(400, 0);
+            this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
             this.panel2_ChartArea.Name = "panel2_ChartArea";
-            this.panel2_ChartArea.Size = new System.Drawing.Size(1142, 920);
+            this.panel2_ChartArea.Size = new System.Drawing.Size(1127, 920);
             this.panel2_ChartArea.TabIndex = 63;
             // 
             // timer1
@@ -241,7 +230,7 @@
             this.Controls.Add(this.panel1_menu);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "메인화면";
+            this.Text = "모니터링";
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
             this.ResumeLayout(false);
@@ -260,7 +249,6 @@
         private System.Windows.Forms.Label label1_mainHeader;
         private System.Windows.Forms.Panel panel2_ChartArea;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Panel panel4peakVal;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button1_chartRT;
