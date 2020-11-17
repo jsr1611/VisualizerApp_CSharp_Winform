@@ -1,4 +1,4 @@
-﻿namespace VisualizerApp
+﻿namespace DataVisualizerApp
 {
     partial class MainForm
     {
