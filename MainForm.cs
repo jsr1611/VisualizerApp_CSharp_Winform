@@ -102,6 +102,7 @@ namespace VisualizerApp
                 Btn3_SensorLocation[index_btn3] = button;
                 
             }
+            
             //(시각화) 보기 버튼 생성
             button_show.SetBounds(Btn2_DataType[1].Bounds.X, Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3/2, Btn2_DataType[2].Bounds.X - (Btn2_DataType[2].Bounds.Width + Btn2_DataType[1].Bounds.X) + Btn2_DataType[2].Bounds.Width * 2, Btn2_DataType[2].Bounds.Height);
             button_show.Text = "확인";
@@ -109,25 +110,21 @@ namespace VisualizerApp
             button_show.Click += new EventHandler(this.button_show_Click);
             panel1_menu.Controls.Add(button_show);
             button_show.Visible = false;
-            /*foreach (var button in Btn3_address)
-            { button.Enabled = false; }
-            */
 
             comboBox1.SelectedIndex = 0;
             
             Btn_MinimizeMenuPanel.Text = "<";
             Btn_MinimizeMenuPanel.SetBounds(panel1_menu.Bounds.Width - 15, 0, 15, 20);
-            panel1_menu.Controls.Add(Btn_MinimizeMenuPanel);
             Btn_MinimizeMenuPanel.Click += new EventHandler(this.MinimizeMenuPanel_Click);
             Btn_MinimizeMenuPanel.Dock = DockStyle.Right;
             toolTip1.SetToolTip(Btn_MinimizeMenuPanel, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
-
+            panel1_menu.Controls.Add(Btn_MinimizeMenuPanel);
 
             // Panel for peak values under the select menu
             //panel4peakVal.BackColor = Color.Transparent;
-            panel4peakVal.SetBounds(15, 569, 379, 349);
+            panel4peakVal.SetBounds(15, 569, Btn_MinimizeMenuPanel.Bounds.X, 349);
             panel4peakVal.BorderStyle = BorderStyle.None;
-            panel4peakVal.Dock = DockStyle.Bottom;
+            //panel4peakVal.Dock = DockStyle.Bottom;
             panel1_menu.Controls.Add(panel4peakVal);
             
 
@@ -1184,9 +1181,19 @@ namespace VisualizerApp
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 //Console.WriteLine(now + " {0}", (resetTime > Convert.ToDateTime("23:59:58") && resetTime < Convert.ToDateTime("23:59:59")));
-                if (resetTime > Convert.ToDateTime("23:59:58") && resetTime < Convert.ToDateTime("23:59:59"))
+                if (resetTime > Convert.ToDateTime("11:25:58") && resetTime <= Convert.ToDateTime("11:25:59"))
                 {
                     nextDataIndex = 0;
+                    // Need to replace current RTDataArray with new Array consisting of half of the RTDataArray elements and make nextDataIndex equal to n (n E RTDataArray[index_DataType][index_ID][0][n])
+                    for (int index_DataType = 0; index_DataType<DataTypesNext.Count; index_DataType++)
+                    {
+                        for(int index_ID=0; index_ID<IDs_next.Count; index_ID++)
+                        {
+                            RTDataArray[index_DataType][index_ID][0] = new double[100_000];
+                            RTDataArray[index_DataType][index_ID][1] = new double[100_000];
+                        }
+                    }
+                    
                 }
                 for (int index_DataType =0; index_DataType  < DataTypesNext.Count; index_DataType ++) {
                     for(int index_ID=0; index_ID<IDs_next.Count; index_ID++) {
