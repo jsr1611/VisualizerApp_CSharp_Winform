@@ -205,7 +205,7 @@ namespace DataVisualizerApp
                     timeArr2[index_sensorID] = new string[numOfElmnt];
 
                     // 최고값 시각화를 위한 textbox 및 label 생성 및 
-                    RichTextBox richTextBox = new RichTextBox();
+                    /*RichTextBox richTextBox = new RichTextBox();
                     richTextBox.SetBounds(Btn3_SensorLocation[0].Bounds.X, peak_yAxis, button_show.Bounds.Width, button_show.Bounds.Height);
                     peak_yAxis += button_show.Bounds.Height + 25;
                     PeakValTextBoxes.Add(richTextBox);
@@ -215,7 +215,7 @@ namespace DataVisualizerApp
                     label.SetBounds(richTextBox.Bounds.X, label_yAxis, richTextBox.Bounds.Width, 24);
                     label_yAxis += button_show.Bounds.Height + 25;
                     PeakValLabels.Add(label);
-                    panel4peakVal.Controls.Add(label);
+                    panel4peakVal.Controls.Add(label);*/
 
                 }
                 // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성
@@ -241,14 +241,13 @@ namespace DataVisualizerApp
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
-
+                    
                     if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
                     else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
                     else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
                     else { titleName = "파티클(0.5μm)"; }
 
-                    int annotY = 10;
-                    int annotY2 = -10;
+                    
                     var plt = formsPlots[index_DataType];
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
@@ -309,10 +308,36 @@ namespace DataVisualizerApp
                         formsPlots[i].plt.YLabel(titleName, fontSize: 20); // formsPlot1.
                         formsPlots[i].plt.XLabel("시간", fontSize: 20);
                         formsPlots[i].plt.Style(figBg: Color.LightBlue);*/
+                        
+                        
+
+                        //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
+                    }
+                    
+                }
+
+
+                for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+                {
+                    for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                    {
+                        for (int index_DataElem = 0; index_DataElem < numOfElmnt; index_DataElem++)
+                        {
+                            dataArr2[index_ID][index_DataElem] = MyData[index_DataType][index_ID][index_DataElem][0];
+                        }
+                    }
+                    
+                    int annotY = 10;
+                    int annotY2 = -10;
+
+                    for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                    {
+                        
+                        double[] ys = dataArr2[index_ID].Select(x => double.Parse(x)).ToArray();
                         Tuple<double, int> tupleMax = FindMax(ys);
                         double max = tupleMax.Item1;
                         int indexOfMax = tupleMax.Item2;
-
+/*
                         PeakValTextBoxes[index_ID].AppendText("\n" + timeData[indexOfMax].ToString());
                         PeakValTextBoxes[index_ID].Text = max.ToString();
                         PeakValTextBoxes[index_ID].Font = new Font(PeakValTextBoxes[index_ID].Font.FontFamily, 25);
@@ -321,15 +346,14 @@ namespace DataVisualizerApp
                         PeakValTextBoxes[index_ID].SelectionAlignment = System.Windows.Forms.HorizontalAlignment.Center;
                         PeakValLabels[index_ID].Text = Btn3_SensorLocation[MyIDs[index_ID] - 1].Text + " 최고값";
                         PeakValLabels[index_ID].TextAlign = ContentAlignment.MiddleCenter;
+*/
 
                         formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
-                        formsPlots[index_DataType].plt.PlotAnnotation("최고값: " + max.ToString(), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max.ToString() + " "+ char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                         annotY += 35;
                         annotY2 -= 25;
-
-                        //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                    }
-                    formsPlots[index_DataType].Render();
+                        formsPlots[index_DataType].Render();
+                    } 
                 }
 
             }
@@ -822,6 +846,29 @@ namespace DataVisualizerApp
             //Console.WriteLine("\nMax: {0}", max);
             return new Tuple<double, int>(max, index);
         }
+
+        /// <summary>
+        /// 최소값과 인덱스를 반환해 주는 함수
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private Tuple<double, int> FindMin(double[] data)
+        {
+            if (data.Length == 0) { throw new InvalidOperationException("Empty list"); }
+            double min = data[0];
+            int index = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (min >= data[i])
+                {
+                    min = data[i];
+                    index = i;
+                }
+            }
+            //Console.WriteLine("\nMax: {0}", max);
+            return new Tuple<double, int>(min, index);
+        }
+
         private List<int> IDs_AvailCheck()
         {
             List<int> SensorIDs_available = new List<int>();
@@ -858,27 +905,6 @@ namespace DataVisualizerApp
             return SensorIDs_available;
         }
 
-        /// <summary>
-        /// 똑같은 장이 1회 이상 열리지 않게 막는 함수.
-        /// </summary>
-        /// <param name="all"></param>
-        /// <param name="one"></param>
-        /// <returns></returns>
-        private bool EqualityChecker(List<string[]> all, string[] one)
-        {
-            if (all.Count > 0)
-            {
-                for (int i = 0; i < all.Count; i++)
-                {
-                    if (all[i][0].SequenceEqual(one[0]) && all[i][1].SequenceEqual(one[1]) && all[i][2].SequenceEqual(one[2]) && all[i][3].SequenceEqual(one[3]))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else { return true; }
-        }
         //간편한 시간 간격 선택 시 button.BackColor를 다른색으로 표시해 주는 함수
         private void highlightSelectedBtn(Button[] btnNames, int index, Color color)
         {
