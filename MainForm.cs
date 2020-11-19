@@ -641,15 +641,14 @@ namespace DataVisualizerApp
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
-                                annotY += 35;
-                                annotY2 -= 25;
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
                                 PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                                 PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
-
+                                annotY += 35;
+                                annotY2 -= 25;
                             }
                         }
                         Console.WriteLine("\n\n\n");
@@ -1194,10 +1193,8 @@ namespace DataVisualizerApp
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message, "에러 메시지");
                 throw new Exception(ex.Message);
             }
-            //Console.WriteLine();
             timer1.Interval = 1000;
         }
 
@@ -1211,35 +1208,25 @@ namespace DataVisualizerApp
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 //Console.WriteLine(now + " {0}", (resetTime > Convert.ToDateTime("23:59:58") && resetTime < Convert.ToDateTime("23:59:59")));
-                if (resetTime > Convert.ToDateTime("11:59:58") && resetTime <= Convert.ToDateTime("11:59:59"))
+                if (resetTime > Convert.ToDateTime("23:59:58") && resetTime <= Convert.ToDateTime("23:59:59"))
                 {
-                    nextDataIndex = 0;
                     Console.WriteLine("Timer Reset Successful");
-                    // Need to replace current RTDataArray with new Array consisting of half of the RTDataArray elements and make nextDataIndex equal to n (n E RTDataArray[index_DataType][index_ID][0][n])
-                    for (int index_DataType = 0; index_DataType < DataTypesNext.Count; index_DataType++)
-                    {
-                        for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
-                        {
-                            RTDataArray[index_DataType][index_ID][0] = new double[100_000];
-                            RTDataArray[index_DataType][index_ID][1] = new double[100_000];
-                        }
-                    }
-
+                    nextDataIndex = 0;
+                    timer2.Stop();
+                    timer3_render.Stop();
+                    ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
                 }
                 for (int index_DataType = 0; index_DataType < DataTypesNext.Count; index_DataType++)
                 {
                     for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
                     {
                         RTDataArray[index_DataType][index_ID][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
-
-
                         DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
                         RTDataArray[index_DataType][index_ID][1][nextDataIndex] = dtime.ToOADate();
                         Console.WriteLine($"\nnextDataIndex: {nextDataIndex}, Data: {RTDataArray[index_DataType][index_ID][0][nextDataIndex]} at {dtime.ToString("yyyy-MM-dd HH:mm:ss")}");
 
                         if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) > RT_Max[index_DataType][index_ID][0][0])
                         {
-
                             RT_Max[index_DataType][index_ID][0][0] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
                             DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
                             RT_Max[index_DataType][index_ID][1][0] = dtime_max.ToOADate();
