@@ -31,8 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.datePicker2_end = new System.Windows.Forms.DateTimePicker();
             this.datePicker1_start = new System.Windows.Forms.DateTimePicker();
-            this.label1_from = new System.Windows.Forms.Label();
-            this.label2_end = new System.Windows.Forms.Label();
+            this.label_between = new System.Windows.Forms.Label();
             this.panel1_menu = new System.Windows.Forms.Panel();
             this.button1_chartRT = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -75,27 +74,16 @@
             this.datePicker1_start.TabIndex = 41;
             this.datePicker1_start.Visible = false;
             // 
-            // label1_from
+            // label_between
             // 
-            this.label1_from.AutoSize = true;
-            this.label1_from.Font = new System.Drawing.Font("Gulim", 12F);
-            this.label1_from.Location = new System.Drawing.Point(174, 186);
-            this.label1_from.Name = "label1_from";
-            this.label1_from.Size = new System.Drawing.Size(40, 16);
-            this.label1_from.TabIndex = 42;
-            this.label1_from.Text = "부터";
-            this.label1_from.Visible = false;
-            // 
-            // label2_end
-            // 
-            this.label2_end.AutoSize = true;
-            this.label2_end.Font = new System.Drawing.Font("Gulim", 12F);
-            this.label2_end.Location = new System.Drawing.Point(374, 186);
-            this.label2_end.Name = "label2_end";
-            this.label2_end.Size = new System.Drawing.Size(40, 16);
-            this.label2_end.TabIndex = 43;
-            this.label2_end.Text = "까지";
-            this.label2_end.Visible = false;
+            this.label_between.AutoSize = true;
+            this.label_between.Font = new System.Drawing.Font("Gulim", 12F);
+            this.label_between.Location = new System.Drawing.Point(186, 186);
+            this.label_between.Name = "label_between";
+            this.label_between.Size = new System.Drawing.Size(20, 16);
+            this.label_between.TabIndex = 42;
+            this.label_between.Text = "~";
+            this.label_between.Visible = false;
             // 
             // panel1_menu
             // 
@@ -110,8 +98,7 @@
             this.panel1_menu.Controls.Add(this.button1_realtime);
             this.panel1_menu.Controls.Add(this.datePicker1_start);
             this.panel1_menu.Controls.Add(this.datePicker2_end);
-            this.panel1_menu.Controls.Add(this.label1_from);
-            this.panel1_menu.Controls.Add(this.label2_end);
+            this.panel1_menu.Controls.Add(this.label_between);
             this.panel1_menu.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1_menu.Location = new System.Drawing.Point(0, 0);
             this.panel1_menu.Name = "panel1_menu";
@@ -120,7 +107,7 @@
             // 
             // button1_chartRT
             // 
-            this.button1_chartRT.Location = new System.Drawing.Point(108, 168);
+            this.button1_chartRT.Location = new System.Drawing.Point(107, 168);
             this.button1_chartRT.Name = "button1_chartRT";
             this.button1_chartRT.Size = new System.Drawing.Size(90, 40);
             this.button1_chartRT.TabIndex = 1;
@@ -238,8 +225,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.Label label1_from;
-        private System.Windows.Forms.Label label2_end;
+        private System.Windows.Forms.Label label_between;
         internal System.Windows.Forms.DateTimePicker datePicker2_end;
         internal System.Windows.Forms.DateTimePicker datePicker1_start;
         public System.Windows.Forms.Panel panel1_menu;

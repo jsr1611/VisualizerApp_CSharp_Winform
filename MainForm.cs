@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace DataVisualizerApp
@@ -13,6 +15,11 @@ namespace DataVisualizerApp
     {
         public string startTime = "";
         public string endTime = "";
+        public string dbServerAddress = "";
+        public string dbName = "";
+        public string dbUID = "";
+        public string dbPWD = "";
+
         public Button[] Btn1_time { get; set; }
         public Button[] Btn2_DataType = new Button[4];
         public Button[] Btn3_SensorLocation { get; set; }
@@ -34,8 +41,8 @@ namespace DataVisualizerApp
         public bool digital_flag { get; set; }
 
         public List<List<List<double[]>>> RTDataArray = new List<List<List<double[]>>>();
-        public List<List<List<double[]>>> RT_Max = new List<List<List<double[]>>>();
-        public List<List<List<double[]>>> RT_Min = new List<List<List<double[]>>>();
+        public List<List<List<string[]>>> RT_Max = new List<List<List<string[]>>>();
+        public List<List<List<string[]>>> RT_Min = new List<List<List<string[]>>>();
 
         int nextDataIndex = 1;
         public List<FormsPlot> formsPlots = new List<FormsPlot>();
@@ -43,9 +50,22 @@ namespace DataVisualizerApp
         public PlottableSignal signalPlot;
         public List<PlottableAnnotation> plottableAnnotations = new List<PlottableAnnotation>();
         public List<PlottableAnnotation> plottableAnnotations_MinVal = new List<PlottableAnnotation>();
+
+        public Thread progressbarThread;
+
+
         public MainForm()
         {
             InitializeComponent();
+
+             dbServerAddress = "10.1.55.174";
+             dbName = "SensorDataDB";
+             dbUID = "dlitdb";
+             dbPWD = "dlitdb";
+
+            //new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
+
+
             this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
             this.AutoScroll = true;
             datePicker1_start.Format = DateTimePickerFormat.Custom;
@@ -153,7 +173,7 @@ namespace DataVisualizerApp
 
             string[] dataVal = new string[numOfElmnt];
             string[] timeVal = new string[numOfElmnt];
-            
+
             TableLayoutPanel tableLayoutPanel = new TableLayoutPanel();
             tableLayoutPanel.Dock = DockStyle.Fill;
             panel2_ChartArea.Controls.Add(tableLayoutPanel);
@@ -222,13 +242,13 @@ namespace DataVisualizerApp
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
-                    
+
                     if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
                     else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
                     else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
                     else { titleName = "파티클(0.5μm)"; }
 
-                    
+
                     var plt = formsPlots[index_DataType];
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
@@ -243,7 +263,7 @@ namespace DataVisualizerApp
                         double[] xs = timeData.Select(x => x.ToOADate()).ToArray();
 
                         formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, label: Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, color: colorset[index_ID]);             // Signal Chart
-                                                                                                                                                                                                         //formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
+                                                                                                                                                                               //formsPlots[index_DataType].plt.PlotSignalXYConst(xs, ys, lineStyle: LineStyle.Dot, color: colorset[index_sensorID]);                                    // Signal Chart
 
 
 
@@ -292,30 +312,31 @@ namespace DataVisualizerApp
                             dataArr2[index_ID][index_DataElem] = MyData[index_DataType][index_ID][index_DataElem][0];
                         }
                     }
-                    
+
                     int annotY = 10;
                     int annotY2 = -10;
 
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
-                        
-                        double[] ys = dataArr2[index_ID].Select(x => double.Parse(x)).ToArray();
-                        Tuple<double, int> tupleMax = FindMax(ys);
-                        double max = tupleMax.Item1;
+
+                        //double[] ys = dataArr2[index_ID].Select(x => double.Parse(x)).ToArray();
+                        Tuple<string, int> tupleMax = FindMax(dataArr2[index_ID], MyDataTypes, index_DataType);
+                        string max = tupleMax.Item1;
                         int indexOfMax = tupleMax.Item2;
 
-                        Tuple<double, int> tupleMin = FindMin(ys);
-                        double min = tupleMin.Item1;
+                        Tuple<string, int> tupleMin = FindMin(dataArr2[index_ID], MyDataTypes, index_DataType);
+                        string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
-                        
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " "+ char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                         formsPlots[index_DataType].plt.PlotAnnotation(label: min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
 
                         annotY += 35;
                         annotY2 -= 25;
                         formsPlots[index_DataType].Render();
-                    } 
+                    }
                 }
+                progressbarThread.Abort();
 
             }
             else // 실시간 시각화
@@ -489,8 +510,8 @@ namespace DataVisualizerApp
 
                             List<List<double[]>> vs = new List<List<double[]>>();
                             RTDataArray.Add(vs);
-                            List<List<double[]>> vs_max = new List<List<double[]>>();
-                            List<List<double[]>> vs_min = new List<List<double[]>>();
+                            List<List<string[]>> vs_max = new List<List<string[]>>();
+                            List<List<string[]>> vs_min = new List<List<string[]>>();
                             RT_Max.Add(vs_max);
                             RT_Min.Add(vs_min);
 
@@ -509,15 +530,15 @@ namespace DataVisualizerApp
                                 RTDataArray[index_DataType][index_ID].Add(vs1);
                                 RTDataArray[index_DataType][index_ID].Add(vs2);
 
-                                List<double[]> vs0_max = new List<double[]>();
-                                List<double[]> vs0_min = new List<double[]>();
+                                List<string[]> vs0_max = new List<string[]>();
+                                List<string[]> vs0_min = new List<string[]>();
                                 RT_Max[index_DataType].Add(vs0_max);
                                 RT_Min[index_DataType].Add(vs0_min);
 
-                                double[] vs1_max = new double[1];
-                                double[] vs2_max = new double[1];
-                                double[] vs1_min = new double[1];
-                                double[] vs2_min = new double[1];
+                                string[] vs1_max = new string[1];
+                                string[] vs2_max = new string[1];
+                                string[] vs1_min = new string[1];
+                                string[] vs2_min = new string[1];
 
 
                                 RT_Max[index_DataType][index_ID].Add(vs1_max);
@@ -529,14 +550,14 @@ namespace DataVisualizerApp
 
                                 //Max values
 
-                                RT_Max[index_DataType][index_ID][0][0] = Convert.ToDouble(MyData[index_DataType][index_ID][0][0]);
-                                DateTime dtime_maxi = DateTime.Parse(MyData[index_DataType][index_ID][0][1]);
-                                RT_Max[index_DataType][index_ID][1][0] = dtime_maxi.ToOADate();
+                                RT_Max[index_DataType][index_ID][0][0] = MyData[index_DataType][index_ID][0][0];
+                                //DateTime dtime_maxi = DateTime.Parse(MyData[index_DataType][index_ID][0][1]);
+                                RT_Max[index_DataType][index_ID][1][0] = MyData[index_DataType][index_ID][0][1];// dtime_maxi.ToOADate();
 
                                 //Min values
-                                RT_Min[index_DataType][index_ID][0][0] = Convert.ToDouble(MyData[index_DataType][index_ID][0][0]);
+                                RT_Min[index_DataType][index_ID][0][0] = MyData[index_DataType][index_ID][0][0];
                                 DateTime dtime_min = DateTime.Parse(MyData[index_DataType][index_ID][0][1]);
-                                RT_Min[index_DataType][index_ID][1][0] = dtime_min.ToOADate();
+                                RT_Min[index_DataType][index_ID][1][0] = MyData[index_DataType][index_ID][0][1]; //dtime_min.ToOADate();
                                 /*RT_Max[index_DataType][index_ID][0].Add(Convert.ToDouble(MyData[index_DataType][index_ID][0][0]));
                                 DateTime dtime_maxi = DateTime.Parse(MyData[index_DataType][index_ID][0][1]);
                                 RT_Max[index_DataType][index_ID][1].Add(dtime_maxi.ToOADate());
@@ -622,8 +643,8 @@ namespace DataVisualizerApp
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
@@ -693,6 +714,14 @@ namespace DataVisualizerApp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        
+        
+        public void WaitForm()
+        {
+            Application.Run(new ProgressBarForm());
+        }
+        
+        
         //보기 버튼 누를 때에의 행위
         private void button_show_Click(object sender, EventArgs e)
         {
@@ -736,10 +765,12 @@ namespace DataVisualizerApp
                 IDs_now.Sort();
                 startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
                 endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                progressbarThread = new Thread(new ThreadStart(WaitForm));
+                progressbarThread.Start();
                 DataRetrieved_general = myDataQuery.DBQuery(startTime, endTime, IDs_now, DataTypesNow);
                 // Console.WriteLine(DataRetrieved_general.Count);
                 temp_max(DataRetrieved_general);
-
+                //progressbarThread.Abort();
                 ScotPlot(DataRetrieved_general, DataTypesNow, IDs_now, false);
                 //ChartingForm GeneralChart = new ChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
                 //NewChartingForm GeneralChart = new NewChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
@@ -755,9 +786,12 @@ namespace DataVisualizerApp
                 {
                     startTime = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
                     endTime = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
+
+                    progressbarThread = new Thread(new ThreadStart(WaitForm));
+                    progressbarThread.Start();
                     DataRetrieved_general = myDataQuery.DBQuery(startTime, endTime, IDs_now, DataTypesNow);
                     temp_max(DataRetrieved_general);
-
+                    //progressbarThread.Abort();
                     //////////////////// new Chart ScotPlot ////////////////////////////////
                     ScotPlot(DataRetrieved_general, DataTypesNow, IDs_now, false);
                     //ChartingForm GeneralChart = new ChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
@@ -771,6 +805,13 @@ namespace DataVisualizerApp
             }
 
         }
+
+
+
+
+
+
+
 
         private void temp_max(List<List<List<string[]>>> data)
         {
@@ -786,21 +827,30 @@ namespace DataVisualizerApp
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private Tuple<double, int> FindMax(double[] data)
+        private Tuple<string, int> FindMax(string[] data, List<string> MyDT, int index_MyDT)
         {
             if (data.Length == 0) { throw new InvalidOperationException("Empty list"); }
-            double max = data[0];
+            double max = Convert.ToDouble(data[0]);
             int index = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                if (max <= data[i])
+                if (max <= Convert.ToDouble(data[i]))
                 {
-                    max = data[i];
+                    max = Convert.ToDouble(data[i]);
                     index = i;
                 }
             }
+            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
+            {
+                return new Tuple<string, int>(max.ToString("F", CultureInfo.InvariantCulture), index);
+            }
+            else
+            {
+                return new Tuple<string, int>(max.ToString(), index);
+            }
+
             //Console.WriteLine("\nMax: {0}", max);
-            return new Tuple<double, int>(max, index);
+
         }
 
         /// <summary>
@@ -808,21 +858,28 @@ namespace DataVisualizerApp
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private Tuple<double, int> FindMin(double[] data)
+        private Tuple<string, int> FindMin(string[] data, List<string> MyDT, int index_MyDT)
         {
             if (data.Length == 0) { throw new InvalidOperationException("Empty list"); }
-            double min = data[0];
+            double min = Convert.ToDouble(data[0]);
             int index = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                if (min >= data[i])
+                if (min >= Convert.ToDouble(data[i]))
                 {
-                    min = data[i];
+                    min = Convert.ToDouble(data[i]);
                     index = i;
                 }
             }
             //Console.WriteLine("\nMax: {0}", max);
-            return new Tuple<double, int>(min, index);
+            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
+            {
+                return new Tuple<string, int>(min.ToString("F", CultureInfo.InvariantCulture), index);
+            }
+            else
+            {
+                return new Tuple<string, int>(min.ToString(), index);
+            }
         }
 
         private List<int> IDs_AvailCheck()
@@ -830,7 +887,7 @@ namespace DataVisualizerApp
             List<int> SensorIDs_available = new List<int>();
             try
             {
-                SqlConnection myConnection = new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
+                SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                 string sql_getIDs = "SELECT * FROM SensorDataDB.dbo.SENSOR_INFO a WHERE a.Usage = 'YES'";
 
                 using (var cmd = new SqlCommand(sql_getIDs, myConnection))
@@ -912,8 +969,7 @@ namespace DataVisualizerApp
             highlightSelectedBtn(Btn1_time, 0, Color.Chartreuse);
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
-            label1_from.Visible = false;
-            label2_end.Visible = false;
+            label_between.Visible = false;
             //LinkLabelVisited(5);
             datePicker1_start.Value = DateTime.Now;
             datePicker2_end.Value = DateTime.Now;
@@ -953,8 +1009,7 @@ namespace DataVisualizerApp
 
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
-            label1_from.Visible = false;
-            label2_end.Visible = false;
+            label_between.Visible = false;
             //LinkLabelVisited(2);
             startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
             datePicker1_start.Value = Convert.ToDateTime(startTime);
@@ -993,8 +1048,7 @@ namespace DataVisualizerApp
             highlightSelectedBtn(Btn1_time, 2, Color.Chartreuse);
             datePicker1_start.Visible = true;
             datePicker2_end.Visible = true;
-            label1_from.Visible = true;
-            label2_end.Visible = true;
+            label_between.Visible = true;
             startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             datePicker1_start.Value = Convert.ToDateTime(startTime);
             endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -1207,25 +1261,24 @@ namespace DataVisualizerApp
                         RTDataArray[index_DataType][index_ID][1][nextDataIndex] = dtime.ToOADate();
                         Console.WriteLine($"\nnextDataIndex: {nextDataIndex}, Data: {RTDataArray[index_DataType][index_ID][0][nextDataIndex]} at {dtime.ToString("yyyy-MM-dd HH:mm:ss")}");
 
-                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) > RT_Max[index_DataType][index_ID][0][0])
+                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) > Convert.ToDouble(RT_Max[index_DataType][index_ID][0][0]))
                         {
-                            RT_Max[index_DataType][index_ID][0][0] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
-                            DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
-                            RT_Max[index_DataType][index_ID][1][0] = dtime_max.ToOADate();
+                            RT_Max[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
+                            //DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
+                            RT_Max[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];// dtime_max.ToOADate();
 
-                            Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {DateTime.FromOADate(RT_Max[index_DataType][index_ID][1][0])} ");
-                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = RT_Max[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2191);
+                            Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
+                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191);
                         }
-                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < RT_Min[index_DataType][index_ID][0][0])
+                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < Convert.ToDouble(RT_Min[index_DataType][index_ID][0][0]))
                         {
+                            RT_Min[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
+                            //DateTime dtime_min = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
+                            RT_Min[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];// dtime_min.ToOADate();
 
-                            RT_Min[index_DataType][index_ID][0][0] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
-                            DateTime dtime_min = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
-                            RT_Min[index_DataType][index_ID][1][0] = dtime_min.ToOADate();
-
-                            Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {DateTime.FromOADate(RT_Min[index_DataType][index_ID][1][0])} ");
+                            Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
                             //Console.WriteLine($"New Min: {RT_Min[index_DataType][index_ID][0].Count} times changed, latestMin: {RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][0].Count - 1]} at {DateTime.FromOADate(RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][1].Count - 1])}");
-                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = RT_Min[index_DataType][index_ID][0][0].ToString() + " " + char.ConvertFromUtf32(0x2193);
+                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193);
 
                         }
                     }
@@ -1291,7 +1344,7 @@ namespace DataVisualizerApp
     /// <summary>
     /// 데이터 쿼리를 위한 만든 클래스
     /// </summary>
-    public class MyDataQuery
+    public class MyDataQuery : MainForm
     {
         /// <summary>
         /// 데이터 쿼리 함수
@@ -1301,6 +1354,7 @@ namespace DataVisualizerApp
         /// <returns></returns>
         public List<List<List<string[]>>> DBQuery(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
         {
+            ProgressBarForm progressBarForm = new ProgressBarForm();
             List<List<List<string[]>>> DataArr = new List<List<List<string[]>>>();
             List<string> sql_names = new List<string>();
 
@@ -1316,30 +1370,33 @@ namespace DataVisualizerApp
             {
                 try
                 {
-                    string sql_head = "select sensor_id, " + sql_names[index] + ", dateandtime from( ";
-                    string sql_connector = " union all "; // 테이블 연결하는 것
-                    string sql_tail = " )a order by DateAndTime";
+                    string sql_head = "SELECT sensor_id, " + sql_names[index] + ", dateandtime FROM( ";
+                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ORDER BY DateAndTime";
 
                     for (int i = 0; i < IDs.Count; i++)
                     {
-                        sql_head += "select " + IDs[i].ToString() + " as sensor_id, " + sql_names[index] + ", dateandtime from dev_" + whatToQuery[index] + "_" + IDs[i].ToString() + " where dateandtime >= '" + startDate + "' and  dateandtime <= '" + endDate + "'";
+                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, " + sql_names[index] + ", dateandtime FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() + " WHERE dateandtime >= '" + startDate + "' AND  dateandtime <= '" + endDate + "'";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
 
                         DataArr[index].Add(new List<string[]>());
                     }
                     sql_head += sql_tail;
+                    string sql_count = sql_head;
 
                     //Console.WriteLine("SQL query: " + sql_head);
-                    //SqlConnection myConnection = new SqlConnection(@"Data Source=DESKTOP-DLIT\SQLEXPRESS;Initial Catalog=SensorDataDB;Integrated Security=True");
-                    SqlConnection myConnection = new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
+                    //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
+                    SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     using (var cmd = new SqlCommand(sql_head, myConnection))
                     {
                         myConnection.Open();
                         using (var myReader = cmd.ExecuteReader())
                         {
+                            //progressBarForm.total =
                             int i = 0;
                             while (myReader.Read())
                             {
+                                
                                 if (i == IDs.Count) { i = 0; }
                                 //Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
                                 DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
@@ -1356,7 +1413,6 @@ namespace DataVisualizerApp
                 }
             }
             return DataArr;
-
         }
         /// <summary>
         /// 실시간 데이터 쿼리를 위한 쿼리 함수
@@ -1388,7 +1444,7 @@ namespace DataVisualizerApp
                     }
                     sql_head += sql_tail;
                     //Console.WriteLine("SQL RT query: " + sql_head);
-                    SqlConnection myConnection = new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
+                    SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     myConnection.Open();
                     using (var cmd = new SqlCommand(sql_head, myConnection))
                     {
