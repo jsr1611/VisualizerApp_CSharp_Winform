@@ -15,6 +15,8 @@ namespace DataVisualizerApp
         public ProgressBarForm()
         {
             InitializeComponent();
+            this.TransparencyKey = Color.White;
+            this.BackColor = Color.White;
         }
     }
 }
