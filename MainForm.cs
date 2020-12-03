@@ -1354,11 +1354,10 @@ namespace DataVisualizerApp
         /// <returns></returns>
         public List<List<List<string[]>>> DBQuery(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
         {
-            ProgressBarForm progressBarForm = new ProgressBarForm();
             List<List<List<string[]>>> DataArr = new List<List<List<string[]>>>();
             List<string> sql_names = new List<string>();
 
-            for (int ind = 0; ind < whatToQuery.Count; ind++)
+            for (int ind = 0; ind < whatToQuery.Count; ind++)   //temperature, humidity, particle03, particle05
             {
                 DataArr.Add(new List<List<string[]>>());
                 if (whatToQuery[ind].Contains("temp")) { sql_names.Add("Temperature"); }
@@ -1370,19 +1369,41 @@ namespace DataVisualizerApp
             {
                 try
                 {
+                    string sql_head = "SELECT sensor_id, AVG(CONVERT(NUMERIC, " + sql_names[index] + ")) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) as dateandtime FROM( ";
+                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a GROUP BY a.sensor_id, SUBSTRING(dateandtime, 1, 16) ORDER BY SUBSTRING(dateandtime, 1, 16)";
+
+                    for (int i = 0; i < IDs.Count; i++) // 1,2,3, ...
+                    {
+                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, AVG(CONVERT(NUMERIC, " + sql_names[index] + ")) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+                                    "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
+                                   " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY  SUBSTRING(dateandtime, 1, 16)";
+                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+
+                        DataArr[index].Add(new List<string[]>());
+                    }
+                    sql_head += sql_tail;
+
+                    /* //기존의 쿼리
                     string sql_head = "SELECT sensor_id, " + sql_names[index] + ", dateandtime FROM( ";
                     string sql_connector = " UNION ALL "; // 테이블 연결하는 것
                     string sql_tail = " )a ORDER BY DateAndTime";
 
-                    for (int i = 0; i < IDs.Count; i++)
+                    for (int i = 0; i < IDs.Count; i++) // 1,2,3, ...
                     {
-                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, " + sql_names[index] + ", dateandtime FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() + " WHERE dateandtime >= '" + startDate + "' AND  dateandtime <= '" + endDate + "'";
+                    sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, " + sql_names[index] + ", dateandtime " +
+                                "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
+                               " WHERE dateandtime >= '" + startDate + "' AND  dateandtime <= '" + endDate + "'";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
 
                         DataArr[index].Add(new List<string[]>());
                     }
                     sql_head += sql_tail;
                     string sql_count = sql_head;
+                     */
+
+
+
 
                     //Console.WriteLine("SQL query: " + sql_head);
                     //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
@@ -1432,14 +1453,16 @@ namespace DataVisualizerApp
             {
                 try
                 {
-                    string sql_head = "select sensor_id, " + sql_names[index] + ", dateandtime from( ";
-                    string sql_connector = " union all "; // 테이블 연결하는 것
-                    string sql_tail = " )a order by sensor_id";
+                    string sql_head = "SELECT sensor_id, " + sql_names[index] + ", dateandtime FROM( ";
+                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ORDER BY sensor_id";
 
                     for (int i = 0; i < IDs.Count; i++)
                     {
                         DataArrRT[index].Add(new List<string[]>());
-                        sql_head += "select top 1 " + IDs[i].ToString() + " as sensor_id, " + sql_names[index] + ", dateandtime from dev_" + whatToQuery[index] + "_" + IDs[i].ToString() + " order by dateandtime desc ";
+                        sql_head += "SELECT TOP 1 " + IDs[i].ToString() + " AS sensor_id, " + sql_names[index] + ", dateandtime " +
+                                    "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() + 
+                                    " ORDER BY dateandtime DESC ";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
                     }
                     sql_head += sql_tail;
