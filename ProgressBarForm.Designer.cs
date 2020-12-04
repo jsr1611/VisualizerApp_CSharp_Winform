@@ -30,6 +30,7 @@
         {
             this.label_loading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.buttonX = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label_loading
@@ -48,17 +49,31 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Image = global::DataVisualizerApp.Properties.Resources._30;
+            this.label1.Image = global::DataVisualizerApp.Properties.Resources.loading;
             this.label1.Location = new System.Drawing.Point(8, 113);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(586, 55);
             this.label1.TabIndex = 4;
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // buttonX
+            // 
+            this.buttonX.BackColor = System.Drawing.Color.Transparent;
+            this.buttonX.FlatAppearance.BorderSize = 0;
+            this.buttonX.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonX.Location = new System.Drawing.Point(574, -1);
+            this.buttonX.Name = "buttonX";
+            this.buttonX.Size = new System.Drawing.Size(20, 23);
+            this.buttonX.TabIndex = 5;
+            this.buttonX.Text = "x";
+            this.buttonX.UseVisualStyleBackColor = false;
+            this.buttonX.Click += new System.EventHandler(this.button1_Click);
+            // 
             // ProgressBarForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(595, 226);
+            this.Controls.Add(this.buttonX);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_loading);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -72,5 +87,6 @@
         #endregion
         private System.Windows.Forms.Label label_loading;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button buttonX;
     }
 }

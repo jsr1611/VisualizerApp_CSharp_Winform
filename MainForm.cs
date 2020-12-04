@@ -1049,7 +1049,7 @@ namespace DataVisualizerApp
             datePicker1_start.Visible = true;
             datePicker2_end.Visible = true;
             label_between.Visible = true;
-            startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
             datePicker1_start.Value = Convert.ToDateTime(startTime);
             endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             datePicker2_end.Value = Convert.ToDateTime(endTime);
