@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -58,13 +60,13 @@ namespace DataVisualizerApp
         {
             InitializeComponent();
 
+            // Initialize DB access variables
              dbServerAddress = "10.1.55.174";
              dbName = "SensorDataDB";
              dbUID = "dlitdb";
              dbPWD = "dlitdb";
 
             //new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
-
 
             this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
             this.AutoScroll = true;
@@ -95,42 +97,12 @@ namespace DataVisualizerApp
 
             }
 
-            List<int> btn_addresses = new List<int>();
-            btn_addresses = IDs_AvailCheck(); // 시각화 하려는 센서 ID 조회 및 배열에 ID번호 추가하기
-            x_btn = Btn2_DataType[0].Bounds.X;
-            y_btn = Btn2_DataType[0].Bounds.Y + Btn2_DataType[0].Bounds.Height * 2;
+            
 
-            Btn3_SensorLocation = new Button[btn_addresses.Count];
-            for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
-            {
-                Button button = new Button();
-                button.SetBounds(x_btn, y_btn, Btn2_DataType[0].Bounds.Width, Btn2_DataType[0].Bounds.Height);
-                if (Btn1_time[2].Bounds.X <= x_btn)
-                {
-                    x_btn = Btn2_DataType[0].Bounds.X;
-                    y_btn += Btn2_DataType[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
-                }
-                else
-                {
-                    x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
-                }
-                button.Text = SensorLocation[index_btn3];
-                button.Font = new Font(button.Font.FontFamily, 15);
-                button.Name = btn_addresses[index_btn3].ToString();
-                button.Click += new EventHandler(this.btn3_address_Click);
-                panel1_menu.Controls.Add(button);
-                button.Visible = false;
-                Btn3_SensorLocation[index_btn3] = button;
 
-            }
 
             //(시각화) 보기 버튼 생성
-            button_show.SetBounds(Btn2_DataType[1].Bounds.X, Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2, Btn2_DataType[2].Bounds.X - (Btn2_DataType[2].Bounds.Width + Btn2_DataType[1].Bounds.X) + Btn2_DataType[2].Bounds.Width * 2, Btn2_DataType[2].Bounds.Height);
-            button_show.Text = "확인";
-            button_show.Font = new Font(button_show.Font.FontFamily, 15);
-            button_show.Click += new EventHandler(this.button_show_Click);
-            panel1_menu.Controls.Add(button_show);
-            button_show.Visible = false;
+            
 
             comboBox1.SelectedIndex = 0;
 
@@ -316,6 +288,7 @@ namespace DataVisualizerApp
                     int annotY = 10;
                     int annotY2 = -10;
 
+                    AnnotationBackFrame(formsPlots, MyDataTypes, MyIDs);
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
 
@@ -328,8 +301,8 @@ namespace DataVisualizerApp
                         string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
-                        formsPlots[index_DataType].plt.PlotAnnotation(label: min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
+                        formsPlots[index_DataType].plt.PlotAnnotation(label: min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
 
                         annotY += 35;
                         annotY2 -= 25;
@@ -634,6 +607,9 @@ namespace DataVisualizerApp
                             formsPlots[index_DataType].plt.AxisAuto();
                         }
 
+
+                        AnnotationBackFrame(formsPlots, MyDataTypes, MyIDs);
+
                         // Plot Annotations separately to put them above the charts.
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
@@ -643,8 +619,8 @@ namespace DataVisualizerApp
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1);
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
@@ -664,7 +640,28 @@ namespace DataVisualizerApp
                 }
             }
         }
-
+        public void AnnotationBackFrame(List<FormsPlot> formsPlots, List<string> MyDataTypes, List<int> MyIDs)
+        {
+            for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+            {
+                if (MyIDs.Count == 4)
+                {
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 60, fontColor: Color.Yellow, fillAlpha: 1.0);
+                }
+                else if (MyIDs.Count == 3)
+                {
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 50, fontColor: Color.Yellow, fillAlpha: 1.0);
+                }
+                else if (MyIDs.Count == 2)
+                {
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTA", -10, -10, fontSize: 30, fontColor: Color.Yellow, fillAlpha: 1.0);
+                }
+                else
+                {
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTATION BOX", -10, -10, fontSize: 13, fontColor: Color.Yellow, fillAlpha: 1.0);
+                }
+            }
+        }
         /// <summary>
         /// 시각화하려는 데이터 갯수를 계산하는 함수
         /// </summary>
@@ -709,20 +706,17 @@ namespace DataVisualizerApp
             }
         }
 
+
+        public void WaitForm()
+        {
+            Application.Run(new ProgressBarForm());
+        }
+        //보기 버튼 누를 때에의 행위
         /// <summary>
         /// Function to display results in form of chart for the selected time interval.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        
-        
-        public void WaitForm()
-        {
-            Application.Run(new ProgressBarForm());
-        }
-        
-        
-        //보기 버튼 누를 때에의 행위
         private void button_show_Click(object sender, EventArgs e)
         {
             MyDataQuery myDataQuery = new MyDataQuery();
@@ -806,13 +800,6 @@ namespace DataVisualizerApp
 
         }
 
-
-
-
-
-
-
-
         private void temp_max(List<List<List<string[]>>> data)
         {
             int dCount = 0;
@@ -885,53 +872,90 @@ namespace DataVisualizerApp
         private List<int> IDs_AvailCheck()
         {
             List<int> SensorIDs_available = new List<int>();
+            SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
+            string sql_getIDs = "SELECT * FROM SensorDataDB.dbo.SENSOR_INFO a WHERE a.Usage = 'YES'";
             try
             {
-                SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                string sql_getIDs = "SELECT * FROM SensorDataDB.dbo.SENSOR_INFO a WHERE a.Usage = 'YES'";
-
                 using (var cmd = new SqlCommand(sql_getIDs, myConnection))
                 {
-                    myConnection.Open();
-                    using (var myReader = cmd.ExecuteReader())
-                    {
-                        if (myReader.HasRows)
+                    //if(true){ //myConnection.State == ConnectionState.Open
+
+                        myConnection.Open();
+                        using (var myReader = cmd.ExecuteReader())
                         {
-                            while (myReader.Read())
+                            if (myReader.HasRows)
                             {
-                                //string[] rowInfo = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString() };
-                                SensorIDs_available.Add(Convert.ToInt32(myReader["ID"]));
-                                SensorLocation.Add(myReader["Location"].ToString());
-                                // SensorIDs_available.Add(Convert.ToInt32(rowInfo[0])+3); //test
+                                while (myReader.Read())
+                                {
+                                    //string[] rowInfo = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString() };
+                                    SensorIDs_available.Add(Convert.ToInt32(myReader["ID"]));
+                                    SensorLocation.Add(myReader["Location"].ToString());
+                                    // SensorIDs_available.Add(Convert.ToInt32(rowInfo[0])+3); //test
+                                }
                             }
+                            else
+                            {
+                                Console.WriteLine("조회할 데이터가 없습니다.");
+                            }
+                        }
+                        myConnection.Close();
+                    /*}
+                    else
+                    {
+                        if(CheckInternetConnection() == false)
+                        {
+                            MessageBox.Show("인터넷 연결에 실폐했습니다. 본 컴퓨터가 인터넷에 연결되어 있는지 확인하십시오.", "인터넷 연결 에러");
                         }
                         else
                         {
-                            Console.WriteLine("조회할 데이터가 없습니다.");
+                            MessageBox.Show("SQL Server에 연결을 설정하는 중에 네트워크 관련 또는 인스턴스 관련 오류가 발생했습니다. " +
+                            "서버를 찾을 수 없거나 액세스할 수 없습니다. 인스턴스 이름이 올바르고 SQL Server가 원격 " +
+                            "연결을 허용하도록 구성되어 있는지 확인하십시오.\n(provider: Named Pipes Provider, error: " +
+                            "40 - SQL Server에 대한 연결을 열 수 없습니다.)", "SQL Server Connection Error");
                         }
-                    }
-                    myConnection.Close();
+                        
+                    }*/
+                    // 
                 }
-
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "에러 매시지"); }
             return SensorIDs_available;
         }
 
+        public static bool CheckInternetConnection()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
+                {
+                    return true;
+                }
+            }
+            catch(WebException ex)
+            {
+                return false;
+            }
+        }
+
         //간편한 시간 간격 선택 시 button.BackColor를 다른색으로 표시해 주는 함수
         private void highlightSelectedBtn(Button[] btnNames, int index, Color color)
         {
-            for (int i = 0; i < btnNames.Length; i++)
+            if(btnNames != null)
             {
-                if (index == i)
+                for (int i = 0; i < btnNames.Length; i++)
                 {
-                    btnNames[i].BackColor = color;
-                }
-                else
-                {
-                    btnNames[i].BackColor = Color.Transparent;
+                    if (index == i)
+                    {
+                        btnNames[i].BackColor = color;
+                    }
+                    else
+                    {
+                        btnNames[i].BackColor = Color.Transparent;
+                    }
                 }
             }
+            
         }
         /// <summary>
         /// Clears highlighting color for all buttons in the given List<T>
@@ -939,25 +963,31 @@ namespace DataVisualizerApp
         /// <param name="btns"></param>
         private void clearHighlighting(Button[] btns)
         {
-            foreach (var btn in btns)
+            if(btns != null) 
             {
-                btn.BackColor = Color.Transparent;
+                foreach (var btn in btns)
+                {
+                    btn.BackColor = Color.Transparent;
+                }
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (Btn2_DataType[0].Visible == true)
+            if (Btn2_DataType != null && Btn2_DataType[0].Visible == true)
             {
                 foreach (var btn2 in Btn2_DataType)
                 {
                     btn2.Visible = false;
                     btn2.BackColor = Color.Transparent;
                 }
-                foreach (var btn3 in Btn3_SensorLocation)
+                if (Btn3_SensorLocation != null)
                 {
-                    btn3.Visible = false;
-                    btn3.BackColor = Color.Transparent;
+                    foreach (var btn3 in Btn3_SensorLocation)
+                    {
+                        btn3.Visible = false;
+                        btn3.BackColor = Color.Transparent;
+                    }
                 }
             }
 
@@ -983,30 +1013,35 @@ namespace DataVisualizerApp
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (Btn2_DataType[0].Visible == false)
+            if (Btn2_DataType != null)
             {
-                foreach (var btn in Btn2_DataType)
+                if (Btn2_DataType[0].Visible == false)
                 {
-                    btn.Visible = true;
+                    foreach (var btn in Btn2_DataType)
+                    {
+                        btn.Visible = true;
+                    }
                 }
-            }
-            else
-            {
-                foreach (var btn2 in Btn2_DataType)
+                else
                 {
-                    btn2.BackColor = Color.Transparent;
-                }
-                foreach (var btn3 in Btn3_SensorLocation)
-                {
-                    btn3.Visible = false;
-                    btn3.BackColor = Color.Transparent;
+                    foreach (var btn2 in Btn2_DataType)
+                    {
+                        btn2.BackColor = Color.Transparent;
+                    }
+                    if(Btn3_SensorLocation != null)
+                    {
+                        foreach (var btn3 in Btn3_SensorLocation)
+                        {
+                            btn3.Visible = false;
+                            btn3.BackColor = Color.Transparent;
+                        }
+                    }
                 }
             }
             button1_numRT.Visible = false;
             button1_chartRT.Visible = false;
             //"24시간" button
             highlightSelectedBtn(Btn1_time, 1, Color.Chartreuse);
-
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
             label_between.Visible = false;
@@ -1062,10 +1097,14 @@ namespace DataVisualizerApp
         {
             if (button1_numRT.BackColor != Color.Transparent)
             {
-                foreach (var btn in Btn3_SensorLocation)
+                if(Btn3_SensorLocation != null)
                 {
-                    btn.Visible = false;
+                    foreach (var btn in Btn3_SensorLocation)
+                    {
+                        btn.Visible = false;
+                    }
                 }
+                
 
                 button_show.Visible = false;
                 DataTypesNow.Clear();
@@ -1079,14 +1118,22 @@ namespace DataVisualizerApp
                 button1_chartRT.BackColor = Color.Transparent;
                 digital_flag = true;
 
-                foreach (var btn in Btn2_DataType)
+                if(Btn2_DataType != null)
                 {
-                    btn.Visible = true;
+                    foreach (var btn in Btn2_DataType)
+                    {
+                        btn.Visible = true;
+                    }
+                    if(Btn3_SensorLocation != null)
+                    {
+                        foreach (var btn in Btn3_SensorLocation)
+                        {
+                            btn.Visible = false;
+                        }
+                    }
+                    
                 }
-                foreach (var btn in Btn3_SensorLocation)
-                {
-                    btn.Visible = false;
-                }
+                
                 clearHighlighting(Btn2_DataType);
                 clearHighlighting(Btn3_SensorLocation);
                 DataTypesNow.Clear();
@@ -1099,10 +1146,14 @@ namespace DataVisualizerApp
 
             if (button1_chartRT.BackColor != Color.Transparent)
             {
-                foreach (var btn in Btn3_SensorLocation)
+                if(Btn3_SensorLocation != null)
                 {
-                    btn.Visible = false;
+                    foreach (var btn in Btn3_SensorLocation)
+                    {
+                        btn.Visible = false;
+                    }
                 }
+                
                 button_show.Visible = false;
                 DataTypesNow.Clear();
                 IDs_now.Clear();
@@ -1115,14 +1166,22 @@ namespace DataVisualizerApp
                 button1_chartRT.BackColor = Color.Chartreuse;
                 button1_numRT.BackColor = Color.Transparent;
                 digital_flag = false;
-                foreach (var btn in Btn2_DataType)
+                if(Btn2_DataType != null)
                 {
-                    btn.Visible = true;
+                    foreach (var btn in Btn2_DataType)
+                    {
+                        btn.Visible = true;
+                    }
+                    if(Btn3_SensorLocation != null)
+                    {
+                        foreach (var btn in Btn3_SensorLocation)
+                        {
+                            btn.Visible = false;
+                        }
+                    }
+                    
                 }
-                foreach (var btn in Btn3_SensorLocation)
-                {
-                    btn.Visible = false;
-                }
+                
                 button_show.Visible = false;
                 DataTypesNow.Clear();
                 IDs_now.Clear();
@@ -1133,15 +1192,6 @@ namespace DataVisualizerApp
 
         private void btn2_data_Click(object sender, EventArgs e)
         {
-
-            if (Btn3_SensorLocation[0].Visible == false)
-            {
-                foreach (var btn in Btn3_SensorLocation)
-                {
-                    btn.Visible = true;
-                }
-            }
-
             //"온도" button
             Button button = (Button)sender; // receive clicked button properties
             if (button.BackColor != Color.Transparent)
@@ -1151,11 +1201,13 @@ namespace DataVisualizerApp
                 DataTypesNow.Remove(button.Name);
                 if (DataTypesNow.Count < 1)
                 {
-                    foreach (var btn in Btn3_SensorLocation)
+                    if(Btn3_SensorLocation != null)
                     {
-                        btn.Visible = false;
+                        foreach (var btn in Btn3_SensorLocation)
+                        {
+                            btn.Visible = false;
+                        }
                     }
-
                     button_show.Visible = false;
                     IDs_now.Clear();
                     clearHighlighting(Btn3_SensorLocation);
@@ -1167,6 +1219,59 @@ namespace DataVisualizerApp
                 button.BackColor = Color.Chartreuse;
                 DataTypesNow.Add(button.Name);
             }
+
+
+            if (Btn3_SensorLocation == null || Btn3_SensorLocation.Length == 0)
+            {
+                List<int> btn_addresses = new List<int>();
+                btn_addresses = IDs_AvailCheck(); // 시각화 하려는 센서 ID 조회 및 배열에 ID번호 추가하기
+                int x_btn = Btn2_DataType[0].Bounds.X;
+                int y_btn = Btn2_DataType[0].Bounds.Y + Btn2_DataType[0].Bounds.Height * 2;
+
+                Btn3_SensorLocation = new Button[btn_addresses.Count];
+                for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
+                {
+                    Button button1 = new Button();
+                    button1.SetBounds(x_btn, y_btn, Btn2_DataType[0].Bounds.Width, Btn2_DataType[0].Bounds.Height);
+                    if (Btn1_time[2].Bounds.X <= x_btn)
+                    {
+                        x_btn = Btn2_DataType[0].Bounds.X;
+                        y_btn += Btn2_DataType[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
+                    }
+                    else
+                    {
+                        x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
+                    }
+                    button1.Text = SensorLocation[index_btn3];
+                    button1.Font = new Font(button1.Font.FontFamily, 15);
+                    button1.Name = btn_addresses[index_btn3].ToString();
+                    button1.Click += new EventHandler(this.btn3_address_Click);
+                    panel1_menu.Controls.Add(button1);
+                    button1.Visible = false;
+                    Btn3_SensorLocation[index_btn3] = button1;
+
+                }
+                if(Btn3_SensorLocation.Length != 0)
+                {
+                    button_show.SetBounds(Btn2_DataType[1].Bounds.X, Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2, Btn2_DataType[2].Bounds.X - (Btn2_DataType[2].Bounds.Width + Btn2_DataType[1].Bounds.X) + Btn2_DataType[2].Bounds.Width * 2, Btn2_DataType[2].Bounds.Height);
+                }
+                
+                button_show.Text = "확인";
+                button_show.Font = new Font(button_show.Font.FontFamily, 15);
+                button_show.Click += new EventHandler(this.button_show_Click);
+                panel1_menu.Controls.Add(button_show);
+                button_show.Visible = false;
+            }
+
+            if (Btn3_SensorLocation.Length != 0 && Btn3_SensorLocation[0].Visible == false)
+            {
+                foreach (var btn in Btn3_SensorLocation)
+                {
+                    btn.Visible = true;
+                }
+            }
+
+            
         }
 
         private void btn3_address_Click(object sender, EventArgs e)
@@ -1410,27 +1515,27 @@ namespace DataVisualizerApp
                     SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     using (var cmd = new SqlCommand(sql_head, myConnection))
                     {
-                        myConnection.Open();
-                        using (var myReader = cmd.ExecuteReader())
-                        {
-                            //progressBarForm.total =
-                            int i = 0;
-                            while (myReader.Read())
+                            myConnection.Open();
+                            using (var myReader = cmd.ExecuteReader())
                             {
-                                
-                                if (i == IDs.Count) { i = 0; }
-                                //Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
-                                DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
-                                i += 1;
+                                //progressBarForm.total =
+                                int i = 0;
+                                while (myReader.Read())
+                                {
+
+                                    if (i == IDs.Count) { i = 0; }
+                                    //Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
+                                    DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
+                                    i += 1;
+                                }
                             }
-                        }
-                        myConnection.Close();
+                            myConnection.Close();
                     }
                 }
                 catch (Exception ee)
                 {
-                    //MessageBox.Show(ee.ToString(), "에러 매시지");
-                    throw new Exception("에러 메시지:\n" + ee.ToString());
+                    MessageBox.Show(ee.ToString(), "에러 매시지");
+                    //throw new Exception("에러 메시지:\n" + ee.ToString());
                 }
             }
             return DataArr;
@@ -1468,24 +1573,24 @@ namespace DataVisualizerApp
                     sql_head += sql_tail;
                     //Console.WriteLine("SQL RT query: " + sql_head);
                     SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                    myConnection.Open();
-                    using (var cmd = new SqlCommand(sql_head, myConnection))
-                    {
-                        using (var myReader = cmd.ExecuteReader())
+                        myConnection.Open();
+                        using (var cmd = new SqlCommand(sql_head, myConnection))
                         {
-                            int i = 0;
-                            while (myReader.Read())
+                            using (var myReader = cmd.ExecuteReader())
                             {
-                                DataArrRT[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
-                                i += 1;
+                                int i = 0;
+                                while (myReader.Read())
+                                {
+                                    DataArrRT[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
+                                    i += 1;
+                                }
                             }
                         }
-                    }
-                    myConnection.Close();
+                        myConnection.Close();
                 }
                 catch (Exception ee)
                 {
-                    throw new Exception("에러 메시지:\n" + ee.ToString());
+                    MessageBox.Show("에러 메시지:\n" + ee.ToString());
                     //MessageBox.Show(ee.Message, "에러 메시지");
                 }
             }
