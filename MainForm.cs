@@ -833,7 +833,7 @@ namespace DataVisualizerApp
             }
             else
             {
-                return new Tuple<string, int>(max.ToString(), index);
+                return new Tuple<string, int>(max.ToString("F0", CultureInfo.InvariantCulture), index);
             }
 
             //Console.WriteLine("\nMax: {0}", max);
@@ -865,7 +865,7 @@ namespace DataVisualizerApp
             }
             else
             {
-                return new Tuple<string, int>(min.ToString(), index);
+                return new Tuple<string, int>(min.ToString("F0", CultureInfo.InvariantCulture), index);
             }
         }
 
@@ -1474,13 +1474,14 @@ namespace DataVisualizerApp
             {
                 try
                 {
-                    string sql_head = "SELECT sensor_id, AVG(CONVERT(NUMERIC, " + sql_names[index] + ")) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) as dateandtime FROM( ";
+                    string sql_head = "SELECT sensor_id, AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) as dateandtime FROM( ";
                     string sql_connector = " UNION ALL "; // 테이블 연결하는 것
                     string sql_tail = " )a GROUP BY a.sensor_id, SUBSTRING(dateandtime, 1, 16) ORDER BY SUBSTRING(dateandtime, 1, 16)";
 
                     for (int i = 0; i < IDs.Count; i++) // 1,2,3, ...
                     {
-                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, AVG(CONVERT(NUMERIC, " + sql_names[index] + ")) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+//                                                                                CAST(AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS DECIMAL(18, 2))
+                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
                                     "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
                                    " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY  SUBSTRING(dateandtime, 1, 16)";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
@@ -1510,11 +1511,12 @@ namespace DataVisualizerApp
 
 
 
-                    //Console.WriteLine("SQL query: " + sql_head);
+                    Console.WriteLine("SQL query: " + sql_head);
                     //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     using (var cmd = new SqlCommand(sql_head, myConnection))
                     {
+                        cmd.CommandTimeout = 0;
                             myConnection.Open();
                             using (var myReader = cmd.ExecuteReader())
                             {
