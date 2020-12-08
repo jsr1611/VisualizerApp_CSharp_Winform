@@ -301,8 +301,8 @@ namespace DataVisualizerApp
                         string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
-                        formsPlots[index_DataType].plt.PlotAnnotation(label: min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
 
                         annotY += 35;
                         annotY2 -= 25;
@@ -613,20 +613,23 @@ namespace DataVisualizerApp
                         // Plot Annotations separately to put them above the charts.
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
-                            int annotY = 10;
+                            //int annotY = 10;
                             int annotY2 = -10;
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0);
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
-                                annotY += 35;
+                                Console.WriteLine($"\nannotY2 ={annotY2} \n");
+                                //annotY += 35;
                                 annotY2 -= 25;
+
                             }
+
                         }
                         Console.WriteLine("\n\n\n");
                     }
@@ -646,19 +649,19 @@ namespace DataVisualizerApp
             {
                 if (MyIDs.Count == 4)
                 {
-                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 60, fontColor: Color.Yellow, fillAlpha: 1.0);
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 60, fontColor: Color.White, fillColor: Color.White, fillAlpha:1);
                 }
                 else if (MyIDs.Count == 3)
                 {
-                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 50, fontColor: Color.Yellow, fillAlpha: 1.0);
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 50, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
                 }
                 else if (MyIDs.Count == 2)
                 {
-                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTA", -10, -10, fontSize: 30, fontColor: Color.Yellow, fillAlpha: 1.0);
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTA", -10, -10, fontSize: 30, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
                 }
                 else
                 {
-                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTATION BOX", -10, -10, fontSize: 13, fontColor: Color.Yellow, fillAlpha: 1.0);
+                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTATION BOX", -10, -10, fontSize: 13, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
                 }
             }
         }
@@ -1474,16 +1477,24 @@ namespace DataVisualizerApp
             {
                 try
                 {
-                    string sql_head = "SELECT sensor_id, AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) as dateandtime FROM( ";
+                    string sql_head = "SELECT " +
+                                            "sensor_id" +
+                                            ", " + sql_names[index] + 
+                                            ", dateandtime " +
+                                        "FROM( ";
                     string sql_connector = " UNION ALL "; // 테이블 연결하는 것
-                    string sql_tail = " )a GROUP BY a.sensor_id, SUBSTRING(dateandtime, 1, 16) ORDER BY SUBSTRING(dateandtime, 1, 16)";
+                    string sql_tail = " )a ORDER BY dateandtime";
 
                     for (int i = 0; i < IDs.Count; i++) // 1,2,3, ...
                     {
 //                                                                                CAST(AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS DECIMAL(18, 2))
-                        sql_head += "SELECT " + IDs[i].ToString() + " AS sensor_id, AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+                        sql_head += "SELECT " + 
+                                            IDs[i].ToString() + " AS sensor_id" +
+                                            ", " +"AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + 
+                                            ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
                                     "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
-                                   " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' GROUP BY  SUBSTRING(dateandtime, 1, 16)";
+                                   " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' " +
+                                   "GROUP BY SUBSTRING(dateandtime, 1, 16)";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
 
                         DataArr[index].Add(new List<string[]>());
@@ -1509,29 +1520,30 @@ namespace DataVisualizerApp
                      */
 
 
-
-
                     Console.WriteLine("SQL query: " + sql_head);
                     //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     using (var cmd = new SqlCommand(sql_head, myConnection))
                     {
                         cmd.CommandTimeout = 0;
-                            myConnection.Open();
-                            using (var myReader = cmd.ExecuteReader())
+                        myConnection.Open();
+                        Console.WriteLine("Connection opened");
+                        using (var myReader = cmd.ExecuteReader())
+                        {
+                            Console.WriteLine("Executing Reader() method...");
+                            //progressBarForm.total =
+                            int i = 0;
+                            while (myReader.Read())
                             {
-                                //progressBarForm.total =
-                                int i = 0;
-                                while (myReader.Read())
-                                {
-
-                                    if (i == IDs.Count) { i = 0; }
-                                    //Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
-                                    DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
-                                    i += 1;
-                                }
+                                Console.WriteLine("Reading data...");
+                                if (i == IDs.Count) { i = 0; }
+                                Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
+                                DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
+                            //Console.WriteLine("Data: ")
+                                i += 1;
                             }
-                            myConnection.Close();
+                        }
+                        myConnection.Close();
                     }
                 }
                 catch (Exception ee)

@@ -50,9 +50,9 @@
             // 
             // datePicker2_end
             // 
-            this.datePicker2_end.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker2_end.CalendarFont = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.CustomFormat = "";
-            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 12F);
+            this.datePicker2_end.Font = new System.Drawing.Font("굴림", 12F);
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.datePicker2_end.Location = new System.Drawing.Point(212, 181);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -63,9 +63,9 @@
             // 
             // datePicker1_start
             // 
-            this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker1_start.CalendarFont = new System.Drawing.Font("굴림", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.CustomFormat = "";
-            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 12F);
+            this.datePicker1_start.Font = new System.Drawing.Font("굴림", 12F);
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.datePicker1_start.Location = new System.Drawing.Point(15, 181);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -77,7 +77,7 @@
             // label_between
             // 
             this.label_between.AutoSize = true;
-            this.label_between.Font = new System.Drawing.Font("Gulim", 12F);
+            this.label_between.Font = new System.Drawing.Font("굴림", 12F);
             this.label_between.Location = new System.Drawing.Point(186, 186);
             this.label_between.Name = "label_between";
             this.label_between.Size = new System.Drawing.Size(20, 16);
@@ -118,7 +118,7 @@
             // 
             // comboBox1
             // 
-            this.comboBox1.Font = new System.Drawing.Font("Gulim", 15F);
+            this.comboBox1.Font = new System.Drawing.Font("굴림", 15F);
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
             "Line Chart",
@@ -145,7 +145,7 @@
             // 
             this.label1_mainHeader.AutoSize = true;
             this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
-            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
+            this.label1_mainHeader.Font = new System.Drawing.Font("굴림", 18F, System.Drawing.FontStyle.Bold);
             this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
             this.label1_mainHeader.Name = "label1_mainHeader";
             this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
@@ -155,7 +155,8 @@
             // 
             // button1_datepicker
             // 
-            this.button1_datepicker.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_datepicker.FlatAppearance.BorderSize = 0;
+            this.button1_datepicker.Font = new System.Drawing.Font("굴림", 15F);
             this.button1_datepicker.Location = new System.Drawing.Point(258, 90);
             this.button1_datepicker.Name = "button1_datepicker";
             this.button1_datepicker.Size = new System.Drawing.Size(120, 65);
@@ -166,7 +167,8 @@
             // 
             // button1_24h
             // 
-            this.button1_24h.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_24h.FlatAppearance.BorderSize = 0;
+            this.button1_24h.Font = new System.Drawing.Font("굴림", 15F);
             this.button1_24h.Location = new System.Drawing.Point(135, 90);
             this.button1_24h.Name = "button1_24h";
             this.button1_24h.Size = new System.Drawing.Size(120, 65);
@@ -177,7 +179,8 @@
             // 
             // button1_realtime
             // 
-            this.button1_realtime.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_realtime.FlatAppearance.BorderSize = 0;
+            this.button1_realtime.Font = new System.Drawing.Font("굴림", 15F);
             this.button1_realtime.Location = new System.Drawing.Point(12, 90);
             this.button1_realtime.Name = "button1_realtime";
             this.button1_realtime.Size = new System.Drawing.Size(120, 65);
