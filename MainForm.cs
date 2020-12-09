@@ -285,8 +285,8 @@ namespace DataVisualizerApp
                         }
                     }
 
-                    int annotY = 10;
-                    int annotY2 = -10;
+                    int annotY = -10 - 25 * (MyIDs.Count - 1);
+                    //int annotY2 = -10;
 
                     AnnotationBackFrame(formsPlots, MyDataTypes, MyIDs);
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
@@ -301,11 +301,11 @@ namespace DataVisualizerApp
                         string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
 
-                        annotY += 35;
-                        annotY2 -= 25;
+                        annotY += 25;
+                        //annotY2 -= 25;
                         formsPlots[index_DataType].Render();
                     }
                 }
