@@ -285,8 +285,8 @@ namespace DataVisualizerApp
                         }
                     }
 
-                    int annotY = 10;
-                    int annotY2 = -10;
+                    int annotY = -10 - 25 * (MyIDs.Count - 1);
+                    //int annotY2 = -10;
 
                     AnnotationBackFrame(formsPlots, MyDataTypes, MyIDs);
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
@@ -301,11 +301,11 @@ namespace DataVisualizerApp
                         string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
 
-                        annotY += 35;
-                        annotY2 -= 25;
+                        annotY += 25;
+                        //annotY2 -= 25;
                         formsPlots[index_DataType].Render();
                     }
                 }
@@ -613,20 +613,20 @@ namespace DataVisualizerApp
                         // Plot Annotations separately to put them above the charts.
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
-                            //int annotY = 10;
-                            int annotY2 = -10;
+                            int annotY = -10 - 25 * (MyIDs.Count - 1);
+                            //int annotY2 = -10;
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
-                                Console.WriteLine($"\nannotY2 ={annotY2} \n");
-                                //annotY += 35;
-                                annotY2 -= 25;
+                                
+                                annotY += 25;
+                                //annotY2 -= 25;
 
                             }
 
