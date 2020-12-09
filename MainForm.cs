@@ -614,7 +614,6 @@ namespace DataVisualizerApp
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
                             int annotY = -10 - 25 * (MyIDs.Count - 1);
-                            //int annotY2 = -10;
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
@@ -624,12 +623,8 @@ namespace DataVisualizerApp
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
-                                
                                 annotY += 25;
-                                //annotY2 -= 25;
-
                             }
-
                         }
                         Console.WriteLine("\n\n\n");
                     }
@@ -1074,10 +1069,13 @@ namespace DataVisualizerApp
                 {
                     btn2.BackColor = Color.Transparent;
                 }
-                foreach (var btn3 in Btn3_SensorLocation)
+                if (Btn3_SensorLocation != null)
                 {
-                    btn3.Visible = false;
-                    btn3.BackColor = Color.Transparent;
+                    foreach (var btn3 in Btn3_SensorLocation)
+                    {
+                        btn3.Visible = false;
+                        btn3.BackColor = Color.Transparent;
+                    }
                 }
             }
             button1_numRT.Visible = false;
