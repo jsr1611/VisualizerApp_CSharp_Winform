@@ -5,4 +5,4 @@ It is hard-coded to read data from a specific MS SQL Server database for four ty
 
 #### Main Window : 
 
- ![Main window](https://github.com/jsr1611/VisualizerApp_CSharp_Winform/blob/master/Main.PNG)
+ ![Main window](https://github.com/jsr1611/VisualizerApp_CSharp_Winform/blob/master/MainWindow.PNG)
