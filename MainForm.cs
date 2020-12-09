@@ -53,7 +53,7 @@ namespace DataVisualizerApp
         public List<PlottableAnnotation> plottableAnnotations = new List<PlottableAnnotation>();
         public List<PlottableAnnotation> plottableAnnotations_MinVal = new List<PlottableAnnotation>();
 
-        public Thread progressbarThread;
+        private static Thread progressbarThread;
 
 
         public MainForm()
@@ -285,8 +285,7 @@ namespace DataVisualizerApp
                         }
                     }
 
-                    int annotY = 10;
-                    int annotY2 = -10;
+                    int annotY = -10 - 25 * (MyIDs.Count - 1);
 
                     AnnotationBackFrame(formsPlots, MyDataTypes, MyIDs);
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
@@ -301,15 +300,15 @@ namespace DataVisualizerApp
                         string min = tupleMin.Item1;
                         int indexOfMin = tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY2, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
 
-                        annotY += 35;
-                        annotY2 -= 25;
+                        annotY += 25;
                         formsPlots[index_DataType].Render();
                     }
                 }
                 progressbarThread.Abort();
+                progressbarThread = null;
 
             }
             else // 실시간 시각화
@@ -614,7 +613,6 @@ namespace DataVisualizerApp
                         for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
                             int annotY = -10 - 25*(MyIDs.Count-1) ;
-                            //int annotY2 = -10;
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
@@ -625,8 +623,6 @@ namespace DataVisualizerApp
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
                                 annotY += 25;
-                                //annotY2 -= 25;
-
                             }
 
 
@@ -709,11 +705,21 @@ namespace DataVisualizerApp
             }
         }
 
+        
 
-        public void WaitForm()
+
+        private static void WaitForm()
         {
-            Application.Run(new ProgressBarForm());
+            //Application.Run(new ProgressBarForm());
+            ProgressBarForm progressBarForm = new ProgressBarForm();
+            progressBarForm.ShowDialog();
         }
+        
+        
+        
+
+
+
         //보기 버튼 누를 때에의 행위
         /// <summary>
         /// Function to display results in form of chart for the selected time interval.
@@ -802,6 +808,10 @@ namespace DataVisualizerApp
             }
 
         }
+
+
+
+
 
         private void temp_max(List<List<List<string[]>>> data)
         {
@@ -1468,39 +1478,38 @@ namespace DataVisualizerApp
             List<List<List<string[]>>> DataArr = new List<List<List<string[]>>>();
             List<string> sql_names = new List<string>();
 
-            for (int ind = 0; ind < whatToQuery.Count; ind++)   //temperature, humidity, particle03, particle05
+            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)   //temperature, humidity, particle03, particle05
             {
                 DataArr.Add(new List<List<string[]>>());
-                if (whatToQuery[ind].Contains("temp")) { sql_names.Add("Temperature"); }
-                else if (whatToQuery[ind].Contains("humid")) { sql_names.Add("Humidity"); }
-                else if (whatToQuery[ind].Contains("part03")) { sql_names.Add("Particle03"); }
+                if (whatToQuery[i_DataType].Contains("temp")) { sql_names.Add("Temperature"); }
+                else if (whatToQuery[i_DataType].Contains("humid")) { sql_names.Add("Humidity"); }
+                else if (whatToQuery[i_DataType].Contains("part03")) { sql_names.Add("Particle03"); }
                 else { sql_names.Add("Particle05"); }
             }
-            for (int index = 0; index < whatToQuery.Count; index++)
+            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)
             {
                 try
                 {
                     string sql_head = "SELECT " +
                                             "sensor_id" +
-                                            ", " + sql_names[index] + 
+                                            ", " + sql_names[i_DataType] + 
                                             ", dateandtime " +
                                         "FROM( ";
                     string sql_connector = " UNION ALL "; // 테이블 연결하는 것
                     string sql_tail = " )a ORDER BY dateandtime";
 
-                    for (int i = 0; i < IDs.Count; i++) // 1,2,3, ...
+                    for (int i_ID = 0; i_ID < IDs.Count; i_ID++) // 1,2,3, ...
                     {
-//                                                                                CAST(AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS DECIMAL(18, 2))
                         sql_head += "SELECT " + 
-                                            IDs[i].ToString() + " AS sensor_id" +
-                                            ", " +"AVG(CAST(" + sql_names[index] + " AS DECIMAL(18, 2))) AS " + sql_names[index] + 
+                                            IDs[i_ID].ToString() + " AS sensor_id" +
+                                            ", " +"AVG(CAST(" + sql_names[i_DataType] + " AS DECIMAL(18, 2))) AS " + sql_names[i_DataType] + 
                                             ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                                    "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
+                                    "FROM dev_" + whatToQuery[i_DataType] + "_" + IDs[i_ID].ToString() +
                                    " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' " +
                                    "GROUP BY SUBSTRING(dateandtime, 1, 16)";
-                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+                        if (IDs.Count > 1 && i_ID != (IDs.Count - 1)) { sql_head += sql_connector; }
 
-                        DataArr[index].Add(new List<string[]>());
+                        DataArr[i_DataType].Add(new List<string[]>());
                     }
                     sql_head += sql_tail;
 
@@ -1522,7 +1531,6 @@ namespace DataVisualizerApp
                     string sql_count = sql_head;
                      */
 
-
                     Console.WriteLine("SQL query: " + sql_head);
                     //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
                     SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
@@ -1534,16 +1542,15 @@ namespace DataVisualizerApp
                         using (var myReader = cmd.ExecuteReader())
                         {
                             Console.WriteLine("Executing Reader() method...");
-                            //progressBarForm.total =
-                            int i = 0;
+                            int i_ID2 = 0;
                             while (myReader.Read())
                             {
                                 Console.WriteLine("Reading data...");
-                                if (i == IDs.Count) { i = 0; }
-                                Console.WriteLine(i +" " +sql_names[index] +" : " +  myReader[sql_names[index]].ToString() + " " + myReader["DateAndTime"].ToString());
-                                DataArr[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
-                            //Console.WriteLine("Data: ")
-                                i += 1;
+                                if (i_ID2 == IDs.Count) { i_ID2 = 0; }
+                                string[] allDataRead = { myReader.GetValue(0).ToString(), myReader[sql_names[i_DataType]].ToString(), myReader["DateAndTime"].ToString() }; 
+                                DataArr[i_DataType][Convert.ToInt32(allDataRead[0])-1].Add(new string[] { allDataRead[1], allDataRead[2] });
+                                Console.WriteLine(i_ID2 +" " +sql_names[i_DataType] +" : " +  allDataRead[1] + " " + allDataRead[2]);
+                                i_ID2 += 1;
                             }
                         }
                         myConnection.Close();
