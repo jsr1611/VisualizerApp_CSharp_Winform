@@ -163,9 +163,9 @@
             this.button1_chartRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.button1_chartRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1_chartRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_chartRT.Image")));
-            this.button1_chartRT.Location = new System.Drawing.Point(122, 148);
+            this.button1_chartRT.Location = new System.Drawing.Point(112, 157);
             this.button1_chartRT.Name = "button1_chartRT";
-            this.button1_chartRT.Size = new System.Drawing.Size(110, 60);
+            this.button1_chartRT.Size = new System.Drawing.Size(90, 60);
             this.button1_chartRT.TabIndex = 1;
             this.button1_chartRT.Text = "차트형";
             this.button1_chartRT.UseVisualStyleBackColor = true;
@@ -180,9 +180,9 @@
             this.button1_numRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.button1_numRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1_numRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_numRT.Image")));
-            this.button1_numRT.Location = new System.Drawing.Point(12, 148);
+            this.button1_numRT.Location = new System.Drawing.Point(17, 157);
             this.button1_numRT.Name = "button1_numRT";
-            this.button1_numRT.Size = new System.Drawing.Size(110, 60);
+            this.button1_numRT.Size = new System.Drawing.Size(90, 60);
             this.button1_numRT.TabIndex = 0;
             this.button1_numRT.Text = "숫자형";
             this.button1_numRT.UseVisualStyleBackColor = true;

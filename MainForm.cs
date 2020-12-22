@@ -25,7 +25,16 @@ namespace DataVisualizerApp
         public Button[] Btn1_time { get; set; }
         public Button[] Btn2_DataType = new Button[4];
         public Button[] Btn3_SensorLocation { get; set; }
-        public Button button_show = new Button();
+        public Button button_show = new Button()
+        {
+            FlatAppearance = {
+                BorderSize = 0,
+                            MouseDownBackColor = Color.Transparent,
+                            MouseOverBackColor = Color.Transparent,
+                            BorderColor = Color.White },
+                        FlatStyle = FlatStyle.Flat,
+                        BackColor = Color.Transparent                        
+                    };
         public Button Btn_MinimizeMenuPanel = new Button();
         public Panel panel4peakVal = new Panel();
 
@@ -630,8 +639,8 @@ namespace DataVisualizerApp
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: String.Format("{0:n0}", RT_Max[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: String.Format("{0:n0}", RT_Min[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
@@ -857,7 +866,7 @@ namespace DataVisualizerApp
             }
             else
             {
-                return new Tuple<string, int>(max.ToString("F0", CultureInfo.InvariantCulture), index);
+                return new Tuple<string, int>(String.Format("{0:n0}", max), index);
             }
 
             //Console.WriteLine("\nMax: {0}", max);
@@ -889,7 +898,8 @@ namespace DataVisualizerApp
             }
             else
             {
-                return new Tuple<string, int>(min.ToString("F0", CultureInfo.InvariantCulture), index);
+
+                return new Tuple<string, int>(String.Format("{0:n0}", min), index);
             }
         }
 
@@ -1279,7 +1289,7 @@ namespace DataVisualizerApp
                 List<int> btn_addresses = new List<int>();
                 btn_addresses = IDs_AvailCheck(); // 시각화 하려는 센서 ID 조회 및 배열에 ID번호 추가하기
                 int x_btn = Btn2_DataType[0].Bounds.X;
-                int y_btn = Btn2_DataType[0].Bounds.Y + Btn2_DataType[0].Bounds.Height * 2;
+                int y_btn = Btn2_DataType[0].Bounds.Y + Btn2_DataType[0].Bounds.Height * 3/2;
 
                 Btn3_SensorLocation = new Button[btn_addresses.Count];
                 for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
@@ -1290,9 +1300,14 @@ namespace DataVisualizerApp
                             MouseDownBackColor = Color.Transparent, 
                             MouseOverBackColor=Color.Transparent, 
                             BorderColor=Color.White },
-                        FlatStyle =  FlatStyle.Flat, BackColor = Color.Transparent, Image = btnUnClicked_small
+                        FlatStyle =  FlatStyle.Flat, 
+                        BackColor = Color.Transparent, 
+                        Image = btnUnClicked_small
                         };
-                    button1.SetBounds(x_btn, y_btn, Btn2_DataType[0].Bounds.Width, Btn2_DataType[0].Bounds.Height);
+                    button1.SetBounds(x_btn, 
+                                        y_btn, 
+                                        Btn2_DataType[0].Bounds.Width, 
+                                        Btn2_DataType[0].Bounds.Height);
                     if (Btn1_time[2].Bounds.X <= x_btn)
                     {
                         x_btn = Btn2_DataType[0].Bounds.X;
@@ -1314,11 +1329,17 @@ namespace DataVisualizerApp
                 }
                 if(Btn3_SensorLocation.Length != 0)
                 {
-                    button_show.SetBounds(Btn2_DataType[1].Bounds.X, Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2, Btn2_DataType[2].Bounds.X - (Btn2_DataType[2].Bounds.Width + Btn2_DataType[1].Bounds.X) + Btn2_DataType[2].Bounds.Width * 2, Btn2_DataType[2].Bounds.Height);
+                    button_show.Image = btnUnClicked_big;
+                    
+                    button_show.SetBounds(panel1_menu.Bounds.Width/2 - Btn1_time[0].Bounds.Width / 2, 
+                                          Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height*3/2 ,
+                                          Btn1_time[0].Bounds.Width,
+                                          Btn1_time[0].Bounds.Height
+                                          );
                 }
                 
                 button_show.Text = "확인";
-                button_show.Font = new Font(button_show.Font.FontFamily, 12);
+                button_show.Font = new Font(button_show.Font.FontFamily, 15);
                 button_show.Click += new EventHandler(this.button_show_Click);
                 panel1_menu.Controls.Add(button_show);
                 button_show.Visible = false;
@@ -1434,7 +1455,7 @@ namespace DataVisualizerApp
                             RT_Max[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];// dtime_max.ToOADate();
 
                             Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
-                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = RT_Max[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2191);
+                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = String.Format("{0:n0}", RT_Max[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2191);
                         }
                         if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < Convert.ToDouble(RT_Min[index_DataType][index_ID][0][0]))
                         {
@@ -1444,7 +1465,7 @@ namespace DataVisualizerApp
 
                             Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
                             //Console.WriteLine($"New Min: {RT_Min[index_DataType][index_ID][0].Count} times changed, latestMin: {RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][0].Count - 1]} at {DateTime.FromOADate(RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][1].Count - 1])}");
-                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = RT_Min[index_DataType][index_ID][0][0] + " " + char.ConvertFromUtf32(0x2193);
+                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = String.Format("{0:n0}", RT_Min[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2193);
 
                         }
                     }
