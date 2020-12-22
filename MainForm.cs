@@ -54,6 +54,10 @@ namespace DataVisualizerApp
         public List<PlottableAnnotation> plottableAnnotations_MinVal = new List<PlottableAnnotation>();
 
         private static Thread progressbarThread;
+        public Bitmap btnClicked_big = DataVisualizerApp.Properties.Resources._05;
+        public Bitmap btnUnClicked_big = DataVisualizerApp.Properties.Resources._04;
+        public Bitmap btnClicked_small = DataVisualizerApp.Properties.Resources.btn_sm7;
+        public Bitmap btnUnClicked_small = DataVisualizerApp.Properties.Resources.btn_sm6;
 
 
         public MainForm()
@@ -84,10 +88,20 @@ namespace DataVisualizerApp
 
             for (int index_btn2 = 0; index_btn2 < 4; index_btn2++)
             {
-                Button button = new Button();
+                Button button = new Button()
+                {
+                    FlatAppearance = {
+                            BorderSize = 0,
+                            MouseDownBackColor = Color.Transparent,
+                            MouseOverBackColor=Color.Transparent,
+                            BorderColor=Color.White },
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.Transparent,
+                    Image = btnUnClicked_small
+                };
                 button.Name = (index_btn2 == 0) ? "temp" : ((index_btn2 == 1) ? "humid" : ((index_btn2 == 2) ? "part03" : "part05"));
                 button.Text = (index_btn2 == 0) ? "온도" : ((index_btn2 == 1) ? "습도" : ((index_btn2 == 2) ? "파티클(0.3)" : "파티클(0.5)"));
-                button.Font = new Font(button.Font.FontFamily, 15);
+                button.Font = new Font(button.Font.FontFamily, 12);
                 button.SetBounds(x_btn, y_btn, Btn1_time[0].Bounds.Width * 3 / 4, Btn1_time[0].Bounds.Height);
                 x_btn += ((Btn1_time[2].Bounds.X + Btn1_time[2].Bounds.Width) / 4);
                 button.Click += new EventHandler(this.btn2_data_Click);
@@ -729,7 +743,7 @@ namespace DataVisualizerApp
             List<List<List<string[]>>> DataRetrieved_general = new List<List<List<string[]>>>();
             endTime = "RT";
             string[] timeInterval = { startTime, endTime };
-            if (button1_realtime.BackColor != Color.Transparent)
+            if (button1_realtime.Image == btnClicked_big)// BackColor != Color.Transparent
             {
                 Console.WriteLine("Now RealTime");
                 timer1.Enabled = true;
@@ -758,7 +772,7 @@ namespace DataVisualizerApp
                 //NewChartingForm RTChart = new NewChartingForm(DataRetrieved_RT, timeInterval, SensorIDs_selected, whatToShow);
                 //RTChart.Show();
             }
-            else if (button1_24h.BackColor != Color.Transparent)
+            else if (button1_24h.Image == btnClicked_big) //BackColor != Color.Transparent
             {
                 timer1.Stop();
                 Console.WriteLine("Now 24H");
@@ -949,7 +963,7 @@ namespace DataVisualizerApp
         }
 
         //간편한 시간 간격 선택 시 button.BackColor를 다른색으로 표시해 주는 함수
-        private void highlightSelectedBtn(Button[] btnNames, int index, Color color)
+        private void highlightSelectedBtn(Button[] btnNames, int index, string btnSize)
         {
             if(btnNames != null)
             {
@@ -957,27 +971,54 @@ namespace DataVisualizerApp
                 {
                     if (index == i)
                     {
-                        btnNames[i].BackColor = color;
+                        //btnNames[i].BackColor = color;
+                        if(btnSize == "big")
+                        {
+                            btnNames[i].Image = btnClicked_big;
+                        }
+                        else
+                        {
+                            btnNames[i].Image = btnClicked_small;
+                        }
+                        
                     }
                     else
                     {
-                        btnNames[i].BackColor = Color.Transparent;
+                        if (btnSize == "big")
+                        {
+                            btnNames[i].Image = btnUnClicked_big; //.BackColor = Color.Transparent;
+                        }
+                        else
+                        {
+                            btnNames[i].Image = btnUnClicked_small; //.BackColor = Color.Transparent;
+                        }
                     }
                 }
             }
             
         }
+        
         /// <summary>
         /// Clears highlighting color for all buttons in the given List<T>
         /// </summary>
         /// <param name="btns"></param>
-        private void clearHighlighting(Button[] btns)
+        private void clearHighlighting(Button[] btns, string btnSize)
         {
             if(btns != null) 
             {
-                foreach (var btn in btns)
+                if(btnSize == "big")
                 {
-                    btn.BackColor = Color.Transparent;
+                    foreach (var btn in btns)
+                    {
+                        btn.Image = btnUnClicked_big; // .BackColor = Color.Transparent;
+                    }
+                }
+                else
+                {
+                    foreach (var btn in btns)
+                    {
+                        btn.Image = btnUnClicked_small; // .BackColor = Color.Transparent;
+                    }
                 }
             }
         }
@@ -989,24 +1030,24 @@ namespace DataVisualizerApp
                 foreach (var btn2 in Btn2_DataType)
                 {
                     btn2.Visible = false;
-                    btn2.BackColor = Color.Transparent;
+                    btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                 }
                 if (Btn3_SensorLocation != null)
                 {
                     foreach (var btn3 in Btn3_SensorLocation)
                     {
                         btn3.Visible = false;
-                        btn3.BackColor = Color.Transparent;
+                        btn3.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                     }
                 }
             }
 
             button1_numRT.Visible = true;
             button1_chartRT.Visible = true;
-            button1_numRT.BackColor = Color.Transparent;
-            button1_chartRT.BackColor = Color.Transparent;
+            button1_numRT.Image = btnUnClicked_small ; // //BackColor = Color.Transparent;
+            button1_chartRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;
             //"실시간" button
-            highlightSelectedBtn(Btn1_time, 0, Color.Chartreuse);
+            highlightSelectedBtn(Btn1_time, 0, "big");
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
             label_between.Visible = false;
@@ -1015,8 +1056,8 @@ namespace DataVisualizerApp
             datePicker2_end.Value = DateTime.Now;
             endTime = "RT";
             button_show.Visible = false;
-            clearHighlighting(Btn2_DataType);
-            clearHighlighting(Btn3_SensorLocation);
+            clearHighlighting(Btn2_DataType, "small");
+            clearHighlighting(Btn3_SensorLocation, "small");
             DataTypesNow.Clear();
             IDs_now.Clear();
         }
@@ -1036,14 +1077,14 @@ namespace DataVisualizerApp
                 {
                     foreach (var btn2 in Btn2_DataType)
                     {
-                        btn2.BackColor = Color.Transparent;
+                        btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                     }
                     if(Btn3_SensorLocation != null)
                     {
                         foreach (var btn3 in Btn3_SensorLocation)
                         {
                             btn3.Visible = false;
-                            btn3.BackColor = Color.Transparent;
+                            btn3.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                         }
                     }
                 }
@@ -1051,7 +1092,7 @@ namespace DataVisualizerApp
             button1_numRT.Visible = false;
             button1_chartRT.Visible = false;
             //"24시간" button
-            highlightSelectedBtn(Btn1_time, 1, Color.Chartreuse);
+            highlightSelectedBtn(Btn1_time, 1, "big");
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
             label_between.Visible = false;
@@ -1079,21 +1120,21 @@ namespace DataVisualizerApp
             {
                 foreach (var btn2 in Btn2_DataType)
                 {
-                    btn2.BackColor = Color.Transparent;
+                    btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                 }
                 if (Btn3_SensorLocation != null)
                 {
                     foreach (var btn3 in Btn3_SensorLocation)
                     {
                         btn3.Visible = false;
-                        btn3.BackColor = Color.Transparent;
+                        btn3.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                     }
                 }
             }
             button1_numRT.Visible = false;
             button1_chartRT.Visible = false;
             //"시간 설정" button
-            highlightSelectedBtn(Btn1_time, 2, Color.Chartreuse);
+            highlightSelectedBtn(Btn1_time, 2, "big");
             datePicker1_start.Visible = true;
             datePicker2_end.Visible = true;
             label_between.Visible = true;
@@ -1108,7 +1149,7 @@ namespace DataVisualizerApp
         }
         private void button1_numRT_Click(object sender, EventArgs e)
         {
-            if (button1_numRT.BackColor != Color.Transparent)
+            if (button1_numRT.Image == btnClicked_small )//BackColor != Color.Transparent
             {
                 if(Btn3_SensorLocation != null)
                 {
@@ -1122,13 +1163,13 @@ namespace DataVisualizerApp
                 button_show.Visible = false;
                 DataTypesNow.Clear();
                 IDs_now.Clear();
-                clearHighlighting(Btn2_DataType);
-                clearHighlighting(Btn3_SensorLocation);
+                clearHighlighting(Btn2_DataType, "small");
+                clearHighlighting(Btn3_SensorLocation, "small");
             }
             else
             {
-                button1_numRT.BackColor = Color.Chartreuse;
-                button1_chartRT.BackColor = Color.Transparent;
+                button1_numRT.Image = btnClicked_small; // BackColor = Color.Chartreuse;
+                button1_chartRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                 digital_flag = true;
 
                 if(Btn2_DataType != null)
@@ -1147,8 +1188,8 @@ namespace DataVisualizerApp
                     
                 }
                 
-                clearHighlighting(Btn2_DataType);
-                clearHighlighting(Btn3_SensorLocation);
+                clearHighlighting(Btn2_DataType, "small");
+                clearHighlighting(Btn3_SensorLocation, "small");
                 DataTypesNow.Clear();
                 IDs_now.Clear();
             }
@@ -1157,7 +1198,7 @@ namespace DataVisualizerApp
         private void button1_chartRT_Click(object sender, EventArgs e)
         {
 
-            if (button1_chartRT.BackColor != Color.Transparent)
+            if (button1_chartRT.Image == btnClicked_small )// BackColor != Color.Transparent
             {
                 if(Btn3_SensorLocation != null)
                 {
@@ -1170,14 +1211,14 @@ namespace DataVisualizerApp
                 button_show.Visible = false;
                 DataTypesNow.Clear();
                 IDs_now.Clear();
-                clearHighlighting(Btn2_DataType);
-                clearHighlighting(Btn3_SensorLocation);
+                clearHighlighting(Btn2_DataType, "small");
+                clearHighlighting(Btn3_SensorLocation, "small");
 
             }
             else
             {
-                button1_chartRT.BackColor = Color.Chartreuse;
-                button1_numRT.BackColor = Color.Transparent;
+                button1_chartRT.Image = btnClicked_small; // BackColor = Color.Chartreuse;
+                button1_numRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;
                 digital_flag = false;
                 if(Btn2_DataType != null)
                 {
@@ -1198,8 +1239,8 @@ namespace DataVisualizerApp
                 button_show.Visible = false;
                 DataTypesNow.Clear();
                 IDs_now.Clear();
-                clearHighlighting(Btn2_DataType);
-                clearHighlighting(Btn3_SensorLocation);
+                clearHighlighting(Btn2_DataType, "small");
+                clearHighlighting(Btn3_SensorLocation, "small");
             }
         }
 
@@ -1207,10 +1248,9 @@ namespace DataVisualizerApp
         {
             //"온도" button
             Button button = (Button)sender; // receive clicked button properties
-            if (button.BackColor != Color.Transparent)
+            if (button.Image == btnClicked_small) //BackColor != Color.Transparent
             {
-
-                button.BackColor = Color.Transparent;
+                button.Image = btnUnClicked_small; //BackColor = Color.Transparent;
                 DataTypesNow.Remove(button.Name);
                 if (DataTypesNow.Count < 1)
                 {
@@ -1223,13 +1263,13 @@ namespace DataVisualizerApp
                     }
                     button_show.Visible = false;
                     IDs_now.Clear();
-                    clearHighlighting(Btn3_SensorLocation);
+                    clearHighlighting(Btn3_SensorLocation, "small");
 
                 }
             }
             else
             {
-                button.BackColor = Color.Chartreuse;
+                button.Image = btnClicked_small; //BackColor = Color.Chartreuse;
                 DataTypesNow.Add(button.Name);
             }
 
@@ -1244,7 +1284,14 @@ namespace DataVisualizerApp
                 Btn3_SensorLocation = new Button[btn_addresses.Count];
                 for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
                 {
-                    Button button1 = new Button();
+                    Button button1 = new Button() { 
+                        FlatAppearance = { 
+                            BorderSize = 0, 
+                            MouseDownBackColor = Color.Transparent, 
+                            MouseOverBackColor=Color.Transparent, 
+                            BorderColor=Color.White },
+                        FlatStyle =  FlatStyle.Flat, BackColor = Color.Transparent, Image = btnUnClicked_small
+                        };
                     button1.SetBounds(x_btn, y_btn, Btn2_DataType[0].Bounds.Width, Btn2_DataType[0].Bounds.Height);
                     if (Btn1_time[2].Bounds.X <= x_btn)
                     {
@@ -1256,8 +1303,9 @@ namespace DataVisualizerApp
                         x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
                     }
                     button1.Text = SensorLocation[index_btn3];
-                    button1.Font = new Font(button1.Font.FontFamily, 15);
+                    button1.Font = new Font(button1.Font.FontFamily, 12);
                     button1.Name = btn_addresses[index_btn3].ToString();
+                    //button1.FlatStyle = FlatStyle.Flat;
                     button1.Click += new EventHandler(this.btn3_address_Click);
                     panel1_menu.Controls.Add(button1);
                     button1.Visible = false;
@@ -1270,7 +1318,7 @@ namespace DataVisualizerApp
                 }
                 
                 button_show.Text = "확인";
-                button_show.Font = new Font(button_show.Font.FontFamily, 15);
+                button_show.Font = new Font(button_show.Font.FontFamily, 12);
                 button_show.Click += new EventHandler(this.button_show_Click);
                 panel1_menu.Controls.Add(button_show);
                 button_show.Visible = false;
@@ -1295,12 +1343,12 @@ namespace DataVisualizerApp
             if (IDs_now.Contains(btn_num) == false) // button3_solbi1.BackColor == Color.Transparent
             {
                 IDs_now.Add(btn_num);
-                button.BackColor = Color.Chartreuse;
+                button.Image = btnClicked_small; //BackColor = Color.Chartreuse;
             }
             else
             {
                 IDs_now.Remove(btn_num);
-                button.BackColor = Color.Transparent;
+                button.Image = btnUnClicked_small; //BackColor = Color.Transparent;
                 if (IDs_now.Count < 1) { button_show.Visible = false; }
             }
 

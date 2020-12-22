@@ -133,7 +133,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\btn_sm4.png" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\01.png" />
   </ItemGroup>
@@ -163,6 +165,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\w3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\btn_sm3.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
