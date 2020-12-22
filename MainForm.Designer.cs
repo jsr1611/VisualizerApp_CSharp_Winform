@@ -29,30 +29,31 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.datePicker2_end = new System.Windows.Forms.DateTimePicker();
             this.datePicker1_start = new System.Windows.Forms.DateTimePicker();
             this.label_between = new System.Windows.Forms.Label();
             this.panel1_menu = new System.Windows.Forms.Panel();
-            this.button1_chartRT = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.button1_numRT = new System.Windows.Forms.Button();
             this.label1_mainHeader = new System.Windows.Forms.Label();
-            this.button1_datepicker = new System.Windows.Forms.Button();
-            this.button1_24h = new System.Windows.Forms.Button();
-            this.button1_realtime = new System.Windows.Forms.Button();
             this.panel2_ChartArea = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
+            this.button1_chartRT = new System.Windows.Forms.Button();
+            this.button1_numRT = new System.Windows.Forms.Button();
+            this.button1_datepicker = new System.Windows.Forms.Button();
+            this.button1_24h = new System.Windows.Forms.Button();
+            this.button1_realtime = new System.Windows.Forms.Button();
             this.panel1_menu.SuspendLayout();
             this.SuspendLayout();
             // 
             // datePicker2_end
             // 
-            this.datePicker2_end.CalendarFont = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker2_end.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker2_end.CustomFormat = "";
-            this.datePicker2_end.Font = new System.Drawing.Font("굴림", 12F);
+            this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.datePicker2_end.Location = new System.Drawing.Point(212, 181);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -63,9 +64,9 @@
             // 
             // datePicker1_start
             // 
-            this.datePicker1_start.CalendarFont = new System.Drawing.Font("굴림", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.datePicker1_start.CustomFormat = "";
-            this.datePicker1_start.Font = new System.Drawing.Font("굴림", 12F);
+            this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 12F);
             this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.datePicker1_start.Location = new System.Drawing.Point(15, 181);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -77,7 +78,7 @@
             // label_between
             // 
             this.label_between.AutoSize = true;
-            this.label_between.Font = new System.Drawing.Font("굴림", 12F);
+            this.label_between.Font = new System.Drawing.Font("Gulim", 12F);
             this.label_between.Location = new System.Drawing.Point(186, 186);
             this.label_between.Name = "label_between";
             this.label_between.Size = new System.Drawing.Size(20, 16);
@@ -105,20 +106,9 @@
             this.panel1_menu.Size = new System.Drawing.Size(415, 920);
             this.panel1_menu.TabIndex = 62;
             // 
-            // button1_chartRT
-            // 
-            this.button1_chartRT.Location = new System.Drawing.Point(107, 168);
-            this.button1_chartRT.Name = "button1_chartRT";
-            this.button1_chartRT.Size = new System.Drawing.Size(90, 40);
-            this.button1_chartRT.TabIndex = 1;
-            this.button1_chartRT.Text = "차트형";
-            this.button1_chartRT.UseVisualStyleBackColor = true;
-            this.button1_chartRT.Visible = false;
-            this.button1_chartRT.Click += new System.EventHandler(this.button1_chartRT_Click);
-            // 
             // comboBox1
             // 
-            this.comboBox1.Font = new System.Drawing.Font("굴림", 15F);
+            this.comboBox1.Font = new System.Drawing.Font("Gulim", 15F);
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
             "Line Chart",
@@ -130,22 +120,11 @@
             this.comboBox1.TabIndex = 78;
             this.comboBox1.Visible = false;
             // 
-            // button1_numRT
-            // 
-            this.button1_numRT.Location = new System.Drawing.Point(12, 168);
-            this.button1_numRT.Name = "button1_numRT";
-            this.button1_numRT.Size = new System.Drawing.Size(90, 40);
-            this.button1_numRT.TabIndex = 0;
-            this.button1_numRT.Text = "숫자형";
-            this.button1_numRT.UseVisualStyleBackColor = true;
-            this.button1_numRT.Visible = false;
-            this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
-            // 
             // label1_mainHeader
             // 
             this.label1_mainHeader.AutoSize = true;
             this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
-            this.label1_mainHeader.Font = new System.Drawing.Font("굴림", 18F, System.Drawing.FontStyle.Bold);
+            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
             this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
             this.label1_mainHeader.Name = "label1_mainHeader";
             this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
@@ -153,44 +132,9 @@
             this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
             this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1_datepicker
-            // 
-            this.button1_datepicker.FlatAppearance.BorderSize = 0;
-            this.button1_datepicker.Font = new System.Drawing.Font("굴림", 15F);
-            this.button1_datepicker.Location = new System.Drawing.Point(258, 90);
-            this.button1_datepicker.Name = "button1_datepicker";
-            this.button1_datepicker.Size = new System.Drawing.Size(120, 65);
-            this.button1_datepicker.TabIndex = 65;
-            this.button1_datepicker.Text = "기간설정";
-            this.button1_datepicker.UseVisualStyleBackColor = true;
-            this.button1_datepicker.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button1_24h
-            // 
-            this.button1_24h.FlatAppearance.BorderSize = 0;
-            this.button1_24h.Font = new System.Drawing.Font("굴림", 15F);
-            this.button1_24h.Location = new System.Drawing.Point(135, 90);
-            this.button1_24h.Name = "button1_24h";
-            this.button1_24h.Size = new System.Drawing.Size(120, 65);
-            this.button1_24h.TabIndex = 64;
-            this.button1_24h.Text = "24시간";
-            this.button1_24h.UseVisualStyleBackColor = true;
-            this.button1_24h.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button1_realtime
-            // 
-            this.button1_realtime.FlatAppearance.BorderSize = 0;
-            this.button1_realtime.Font = new System.Drawing.Font("굴림", 15F);
-            this.button1_realtime.Location = new System.Drawing.Point(12, 90);
-            this.button1_realtime.Name = "button1_realtime";
-            this.button1_realtime.Size = new System.Drawing.Size(120, 65);
-            this.button1_realtime.TabIndex = 63;
-            this.button1_realtime.Text = "실시간";
-            this.button1_realtime.UseVisualStyleBackColor = true;
-            this.button1_realtime.Click += new System.EventHandler(this.button1_Click);
-            // 
             // panel2_ChartArea
             // 
+            this.panel2_ChartArea.Cursor = System.Windows.Forms.Cursors.Default;
             this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
             this.panel2_ChartArea.Name = "panel2_ChartArea";
@@ -210,6 +154,90 @@
             // 
             this.timer3_render.Interval = 1000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            // 
+            // button1_chartRT
+            // 
+            this.button1_chartRT.FlatAppearance.BorderSize = 0;
+            this.button1_chartRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button1_chartRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button1_chartRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button1_chartRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1_chartRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_chartRT.Image")));
+            this.button1_chartRT.Location = new System.Drawing.Point(122, 148);
+            this.button1_chartRT.Name = "button1_chartRT";
+            this.button1_chartRT.Size = new System.Drawing.Size(110, 60);
+            this.button1_chartRT.TabIndex = 1;
+            this.button1_chartRT.Text = "차트형";
+            this.button1_chartRT.UseVisualStyleBackColor = true;
+            this.button1_chartRT.Visible = false;
+            this.button1_chartRT.Click += new System.EventHandler(this.button1_chartRT_Click);
+            // 
+            // button1_numRT
+            // 
+            this.button1_numRT.FlatAppearance.BorderSize = 0;
+            this.button1_numRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button1_numRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button1_numRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button1_numRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1_numRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_numRT.Image")));
+            this.button1_numRT.Location = new System.Drawing.Point(12, 148);
+            this.button1_numRT.Name = "button1_numRT";
+            this.button1_numRT.Size = new System.Drawing.Size(110, 60);
+            this.button1_numRT.TabIndex = 0;
+            this.button1_numRT.Text = "숫자형";
+            this.button1_numRT.UseVisualStyleBackColor = true;
+            this.button1_numRT.Visible = false;
+            this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
+            // 
+            // button1_datepicker
+            // 
+            this.button1_datepicker.FlatAppearance.BorderSize = 0;
+            this.button1_datepicker.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button1_datepicker.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button1_datepicker.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button1_datepicker.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1_datepicker.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_datepicker.Image = ((System.Drawing.Image)(resources.GetObject("button1_datepicker.Image")));
+            this.button1_datepicker.Location = new System.Drawing.Point(258, 90);
+            this.button1_datepicker.Name = "button1_datepicker";
+            this.button1_datepicker.Size = new System.Drawing.Size(120, 65);
+            this.button1_datepicker.TabIndex = 65;
+            this.button1_datepicker.Text = "기간설정";
+            this.button1_datepicker.UseVisualStyleBackColor = true;
+            this.button1_datepicker.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button1_24h
+            // 
+            this.button1_24h.FlatAppearance.BorderSize = 0;
+            this.button1_24h.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button1_24h.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button1_24h.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button1_24h.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1_24h.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_24h.Image = ((System.Drawing.Image)(resources.GetObject("button1_24h.Image")));
+            this.button1_24h.Location = new System.Drawing.Point(135, 90);
+            this.button1_24h.Name = "button1_24h";
+            this.button1_24h.Size = new System.Drawing.Size(120, 65);
+            this.button1_24h.TabIndex = 64;
+            this.button1_24h.Text = "24시간";
+            this.button1_24h.UseVisualStyleBackColor = true;
+            this.button1_24h.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button1_realtime
+            // 
+            this.button1_realtime.FlatAppearance.BorderSize = 0;
+            this.button1_realtime.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button1_realtime.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button1_realtime.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1_realtime.Font = new System.Drawing.Font("Gulim", 15F);
+            this.button1_realtime.Image = ((System.Drawing.Image)(resources.GetObject("button1_realtime.Image")));
+            this.button1_realtime.Location = new System.Drawing.Point(12, 90);
+            this.button1_realtime.Name = "button1_realtime";
+            this.button1_realtime.Size = new System.Drawing.Size(120, 65);
+            this.button1_realtime.TabIndex = 63;
+            this.button1_realtime.Text = "실시간";
+            this.button1_realtime.UseVisualStyleBackColor = true;
+            this.button1_realtime.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainForm
             // 
