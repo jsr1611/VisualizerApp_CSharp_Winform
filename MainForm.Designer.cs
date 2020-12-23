@@ -34,19 +34,28 @@
             this.datePicker1_start = new System.Windows.Forms.DateTimePicker();
             this.label_between = new System.Windows.Forms.Label();
             this.panel1_menu = new System.Windows.Forms.Panel();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.Column0_No = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Column1_SensorName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Column2_Location = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Column3_info = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Column4_usage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button1_chartRT = new System.Windows.Forms.Button();
+            this.button1_numRT = new System.Windows.Forms.Button();
             this.label1_mainHeader = new System.Windows.Forms.Label();
+            this.button1_datepicker = new System.Windows.Forms.Button();
+            this.button1_24h = new System.Windows.Forms.Button();
+            this.button1_realtime = new System.Windows.Forms.Button();
             this.panel2_ChartArea = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
-            this.button1_chartRT = new System.Windows.Forms.Button();
-            this.button1_numRT = new System.Windows.Forms.Button();
-            this.button1_datepicker = new System.Windows.Forms.Button();
-            this.button1_24h = new System.Windows.Forms.Button();
-            this.button1_realtime = new System.Windows.Forms.Button();
+            this.sensorDataDataSet = new DataVisualizerApp.SensorDataDataSet();
+            this.sensorDataDataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.panel1_menu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSet)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSetBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // datePicker2_end
@@ -90,8 +99,8 @@
             // 
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
             this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1_menu.Controls.Add(this.listView1);
             this.panel1_menu.Controls.Add(this.button1_chartRT);
-            this.panel1_menu.Controls.Add(this.comboBox1);
             this.panel1_menu.Controls.Add(this.button1_numRT);
             this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button1_datepicker);
@@ -106,54 +115,49 @@
             this.panel1_menu.Size = new System.Drawing.Size(415, 920);
             this.panel1_menu.TabIndex = 62;
             // 
-            // comboBox1
+            // listView1
             // 
-            this.comboBox1.Font = new System.Drawing.Font("Gulim", 15F);
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "Line Chart",
-            "Scatter Chart",
-            "Bar Chart"});
-            this.comboBox1.Location = new System.Drawing.Point(15, 531);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(363, 28);
-            this.comboBox1.TabIndex = 78;
-            this.comboBox1.Visible = false;
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Column0_No,
+            this.Column1_SensorName,
+            this.Column2_Location,
+            this.Column3_info,
+            this.Column4_usage});
+            this.listView1.FullRowSelect = true;
+            this.listView1.HideSelection = false;
+            this.listView1.Location = new System.Drawing.Point(0, 609);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(398, 309);
+            this.listView1.TabIndex = 75;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
             // 
-            // label1_mainHeader
+            // Column0_No
             // 
-            this.label1_mainHeader.AutoSize = true;
-            this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
-            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
-            this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
-            this.label1_mainHeader.Name = "label1_mainHeader";
-            this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
-            this.label1_mainHeader.TabIndex = 74;
-            this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
-            this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Column0_No.Text = "No";
+            this.Column0_No.Width = 30;
             // 
-            // panel2_ChartArea
+            // Column1_SensorName
             // 
-            this.panel2_ChartArea.Cursor = System.Windows.Forms.Cursors.Default;
-            this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
-            this.panel2_ChartArea.Name = "panel2_ChartArea";
-            this.panel2_ChartArea.Size = new System.Drawing.Size(1127, 920);
-            this.panel2_ChartArea.TabIndex = 63;
+            this.Column1_SensorName.Text = "센서이름";
             // 
-            // timer1
+            // Column2_Location
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
+            this.Column2_Location.Text = "위치";
+            this.Column2_Location.Width = 100;
             // 
-            // timer2
+            // Column3_info
             // 
-            this.timer2.Interval = 1000;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            this.Column3_info.Text = "상세";
+            this.Column3_info.Width = 135;
             // 
-            // timer3_render
+            // Column4_usage
             // 
-            this.timer3_render.Interval = 1000;
-            this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            this.Column4_usage.Text = "사용여부";
+            this.Column4_usage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // button1_chartRT
             // 
@@ -188,6 +192,18 @@
             this.button1_numRT.UseVisualStyleBackColor = true;
             this.button1_numRT.Visible = false;
             this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
+            // 
+            // label1_mainHeader
+            // 
+            this.label1_mainHeader.AutoSize = true;
+            this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
+            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
+            this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
+            this.label1_mainHeader.Name = "label1_mainHeader";
+            this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
+            this.label1_mainHeader.TabIndex = 74;
+            this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
+            this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1_datepicker
             // 
@@ -239,6 +255,39 @@
             this.button1_realtime.UseVisualStyleBackColor = true;
             this.button1_realtime.Click += new System.EventHandler(this.button1_Click);
             // 
+            // panel2_ChartArea
+            // 
+            this.panel2_ChartArea.Cursor = System.Windows.Forms.Cursors.Default;
+            this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
+            this.panel2_ChartArea.Name = "panel2_ChartArea";
+            this.panel2_ChartArea.Size = new System.Drawing.Size(1127, 920);
+            this.panel2_ChartArea.TabIndex = 63;
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
+            // 
+            // timer2
+            // 
+            this.timer2.Interval = 1000;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // timer3_render
+            // 
+            this.timer3_render.Interval = 1000;
+            this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            // 
+            // sensorDataDataSet
+            // 
+            this.sensorDataDataSet.DataSetName = "SensorDataDataSet";
+            this.sensorDataDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            // 
+            // sensorDataDataSetBindingSource
+            // 
+            this.sensorDataDataSetBindingSource.DataSource = this.sensorDataDataSet;
+            this.sensorDataDataSetBindingSource.Position = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -251,6 +300,8 @@
             this.Text = "모니터링";
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSet)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSetBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -267,11 +318,18 @@
         private System.Windows.Forms.Panel panel2_ChartArea;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button1_chartRT;
         private System.Windows.Forms.Button button1_numRT;
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.Timer timer3_render;
+        private System.Windows.Forms.BindingSource sensorDataDataSetBindingSource;
+        private SensorDataDataSet sensorDataDataSet;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ColumnHeader Column0_No;
+        private System.Windows.Forms.ColumnHeader Column1_SensorName;
+        private System.Windows.Forms.ColumnHeader Column2_Location;
+        private System.Windows.Forms.ColumnHeader Column3_info;
+        private System.Windows.Forms.ColumnHeader Column4_usage;
     }
 }
 

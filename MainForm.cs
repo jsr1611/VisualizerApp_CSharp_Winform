@@ -127,8 +127,6 @@ namespace DataVisualizerApp
             //(시각화) 보기 버튼 생성
             
 
-            comboBox1.SelectedIndex = 0;
-
             Btn_MinimizeMenuPanel.Text = "<";
             Btn_MinimizeMenuPanel.SetBounds(panel1_menu.Bounds.Width - 15, 0, 15, 20);
             Btn_MinimizeMenuPanel.Click += new EventHandler(this.MinimizeMenuPanel_Click);
@@ -142,7 +140,29 @@ namespace DataVisualizerApp
             panel4peakVal.BorderStyle = BorderStyle.None;
             //panel4peakVal.Dock = DockStyle.Bottom;
             panel1_menu.Controls.Add(panel4peakVal);
+            
+            string slq_query = "SELECT ID, Name, Location, Other, Usage FROM SensorDataDB.dbo.SENSOR_INFO";
+            SqlConnection con = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
+            
+            using (var cmd = new SqlCommand(slq_query, con))
+            {
+                cmd.CommandTimeout = 0;
+                con.Open();
+                //Console.WriteLine("Connection opened");
+                using (var myReader = cmd.ExecuteReader())
+                {
+                    while (myReader.Read())
+                    {
+                        ListViewItem item1 = new ListViewItem(myReader.GetValue(0).ToString());
+                        item1.SubItems.Add(myReader.GetString(1));
+                        item1.SubItems.Add(myReader.GetString(2));
+                        item1.SubItems.Add(myReader.GetString(3));
+                        item1.SubItems.Add(myReader.GetString(4));
+                        listView1.Items.Add(item1);
 
+                    }
+                }
+            }
 
         }
 
@@ -639,8 +659,14 @@ namespace DataVisualizerApp
                             {
                                 //formsPlots[index_DataType].plt.PlotAnnotation(Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, 10, annotY, fontSize: 20, fontColor: colorset[index_ID], fillAlpha: 1);
                                 //formsPlots[i].plt.SaveFig(titleName + "_" + i.ToString() + "_" + DateTime.Now.ToString("MMdd_HHmm") + ".png");
-                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: String.Format("{0:n0}", RT_Max[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
-                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: String.Format("{0:n0}", RT_Min[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
+                                string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
+                                string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
+                                string maxLabel = (numberStrMax.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                                string minLabel = (numberStrMin.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                                
+                                PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: maxLabel + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
+                                PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: minLabel + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth:0, fillColor: Color.White);
                                 //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
                                 plottableAnnotations.Add(pltAnnot);
                                 plottableAnnotations_MinVal.Add(pltAnnot_min);
@@ -1336,6 +1362,11 @@ namespace DataVisualizerApp
                                           Btn1_time[0].Bounds.Width,
                                           Btn1_time[0].Bounds.Height
                                           );
+                    listView1.SetBounds(panel1_menu.Bounds.X,
+                                button_show.Bounds.Y + 200,
+                                panel1_menu.Bounds.Width - 15,
+                                panel1_menu.Bounds.Height - button_show.Bounds.Y + 200);
+
                 }
                 
                 button_show.Text = "확인";
@@ -1453,9 +1484,16 @@ namespace DataVisualizerApp
                             RT_Max[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
                             //DateTime dtime_max = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
                             RT_Max[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];// dtime_max.ToOADate();
+                            string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
+
+                            //string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
+                            
+                            string maxLabel = (numberStrMax.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                            
+
 
                             Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
-                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = String.Format("{0:n0}", RT_Max[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2191);
+                            plottableAnnotations[index_DataType * IDs_next.Count + index_ID].label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
                         }
                         if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < Convert.ToDouble(RT_Min[index_DataType][index_ID][0][0]))
                         {
@@ -1464,8 +1502,11 @@ namespace DataVisualizerApp
                             RT_Min[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];// dtime_min.ToOADate();
 
                             Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
+                            string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
+                            //string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
+                            string minLabel = (numberStrMin.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
                             //Console.WriteLine($"New Min: {RT_Min[index_DataType][index_ID][0].Count} times changed, latestMin: {RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][0].Count - 1]} at {DateTime.FromOADate(RT_Min[index_DataType][index_ID][0][RT_Min[index_DataType][index_ID][1].Count - 1])}");
-                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = String.Format("{0:n0}", RT_Min[index_DataType][index_ID][0][0]) + " " + char.ConvertFromUtf32(0x2193);
+                            plottableAnnotations_MinVal[index_DataType * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
                         }
                     }
@@ -1516,16 +1557,19 @@ namespace DataVisualizerApp
             if (panel1_menu.Bounds.Width > 15)
             {
                 panel1_menu.SetBounds(panel1_menu.Bounds.X, panel1_menu.Bounds.Y, 15, panel1_menu.Bounds.Height);
+                listView1.Visible = false;
                 button.Text = ">";
                 toolTip1.SetToolTip(button, "선택메누 화면 보이기");  // 마우스 포인팅 시 관련 내용 표시
             }
             else
             {
                 panel1_menu.SetBounds(panel1_menu.Bounds.X, panel1_menu.Bounds.Y, 415, panel1_menu.Bounds.Height);
+                listView1.Visible = true;
                 button.Text = "<";
                 toolTip1.SetToolTip(button, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
             }
         }
+
     }
 
     /// <summary>
