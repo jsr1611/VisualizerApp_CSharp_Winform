@@ -74,10 +74,10 @@ namespace DataVisualizerApp
             InitializeComponent();
 
             // Initialize DB access variables
-             dbServerAddress = "10.1.55.174";
-             dbName = "SensorDataDB";
-             dbUID = "dlitdb";
-             dbPWD = "dlitdb";
+            dbServerAddress = "10.1.55.174";
+            dbName = "SensorDataDB";
+            dbUID = "dlitdb";
+            dbPWD = "dlitdb";
 
             //new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
 
@@ -120,12 +120,12 @@ namespace DataVisualizerApp
 
             }
 
-            
+
 
 
 
             //(시각화) 보기 버튼 생성
-            
+
 
             Btn_MinimizeMenuPanel.Text = "<";
             Btn_MinimizeMenuPanel.SetBounds(panel1_menu.Bounds.Width - 15, 0, 15, 20);
@@ -140,10 +140,10 @@ namespace DataVisualizerApp
             panel4peakVal.BorderStyle = BorderStyle.None;
             //panel4peakVal.Dock = DockStyle.Bottom;
             panel1_menu.Controls.Add(panel4peakVal);
-            
+
             string slq_query = "SELECT ID, Name, Location, Other, Usage FROM SensorDataDB.dbo.SENSOR_INFO";
             SqlConnection con = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-            
+
             using (var cmd = new SqlCommand(slq_query, con))
             {
                 cmd.CommandTimeout = 0;
@@ -163,7 +163,10 @@ namespace DataVisualizerApp
                     }
                 }
             }
-
+        
+            label_Title_main.Left = panel2_ChartArea.Bounds.Width / 2 - label_Title_main.Bounds.Width / 2;
+            label_title_ver.Left = label_Title_main.Right + 15;
+        
         }
 
 

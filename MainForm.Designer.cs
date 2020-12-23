@@ -40,22 +40,25 @@
             this.Column2_Location = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column3_info = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column4_usage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button1_chartRT = new System.Windows.Forms.Button();
-            this.button1_numRT = new System.Windows.Forms.Button();
             this.label1_mainHeader = new System.Windows.Forms.Label();
-            this.button1_datepicker = new System.Windows.Forms.Button();
-            this.button1_24h = new System.Windows.Forms.Button();
-            this.button1_realtime = new System.Windows.Forms.Button();
             this.panel2_ChartArea = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
-            this.sensorDataDataSet = new DataVisualizerApp.SensorDataDataSet();
-            this.sensorDataDataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.label_Title_main = new System.Windows.Forms.Label();
+            this.button1_chartRT = new System.Windows.Forms.Button();
+            this.button1_numRT = new System.Windows.Forms.Button();
+            this.button1_datepicker = new System.Windows.Forms.Button();
+            this.button1_24h = new System.Windows.Forms.Button();
+            this.button1_realtime = new System.Windows.Forms.Button();
+            this.panel_logo = new System.Windows.Forms.Panel();
+            this.pictureBox_logo = new System.Windows.Forms.PictureBox();
+            this.label_title_ver = new System.Windows.Forms.Label();
             this.panel1_menu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSet)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSetBindingSource)).BeginInit();
+            this.panel2_ChartArea.SuspendLayout();
+            this.panel_logo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_logo)).BeginInit();
             this.SuspendLayout();
             // 
             // datePicker2_end
@@ -147,17 +150,69 @@
             // Column2_Location
             // 
             this.Column2_Location.Text = "위치";
-            this.Column2_Location.Width = 100;
+            this.Column2_Location.Width = 65;
             // 
             // Column3_info
             // 
             this.Column3_info.Text = "상세";
-            this.Column3_info.Width = 135;
+            this.Column3_info.Width = 178;
             // 
             // Column4_usage
             // 
             this.Column4_usage.Text = "사용여부";
             this.Column4_usage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label1_mainHeader
+            // 
+            this.label1_mainHeader.AutoSize = true;
+            this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
+            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
+            this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
+            this.label1_mainHeader.Name = "label1_mainHeader";
+            this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
+            this.label1_mainHeader.TabIndex = 74;
+            this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
+            this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel2_ChartArea
+            // 
+            this.panel2_ChartArea.Controls.Add(this.label_title_ver);
+            this.panel2_ChartArea.Controls.Add(this.panel_logo);
+            this.panel2_ChartArea.Controls.Add(this.label_Title_main);
+            this.panel2_ChartArea.Cursor = System.Windows.Forms.Cursors.Default;
+            this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
+            this.panel2_ChartArea.Name = "panel2_ChartArea";
+            this.panel2_ChartArea.Size = new System.Drawing.Size(1127, 920);
+            this.panel2_ChartArea.TabIndex = 63;
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
+            // 
+            // timer2
+            // 
+            this.timer2.Interval = 1000;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // timer3_render
+            // 
+            this.timer3_render.Interval = 1000;
+            this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            // 
+            // label_Title_main
+            // 
+            this.label_Title_main.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_Title_main.AutoSize = true;
+            this.label_Title_main.Font = new System.Drawing.Font("Gulim", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label_Title_main.Location = new System.Drawing.Point(209, 187);
+            this.label_Title_main.Name = "label_Title_main";
+            this.label_Title_main.Size = new System.Drawing.Size(769, 40);
+            this.label_Title_main.TabIndex = 2;
+            this.label_Title_main.Text = "Clean Room T.H.P. Monitoring System";
+            this.label_Title_main.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1_chartRT
             // 
@@ -192,18 +247,6 @@
             this.button1_numRT.UseVisualStyleBackColor = true;
             this.button1_numRT.Visible = false;
             this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
-            // 
-            // label1_mainHeader
-            // 
-            this.label1_mainHeader.AutoSize = true;
-            this.label1_mainHeader.BackColor = System.Drawing.Color.Transparent;
-            this.label1_mainHeader.Font = new System.Drawing.Font("Gulim", 18F, System.Drawing.FontStyle.Bold);
-            this.label1_mainHeader.Location = new System.Drawing.Point(39, 36);
-            this.label1_mainHeader.Name = "label1_mainHeader";
-            this.label1_mainHeader.Size = new System.Drawing.Size(312, 24);
-            this.label1_mainHeader.TabIndex = 74;
-            this.label1_mainHeader.Text = "클린 룸 모니터링 컨트롤러";
-            this.label1_mainHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1_datepicker
             // 
@@ -255,38 +298,38 @@
             this.button1_realtime.UseVisualStyleBackColor = true;
             this.button1_realtime.Click += new System.EventHandler(this.button1_Click);
             // 
-            // panel2_ChartArea
+            // panel_logo
             // 
-            this.panel2_ChartArea.Cursor = System.Windows.Forms.Cursors.Default;
-            this.panel2_ChartArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2_ChartArea.Location = new System.Drawing.Point(415, 0);
-            this.panel2_ChartArea.Name = "panel2_ChartArea";
-            this.panel2_ChartArea.Size = new System.Drawing.Size(1127, 920);
-            this.panel2_ChartArea.TabIndex = 63;
+            this.panel_logo.Controls.Add(this.pictureBox_logo);
+            this.panel_logo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel_logo.Location = new System.Drawing.Point(0, 820);
+            this.panel_logo.Name = "panel_logo";
+            this.panel_logo.Size = new System.Drawing.Size(1127, 100);
+            this.panel_logo.TabIndex = 3;
             // 
-            // timer1
+            // pictureBox_logo
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
+            this.pictureBox_logo.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.pictureBox_logo.Image = global::DataVisualizerApp.Properties.Resources.logo;
+            this.pictureBox_logo.Location = new System.Drawing.Point(885, 34);
+            this.pictureBox_logo.Name = "pictureBox_logo";
+            this.pictureBox_logo.Size = new System.Drawing.Size(219, 44);
+            this.pictureBox_logo.TabIndex = 2;
+            this.pictureBox_logo.TabStop = false;
             // 
-            // timer2
+            // label_title_ver
             // 
-            this.timer2.Interval = 1000;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // timer3_render
-            // 
-            this.timer3_render.Interval = 1000;
-            this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
-            // 
-            // sensorDataDataSet
-            // 
-            this.sensorDataDataSet.DataSetName = "SensorDataDataSet";
-            this.sensorDataDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // sensorDataDataSetBindingSource
-            // 
-            this.sensorDataDataSetBindingSource.DataSource = this.sensorDataDataSet;
-            this.sensorDataDataSetBindingSource.Position = 0;
+            this.label_title_ver.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_title_ver.AutoSize = true;
+            this.label_title_ver.Font = new System.Drawing.Font("Gulim", 15F, System.Drawing.FontStyle.Bold);
+            this.label_title_ver.Location = new System.Drawing.Point(984, 204);
+            this.label_title_ver.Name = "label_title_ver";
+            this.label_title_ver.Size = new System.Drawing.Size(86, 20);
+            this.label_title_ver.TabIndex = 4;
+            this.label_title_ver.Text = "ver. 0.9";
+            this.label_title_ver.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainForm
             // 
@@ -300,8 +343,10 @@
             this.Text = "모니터링";
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSet)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sensorDataDataSetBindingSource)).EndInit();
+            this.panel2_ChartArea.ResumeLayout(false);
+            this.panel2_ChartArea.PerformLayout();
+            this.panel_logo.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_logo)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -322,14 +367,16 @@
         private System.Windows.Forms.Button button1_numRT;
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.Timer timer3_render;
-        private System.Windows.Forms.BindingSource sensorDataDataSetBindingSource;
-        private SensorDataDataSet sensorDataDataSet;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader Column0_No;
         private System.Windows.Forms.ColumnHeader Column1_SensorName;
         private System.Windows.Forms.ColumnHeader Column2_Location;
         private System.Windows.Forms.ColumnHeader Column3_info;
         private System.Windows.Forms.ColumnHeader Column4_usage;
+        private System.Windows.Forms.Label label_Title_main;
+        private System.Windows.Forms.Panel panel_logo;
+        private System.Windows.Forms.PictureBox pictureBox_logo;
+        private System.Windows.Forms.Label label_title_ver;
     }
 }
 

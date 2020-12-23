@@ -16,6 +16,13 @@ namespace DataVisualizerApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            /*Timer timer = new Timer();
+            timer.Interval = 1000;
+            timer.Enabled = true;
+            timer.Start();
+            Application.Run(new StartupForm());
+            timer.Stop();
+            */
             Application.Run(new MainForm());
         }
     }
