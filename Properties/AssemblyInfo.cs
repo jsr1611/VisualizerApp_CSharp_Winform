@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("DataVisualizerApp")]
 [assembly: AssemblyDescription("Sensor data visualization application for monitoring clean room environments.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("JIMSLAB Inc.")]
+[assembly: AssemblyCompany("DLIT Inc.")]
 [assembly: AssemblyProduct("DataVisualizerApp")]
-[assembly: AssemblyCopyright("Copyright © JIMSLAB Inc. 2020")]
+[assembly: AssemblyCopyright("Copyright © DLIT Inc. 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
