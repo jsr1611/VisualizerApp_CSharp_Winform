@@ -348,8 +348,8 @@ namespace DataVisualizerApp
                     }*/
 
                     
-                    AnnotationBackFrame(MyDataTypes, MyIDs);
-                    DrawAnnotations(MyDataTypes, MyIDs, MyDataVals, false);
+                    AnnotationBackground(MyDataTypes, MyIDs);
+                    AnnotationsMinMax(MyDataTypes, MyIDs, MyDataVals, false);
                     /*int annotY = -10 - 25 * (MyIDs.Count - 1);
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
@@ -715,8 +715,8 @@ namespace DataVisualizerApp
                         }
 
 
-                        AnnotationBackFrame(MyDataTypes, MyIDs);
-                        DrawAnnotations(MyDataTypes, MyIDs, MyDataVals, true);
+                        AnnotationBackground(MyDataTypes, MyIDs);
+                        AnnotationsMinMax(MyDataTypes, MyIDs, MyDataVals, true);
                         // Plot Annotations separately to put them above the charts.
                         /*for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                         {
@@ -918,7 +918,7 @@ namespace DataVisualizerApp
                     }
 
                     int annotY = -10 - 25 * (MyIDs.Count - 1);
-                    AnnotationBackFrame(MyDataTypes, MyIDs);
+                    AnnotationBackground(MyDataTypes, MyIDs);
                     
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                     {
@@ -1222,7 +1222,7 @@ namespace DataVisualizerApp
                         }
 
 
-                        AnnotationBackFrame(MyDataTypes, MyIDs);
+                        AnnotationBackground(MyDataTypes, MyIDs);
 
                         
                         // Plot Annotations separately to put them above the charts.
@@ -1263,7 +1263,7 @@ namespace DataVisualizerApp
 
 
 
-        public void AnnotationBackFrame(List<string> MyDataTypes, List<int> MyIDs)
+        public void AnnotationBackground(List<string> MyDataTypes, List<int> MyIDs)
         {
             for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
             {
@@ -1287,7 +1287,7 @@ namespace DataVisualizerApp
         }
         
         
-        public void DrawAnnotations(List<string> MyDataTypes, List<int> MyIDs, List<SortedDictionary<int, List<string>>> MyDataVals, bool realtime)
+        public void AnnotationsMinMax(List<string> MyDataTypes, List<int> MyIDs, List<SortedDictionary<int, List<string>>> MyDataVals, bool realtime)
         {
             if (realtime == false)
             {
