@@ -142,8 +142,8 @@ namespace DataVisualizerApp
         {
             SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
 
-            startTime = "2020-01-07 12:29";
-            endTime = "2021-01-08 12:29";
+            //startTime = "2020-01-07 12:29";
+            //endTime = "2021-01-08 12:29";
             //whatToQuery = "Temperature";
             string MyDataTypes = "";
             if (whatToQuery == "Temperature")
@@ -166,6 +166,7 @@ namespace DataVisualizerApp
 
             //whatToQuery[0] = ;
             SqlDataAdapter da = new SqlDataAdapter();
+            
             /*string SQL_query = "SELECT sensor_id, " + whatToQuery + ", dateandtime " +
                 "FROM( " +
                     "SELECT 1 AS sensor_id, " +
