@@ -21,6 +21,7 @@ namespace DataVisualizerApp
         private void button1_Click(object sender, EventArgs e)
         {
             DataQuery myDataQuery = new DataQuery();
+            MainForm mainForm = new MainForm(); 
             List<string> MyDataTypes = new List<string>() { "Temperature", "Humidity", "Particle03", "Particle05" };
             List<int> MyIDs = new List<int>() { 1, 3 };
             DataQuery dataQuery = new DataQuery();
@@ -31,7 +32,8 @@ namespace DataVisualizerApp
 
             for (int j = 0; j < MyDataTypes.Count; j++)
             {
-                System.Data.DataSet ds = dataQuery.GetValues("", "", MyDataTypes[j], MyIDs);
+                string sqlStr = ""; // mainForm.SqlQueryStr(MyDataTypes[j], MyIDs, "", "");
+                System.Data.DataSet ds = dataQuery.GetValues(sqlStr);
                 for (int i = 0; i < MyIDs.Count; i++)
                 {
                     double[] xs = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();

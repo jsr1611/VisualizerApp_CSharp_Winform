@@ -210,8 +210,8 @@ namespace DataVisualizerApp
 
                     List<string> maxValues = new List<string>();
                     List<string> minValues = new List<string>();
-
-                    System.Data.DataSet ds = dataQuery.GetValues(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
+                    string sqlStr = SqlQueryStr(MySqlNames[index_DataType], MyIDs, startEndDate[0], startEndDate[1]);
+                    System.Data.DataSet ds = dataQuery.GetValues(sqlStr);
                     for (int i = 0; i < MyIDs.Count; i++)
                     {
                         double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
@@ -582,8 +582,53 @@ namespace DataVisualizerApp
         }
 
 
+        private string SqlQueryStr(string whatToQuery, List<int> IDs, string startTime, string endTime)
+        {
+            string MyDataTypes = "";
+            if (whatToQuery == "Temperature")
+            {
+                MyDataTypes = "temp";
+            }
+            else if (whatToQuery == "Humidity")
+            {
+                MyDataTypes = "humid";
+            }
+            else if (whatToQuery == "Particle03")
+            {
+                MyDataTypes = "part03";
+            }
+            else
+            {
+                MyDataTypes = "part05";
+            }
 
-        
+            string sql_head = "SELECT " +
+                                            "sensor_id" +
+                                            ", " + whatToQuery +
+                                            ", dateandtime " +
+                                        "FROM( ";
+            string sql_connector = " UNION ALL ";
+            string sql_tail = " )a ORDER BY dateandtime";
+
+
+            for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
+            {
+                sql_head += "SELECT " +
+                                    IDs[i_sensorID].ToString() + " AS sensor_id" +
+                                    ", " + "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery +
+                                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+                            "FROM dev_" + MyDataTypes + "_" + IDs[i_sensorID].ToString() +
+                           " WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
+                           "GROUP BY SUBSTRING(dateandtime, 1, 16)";
+                if (IDs.Count > 1 && i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+
+            }
+
+            sql_head += sql_tail;
+
+            return sql_head;
+        }
+
         /// <summary>
         /// 차트 배경 색갈 세팅함: FormsPlot figure background color setter
         /// </summary>
