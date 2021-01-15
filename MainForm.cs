@@ -180,7 +180,7 @@ namespace DataVisualizerApp
 
 
 
-        private void ScotPlot3(List<string> MyDataTypes, List<string> MySqlNames, List<int> MyIDs, string[] startEndDate, bool MyRT_flag)
+        private void ScotPlot3(List<string> MyDataTypes, List<string> dbTableNames, List<int> MyIDs, string[] startEndDate, bool MyRT_flag)
         {
             panel2_ChartArea.Controls.Clear();
             panel4peakVal.Controls.Clear();
@@ -198,30 +198,26 @@ namespace DataVisualizerApp
                 timer2.Stop();
                 timer3_render.Stop();
                 formsPlots = new List<FormsPlot>();
-                TableLayoutPrep(tableLayoutPanel, MyDataTypes);
+                TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart: false);
                 DataQuery dataQuery = new DataQuery();
                 
-                for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+                for (int index_dType = 0; index_dType < MyDataTypes.Count; index_dType++)
                 {
-                    if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                    else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                    else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                    else { titleName = "파티클(0.5μm)"; }
-
+                    titleName = chartTitleName(MyDataTypes, index_dType);
+                    string sqlStr = SqlQueryStr(dbTableNames[index_dType], MyIDs, startEndDate[0], startEndDate[1]);
+                    System.Data.DataSet ds = dataQuery.GetValues(sqlStr);
                     List<string> maxValues = new List<string>();
                     List<string> minValues = new List<string>();
-
-                    System.Data.DataSet ds = dataQuery.GetValues(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
                     for (int i = 0; i < MyIDs.Count; i++)
                     {
                         double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                        double[] ys_data = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<decimal>(MySqlNames[index_DataType]))).ToArray();
-                        formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
+                        double[] ys_data = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<decimal>(dbTableNames[index_dType]))).ToArray();
+                        formsPlots[index_dType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
 
                         var (indexOfMax, max) = minMaxIndex(ys_data, true);
                         var (indexOfMin, min) = minMaxIndex(ys_data, false);
 
-                        if (MySqlNames[index_DataType] == "Temperature" || MySqlNames[index_DataType] == "Humidity")
+                        if (dbTableNames[index_dType] == "Temperature" || dbTableNames[index_dType] == "Humidity")
                         {
                             maxValues.Add(max.ToString("F", CultureInfo.InvariantCulture));
                             minValues.Add(min.ToString("F", CultureInfo.InvariantCulture));
@@ -231,25 +227,17 @@ namespace DataVisualizerApp
                             maxValues.Add(String.Format("{0:n0}", max));
                             minValues.Add(String.Format("{0:n0}", min));
                         }
-
-                       // Console.WriteLine(i + "Max: " + max + " at " + DateTime.FromOADate(xs[indexOfMax]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
-                       // Console.WriteLine(i + "Min: " +  min + " at " + DateTime.FromOADate(xs[indexOfMin]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
-
                     }
 
-                    pltStyler(MyDataTypes, index_DataType);
-
-                    
-                    DrawAnnotationBackground(index_DataType, MyIDs);
-                    AnnotateMinMax(index_DataType, MyIDs, maxValues, minValues);
-
-
+                    pltStyler(MyDataTypes, index_dType);
+                    DrawAnnotationBackground(index_dType, MyIDs);
+                    AnnotateMinMax(index_dType, MyIDs, maxValues, minValues);
 
                 }
 
-                for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+                for (int index_dType = 0; index_dType < MyDataTypes.Count; index_dType++)
                 {
-                    formsPlots[index_DataType].Render();
+                    formsPlots[index_dType].Render();
                 }
                 progressbarThread.Abort();
                 progressbarThread = null;
@@ -257,7 +245,6 @@ namespace DataVisualizerApp
             }
             else // 실시간 시각화
             {
-
                 // 시각화 하려는 데이터 타입 갯수에 따라 textbox 컨테이너(List<T>) 생성
                 if (digital_flag) // 숫자만 display됨
                 {
@@ -266,85 +253,17 @@ namespace DataVisualizerApp
                         timer1.Start();
                         timer2.Stop();
                         timer3_render.Stop();
-
-                        if (IDs_now.Count < 2)
-                        {
-                            tableLayoutPanel.RowCount = 1;
-                            tableLayoutPanel.ColumnCount = 1;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-                        else if (IDs_now.Count == 2)
-                        {
-                            tableLayoutPanel.RowCount = 2;
-                            tableLayoutPanel.ColumnCount = 1;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-                        else
-                        {
-                            tableLayoutPanel.RowCount = 2;
-                            tableLayoutPanel.ColumnCount = 2;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-
                         RT_textBoxes.Clear();
+
+                        TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart: true);
+                        
                         for (int i = 0; i < MyIDs.Count; i++)
                         {
                             List<TextBox> textBoxes = new List<TextBox>();
                             RT_textBoxes.Add(textBoxes);
                         }
-                        // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성 - 실시간
-                        int txtBoxCount = 0;
-                        for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
-                        {
-                            for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
-                            {
-                                if (IDs_now.Count > index_column * tableLayoutPanel.RowCount + index_row)
-                                {
-                                    int yBound = 0;
-
-                                    Panel panel = new Panel();
-                                    panel.BorderStyle = BorderStyle.FixedSingle;
-                                    panel.Dock = DockStyle.Fill;
-                                    tableLayoutPanel.Controls.Add(panel, index_row, index_column);
-
-                                    Label label = new Label();
-                                    label.SetBounds(panel.Bounds.Width / 2 - 150, 20, 300, 50);
-                                    label.Font = new Font(label.Font.FontFamily, 20, System.Drawing.FontStyle.Bold);
-                                    label.TextAlign = ContentAlignment.MiddleCenter;
-
-                                    label.Text = Btn3_SensorLocation[MyIDs[index_column * tableLayoutPanel.RowCount + index_row] - 1].Text;
-
-                                    panel.Controls.Add(label);
-                                    //Application.DoEvents();
-                                    // 시각화 하려는 센서 갯수에 따라 textbox 생성 
-                                    for (int boxIndex = 0; boxIndex < MyDataTypes.Count; boxIndex++)
-                                    {
-                                        int counter = 0;
-                                        if (MyDataTypes.Count > 1) { counter = MyDataTypes.Count; }
-                                        TextBox textBox1 = new TextBox();
-                                        textBox1.SetBounds(panel.Bounds.Width / 2 - 275, 100 + yBound, 550, 70);
-                                        textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-                                        textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
-                                        textBox1.BackColor = this.BackColor;
-                                        textBox1.BorderStyle = BorderStyle.None;
-                                        textBox1.Name = "textBox" + txtBoxCount + "_" + boxIndex;
-                                        yBound += 75;
-                                        panel.Controls.Add(textBox1);
-                                        RT_textBoxes[txtBoxCount].Add(textBox1);
-                                        //textBox1.Text = "textBox" + bbox_count + "_" + boxIndex;
-                                        //Application.DoEvents();
-
-                                    }
-                                    txtBoxCount += 1;
-                                }
-                            }
-                        }
+                        
+                        DigitalChartLayoutPrep(tableLayoutPanel, MyDataTypes, MyIDs);
                         timer1.Tick += timer1_Tick_1;
                     }
                     catch (Exception ex)
@@ -367,7 +286,7 @@ namespace DataVisualizerApp
                         timer3_render.Start();
                         timer1.Stop();
 
-                        TableLayoutPrep(tableLayoutPanel, MyDataTypes);
+                        TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart:false);
                         /*int peak_yAxis = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
                         int label_yAxis = peak_yAxis - 24;*/
 
@@ -583,7 +502,115 @@ namespace DataVisualizerApp
 
 
 
+        private void DigitalChartLayoutPrep(TableLayoutPanel tableLayoutPanel, List<string> MyDataTypes, List<int> MyIDs)
+        {
+            int txtBoxCount = 0;
+            for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
+            {
+                for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
+                {
+                    if (IDs_now.Count > index_column * tableLayoutPanel.RowCount + index_row)
+                    {
+                        int yBound = 0;
+
+                        Panel panel = new Panel();
+                        panel.BorderStyle = BorderStyle.FixedSingle;
+                        panel.Dock = DockStyle.Fill;
+                        tableLayoutPanel.Controls.Add(panel, index_row, index_column);
+
+                        Label label = new Label();
+                        label.SetBounds(panel.Bounds.Width / 2 - 150, 20, 300, 50);
+                        label.Font = new Font(label.Font.FontFamily, 20, System.Drawing.FontStyle.Bold);
+                        label.TextAlign = ContentAlignment.MiddleCenter;
+
+                        label.Text = Btn3_SensorLocation[MyIDs[index_column * tableLayoutPanel.RowCount + index_row] - 1].Text;
+
+                        panel.Controls.Add(label);
+                        //Application.DoEvents();
+                        // 시각화 하려는 센서 갯수에 따라 textbox 생성 
+                        for (int boxIndex = 0; boxIndex < MyDataTypes.Count; boxIndex++)
+                        {
+                            int counter = 0;
+                            if (MyDataTypes.Count > 1) { counter = MyDataTypes.Count; }
+                            TextBox textBox1 = new TextBox();
+                            textBox1.SetBounds(panel.Bounds.Width / 2 - 275, 100 + yBound, 550, 70);
+                            textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+                            textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
+                            textBox1.BackColor = this.BackColor;
+                            textBox1.BorderStyle = BorderStyle.None;
+                            textBox1.Name = "textBox" + txtBoxCount + "_" + boxIndex;
+                            yBound += 75;
+                            panel.Controls.Add(textBox1);
+                            RT_textBoxes[txtBoxCount].Add(textBox1);
+                            //textBox1.Text = "textBox" + bbox_count + "_" + boxIndex;
+                            //Application.DoEvents();
+
+                        }
+                        txtBoxCount += 1;
+                    }
+                }
+            }
+        }
+
+
+        private string chartTitleName(List<string> MyDataTypes, int index_DataType)
+        {
+            if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
+            else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
+            else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
+            else { titleName = "파티클(0.5μm)"; }
+            return titleName;
+        }
         
+
+        private string SqlQueryStr(string whatToQuery, List<int> IDs, string startTime, string endTime)
+        {
+            string MyDataTypes = "";
+            if (whatToQuery == "Temperature")
+            {
+                MyDataTypes = "temp";
+            }
+            else if (whatToQuery == "Humidity")
+            {
+                MyDataTypes = "humid";
+            }
+            else if (whatToQuery == "Particle03")
+            {
+                MyDataTypes = "part03";
+            }
+            else
+            {
+                MyDataTypes = "part05";
+            }
+
+            string sql_head = "SELECT " +
+                                            "sensor_id" +
+                                            ", " + whatToQuery +
+                                            ", dateandtime " +
+                                        "FROM( ";
+            string sql_connector = " UNION ALL ";
+            string sql_tail = " )a ORDER BY dateandtime";
+
+
+            for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
+            {
+                sql_head += "SELECT " +
+                                    IDs[i_sensorID].ToString() + " AS sensor_id" +
+                                    ", " + "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery +
+                                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+                            "FROM dev_" + MyDataTypes + "_" + IDs[i_sensorID].ToString() +
+                           " WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
+                           "GROUP BY SUBSTRING(dateandtime, 1, 16)";
+                if (IDs.Count > 1 && i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+
+            }
+
+            sql_head += sql_tail;
+
+            return sql_head;
+        }
+
+
         /// <summary>
         /// 차트 배경 색갈 세팅함: FormsPlot figure background color setter
         /// </summary>
@@ -625,53 +652,87 @@ namespace DataVisualizerApp
         /// </summary>
         /// <param name="tableLayoutPanel"></param>
         /// <param name="MyDataTypes"></param>
-        private void TableLayoutPrep(TableLayoutPanel tableLayoutPanel, List<string> MyDataTypes)
+        private void TableLayoutPrep(TableLayoutPanel tableLayoutPanel, List<string> MyDataTypes, bool digitalChart)
         {
-            if (MyDataTypes.Count < 2)
+            if (digitalChart == false)
             {
-                tableLayoutPanel.RowCount = 1;
-                tableLayoutPanel.ColumnCount = 1;
-                tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            }
-            else if (MyDataTypes.Count == 2)
-            {
-                tableLayoutPanel.RowCount = 2;
-                tableLayoutPanel.ColumnCount = 1;
-                tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            }
-            else
-            {
-                tableLayoutPanel.RowCount = 2;
-                tableLayoutPanel.ColumnCount = 2;
-                tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            }
-
-            // Panel 및 FormsPlot 차트 생성 및 TableLayoutPanel 구성 세팅하기
-            for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
-            {
-                for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
+                if (MyDataTypes.Count < 2)
                 {
-                    if (MyDataTypes.Count > index_column * tableLayoutPanel.RowCount + index_row)
+                    tableLayoutPanel.RowCount = 1;
+                    tableLayoutPanel.ColumnCount = 1;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+                else if (MyDataTypes.Count == 2)
+                {
+                    tableLayoutPanel.RowCount = 2;
+                    tableLayoutPanel.ColumnCount = 1;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+                else
+                {
+                    tableLayoutPanel.RowCount = 2;
+                    tableLayoutPanel.ColumnCount = 2;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+
+                // Panel 및 FormsPlot 차트 생성 및 TableLayoutPanel 구성 세팅하기
+                for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
+                {
+                    for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
                     {
-                        Panel panel = new Panel();
-                        panel.BorderStyle = BorderStyle.FixedSingle;
-                        panel.Dock = DockStyle.Fill;
-                        tableLayoutPanel.Controls.Add(panel, index_row, index_column);
-                        FormsPlot formsPlot = new FormsPlot();
-                        formsPlot.Dock = DockStyle.Fill;
-                        formsPlot.Name = "formPlot " + index_column * tableLayoutPanel.RowCount + index_row;
-                        tableLayoutPanel.Controls.Add(panel, index_row, index_column);
-                        formsPlots.Add(formsPlot);
-                        panel.Controls.Add(formsPlot);
+                        if (MyDataTypes.Count > index_column * tableLayoutPanel.RowCount + index_row)
+                        {
+                            Panel panel = new Panel();
+                            panel.BorderStyle = BorderStyle.FixedSingle;
+                            panel.Dock = DockStyle.Fill;
+                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
+                            FormsPlot formsPlot = new FormsPlot();
+                            formsPlot.Dock = DockStyle.Fill;
+                            formsPlot.Name = "formPlot " + index_column * tableLayoutPanel.RowCount + index_row;
+                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
+                            formsPlots.Add(formsPlot);
+                            panel.Controls.Add(formsPlot);
+                        }
                     }
                 }
             }
+
+            else
+            {
+                if (IDs_now.Count < 2)
+                {
+                    tableLayoutPanel.RowCount = 1;
+                    tableLayoutPanel.ColumnCount = 1;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+                else if (IDs_now.Count == 2)
+                {
+                    tableLayoutPanel.RowCount = 2;
+                    tableLayoutPanel.ColumnCount = 1;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+                else
+                {
+                    tableLayoutPanel.RowCount = 2;
+                    tableLayoutPanel.ColumnCount = 2;
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                }
+
+            }
+
+
 
         }
 
@@ -1806,35 +1867,7 @@ namespace DataVisualizerApp
             {
                 timer2.Stop();
                 timer3_render.Stop();
-                // 시각화 화면 세탕하기 1: TableLayoutPanel 구성 세팅
-                if (MyDataTypes.Count < 2)
-                {
-                    tableLayoutPanel.RowCount = 1;
-                    tableLayoutPanel.ColumnCount = 1;
-                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                }
-                else if (MyDataTypes.Count == 2)
-                {
-                    tableLayoutPanel.RowCount = 2;
-                    tableLayoutPanel.ColumnCount = 1;
-                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                }
-                else
-                {
-                    tableLayoutPanel.RowCount = 2;
-                    tableLayoutPanel.ColumnCount = 2;
-                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                }
-
-                // ScotPlot 차트 함수인 FormsPlot들을 위한 List 생성  
                 formsPlots = new List<FormsPlot>();
-
                 string[][] dataArr2 = new string[MyIDs.Count][]; //dataArr[0][0].Count
                 string[][] timeArr2 = new string[MyIDs.Count][];
 
@@ -1843,35 +1876,16 @@ namespace DataVisualizerApp
                     dataArr2[index_sensorID] = new string[numOfElmnt];
                     timeArr2[index_sensorID] = new string[numOfElmnt];
                 }
-                // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성
-                for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
-                {
-                    for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
-                    {
-                        if (MyDataTypes.Count > index_column * tableLayoutPanel.RowCount + index_row)
-                        {
-                            Panel panel = new Panel();
-                            panel.BorderStyle = BorderStyle.FixedSingle;
-                            panel.Dock = DockStyle.Fill;
-                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
-                            FormsPlot formsPlot = new FormsPlot();
-                            formsPlot.Dock = DockStyle.Fill;
-                            tableLayoutPanel.Controls.Add(panel, index_row, index_column);
-                            formsPlots.Add(formsPlot);
-                            panel.Controls.Add(formsPlot);
 
-                        }
-                    }
-                }
+                // 시각화 화면 세탕하기 1: TableLayoutPanel 구성 세팅
+                TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart: false);
+
+                
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
 
-                    if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                    else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                    else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                    else { titleName = "파티클(0.5μm)"; }
-
+                    titleName = chartTitleName(MyDataTypes, index_DataType);
 
                     var plt = formsPlots[index_DataType];
                     for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
@@ -1896,8 +1910,6 @@ namespace DataVisualizerApp
                         //formsPlots[index_DataType].plt.PlotScatterHighlight(xs, ys);                          // ScatterHighlight
                         //formsPlots[index_DataType].plt.PlotPolygon(Tools.Pad(xs, cloneEdges: true), Tools.Pad(ys));
                         //formsPlots[index_DataType].plt.Grid(enable: false);      //Enable-Disable Grid
-
-
 
                     }
                     pltStyler(MyDataTypes, index_DataType);
@@ -1950,31 +1962,7 @@ namespace DataVisualizerApp
                         timer2.Stop();
                         timer3_render.Stop();
 
-                        if (IDs_now.Count < 2)
-                        {
-                            tableLayoutPanel.RowCount = 1;
-                            tableLayoutPanel.ColumnCount = 1;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-                        else if (IDs_now.Count == 2)
-                        {
-                            tableLayoutPanel.RowCount = 2;
-                            tableLayoutPanel.ColumnCount = 1;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-                        else
-                        {
-                            tableLayoutPanel.RowCount = 2;
-                            tableLayoutPanel.ColumnCount = 2;
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                            tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        }
-
+                        TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart:true);
                         RT_textBoxes.Clear();
                         for (int i = 0; i < MyIDs.Count; i++)
                         {
@@ -1982,7 +1970,7 @@ namespace DataVisualizerApp
                             RT_textBoxes.Add(textBoxes);
                         }
                         // 시각화 화면 세탕하기 2: TableLayoutPanel의 구성요소들 생성 - 실시간
-                        int txtBoxCount = 0;
+                        /*int txtBoxCount = 0;
                         for (int index_column = 0; index_column < tableLayoutPanel.ColumnCount; index_column++)
                         {
                             for (int index_row = 0; index_row < tableLayoutPanel.RowCount; index_row++)
@@ -2027,7 +2015,8 @@ namespace DataVisualizerApp
                                     txtBoxCount += 1;
                                 }
                             }
-                        }
+                        }*/
+                        DigitalChartLayoutPrep(tableLayoutPanel, MyDataTypes, MyIDs);
                         timer1.Tick += timer1_Tick_1;
                     }
                     catch (Exception ex)
@@ -2051,7 +2040,7 @@ namespace DataVisualizerApp
                         timer1.Stop();
 
 
-                        TableLayoutPrep(tableLayoutPanel, MyDataTypes);
+                        TableLayoutPrep(tableLayoutPanel, MyDataTypes, digitalChart:false);
 
                         // 최대값 표시를 위한 textbox 및 label 
 
@@ -2070,10 +2059,7 @@ namespace DataVisualizerApp
                             RT_Max.Add(vs_max);
                             RT_Min.Add(vs_min);
 
-                            if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                            else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                            else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                            else { titleName = "파티클(0.5μm)"; }
+                            titleName = chartTitleName(MyDataTypes, index_DataType);
 
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
