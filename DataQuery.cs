@@ -9,6 +9,7 @@ using System.Windows.Controls;
 
 namespace DataVisualizerApp
 {
+
     class DataQuery
     {
 
@@ -16,7 +17,6 @@ namespace DataVisualizerApp
         public string dbName = "SensorDataDB";
         public string dbUID = "dlitdb01";
         public string dbPWD = "dlitdb01";
-        public string connectionTimeout = "180";
 
         /// <summary>
         /// 데이터 쿼리 함수
@@ -138,16 +138,35 @@ namespace DataVisualizerApp
             return ds;
         }
 
-
-        /// <summary>
-        /// sql쿼리문 입력 시 해당하는 데이터를 ds(dataset) 형태로 반환함
-        /// </summary>
-        /// <param name="sqlStr"></param>
-        /// <returns></returns>
-        public System.Data.DataSet GetValues(string sqlStr)
+        public System.Data.DataSet GetValues(string startTime, string endTime, string whatToQuery, List<int> IDs)
         {
-            SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Connection Timeout={connectionTimeout};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
+            SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
 
+            //startTime = "2020-01-07 12:29";
+            //endTime = "2021-01-08 12:29";
+            //whatToQuery = "Temperature";
+            string MyDataTypes = "";
+            if (whatToQuery == "Temperature")
+            {
+                MyDataTypes = "temp";
+            }
+            else if(whatToQuery == "Humidity")
+            {
+                MyDataTypes = "humid";
+            }
+            else if (whatToQuery == "Particle03")
+            {
+                MyDataTypes = "part03";
+            }
+            else 
+            {
+                MyDataTypes = "part05";
+            }
+
+
+            //whatToQuery[0] = ;
+            SqlDataAdapter da = new SqlDataAdapter();
+            
             /*string SQL_query = "SELECT sensor_id, " + whatToQuery + ", dateandtime " +
                 "FROM( " +
                     "SELECT 1 AS sensor_id, " +
@@ -171,11 +190,33 @@ namespace DataVisualizerApp
                     "WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
                     "GROUP BY SUBSTRING(dateandtime, 1, 16) )a " +
                 "ORDER BY dateandtime";*/
-
             
-            SqlDataAdapter da = new SqlDataAdapter();
-            //da.SelectCommand.CommandTimeout = 180;
-            da.SelectCommand = new SqlCommand(sqlStr, myConnection);
+            string sql_head = "SELECT " +
+                                            "sensor_id" +
+                                            ", " + whatToQuery +
+                                            ", dateandtime " +
+                                        "FROM( ";
+            string sql_connector = " UNION ALL "; 
+            string sql_tail = " )a ORDER BY dateandtime";
+
+
+            for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
+            {
+                sql_head += "SELECT " +
+                                    IDs[i_sensorID].ToString() + " AS sensor_id" +
+                                    ", " + "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery +
+                                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
+                            "FROM dev_" + MyDataTypes + "_" + IDs[i_sensorID].ToString() +
+                           " WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
+                           "GROUP BY SUBSTRING(dateandtime, 1, 16)";
+                if (IDs.Count > 1 && i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+
+            }
+
+            sql_head += sql_tail;
+            da.SelectCommand = new SqlCommand(sql_head, myConnection);
+
+
 
             System.Data.DataSet ds = new System.Data.DataSet();
 
@@ -183,8 +224,6 @@ namespace DataVisualizerApp
             da.Fill(ds);
             return ds;
         }
-
-        
 
 
         public (List<SortedDictionary<int, List<string>>>, List<SortedDictionary<int, List<string>>>) DBQuery2(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
