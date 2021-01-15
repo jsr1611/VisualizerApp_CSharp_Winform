@@ -9,7 +9,6 @@ using System.Windows.Controls;
 
 namespace DataVisualizerApp
 {
-
     class DataQuery
     {
 
