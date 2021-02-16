@@ -20,6 +20,33 @@ namespace DataVisualizerApp
         public string dbName = "";
         public string dbUID = "";
         public string dbPWD = "";
+        public SqlConnection myConn { get; set; }
+
+        private string _deviceTable;
+
+        public string S_DeviceTable
+        {
+            get { return _deviceTable; }
+            set { _deviceTable = value; }
+        }
+        private string _sensorUsage;
+
+        public string SensorUsage
+        {
+            get { return _sensorUsage; }
+            set { _sensorUsage = value; }
+        }
+
+
+
+        private List<string> _sensorUsageColumn;
+
+        public List<string> SensorUsageColumn
+        {
+            get { return _sensorUsageColumn; }
+            set { _sensorUsageColumn = value; }
+        }
+
 
         public Button[] Btn1_time { get; set; }
         public Button[] Btn2_DataType = new Button[4];
@@ -37,7 +64,7 @@ namespace DataVisualizerApp
         public Button Btn_MinimizeMenuPanel = new Button();
         public Panel panel4peakVal = new Panel();
 
-        public List<string> SensorLocation = new List<string>();
+        public List<string> S_DeviceLocation = new List<string>();
         public List<int> IDs_now = new List<int>();
         public List<int> IDs_next = new List<int>();
         public List<string> DataTypesNow = new List<string>();
@@ -78,10 +105,17 @@ namespace DataVisualizerApp
             InitializeComponent();
 
             // Initialize DB access variables
-            dbServerAddress = "127.0.0.1";    //"10.1.55.174";
+            dbServerAddress = "localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
             dbName = "SensorDataDB";
-            dbUID = "dlitdb01";
-            dbPWD = "dlitdb01";
+            dbUID = "dlitadmin";
+            dbPWD = "dlitadmin";
+
+            S_DeviceTable = "SENSOR_INFO";
+            SensorUsage = "SensorUsage";
+            SensorUsageColumn = new List<string>();
+            var S_FourRangeColmn = new List<string>() { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
+
+            myConn = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20"); // ; Integrated Security=True ");
 
             //new SqlConnection(@"Data Source=10.1.55.174;Initial Catalog=SensorDataDB;User id=dlitdb;Password=dlitdb; Min Pool Size=20");
 
@@ -92,14 +126,30 @@ namespace DataVisualizerApp
             datePicker2_end.Format = DateTimePickerFormat.Custom;
             datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
 
-            colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green };
+            colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green, Color.Brown, Color.Yellow, Color.Purple, Color.Red, Color.Azure, Color.Chocolate, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
+
+            /*KnownColor[] colors = (KnownColor[])Enum.GetValues(typeof(KnownColor));
+            colorset = new Color[colors.Length];
+            int i = 0;
+            foreach (KnownColor knowColor in colors)
+            {
+                Color color = Color.FromKnownColor(knowColor);
+                colorset[i] = color;
+                i += 1;
+            }*/
+
+            Console.WriteLine(colorset.Length);
+
+
+
+
             Btn1_time = new Button[] { button1_realtime, button1_24h, button1_datepicker };
             // { button2_temp, button2_humid, button2_part03, button2_part05 };
 
             int x_btn = Btn1_time[0].Bounds.X;
             int y_btn = Btn1_time[0].Bounds.Y + Btn1_time[0].Bounds.Height * 2;
 
-            for (int index_btn2 = 0; index_btn2 < 4; index_btn2++)
+            for (int indexOfBtn2 = 0; indexOfBtn2 < 4; indexOfBtn2++)
             {
                 Button button = new Button()
                 {
@@ -112,15 +162,15 @@ namespace DataVisualizerApp
                     BackColor = Color.Transparent,
                     Image = btnUnClicked_small
                 };
-                button.Name = (index_btn2 == 0) ? "temp" : ((index_btn2 == 1) ? "humid" : ((index_btn2 == 2) ? "part03" : "part05"));
-                button.Text = (index_btn2 == 0) ? "온도" : ((index_btn2 == 1) ? "습도" : ((index_btn2 == 2) ? "파티클(0.3)" : "파티클(0.5)"));
+                button.Name = (indexOfBtn2 == 0) ? "temp" : ((indexOfBtn2 == 1) ? "humid" : ((indexOfBtn2 == 2) ? "part03" : "part05"));
+                button.Text = (indexOfBtn2 == 0) ? "온도" : ((indexOfBtn2 == 1) ? "습도" : ((indexOfBtn2 == 2) ? "파티클(0.3)" : "파티클(0.5)"));
                 button.Font = new Font(button.Font.FontFamily, 12);
                 button.SetBounds(x_btn, y_btn, Btn1_time[0].Bounds.Width * 3 / 4, Btn1_time[0].Bounds.Height);
                 x_btn += ((Btn1_time[2].Bounds.X + Btn1_time[2].Bounds.Width) / 4);
                 button.Click += new EventHandler(this.btn2_data_Click);
                 panel1_menu.Controls.Add(button);
                 button.Visible = false;
-                Btn2_DataType[index_btn2] = button;
+                Btn2_DataType[indexOfBtn2] = button;
 
             }
 
@@ -145,34 +195,46 @@ namespace DataVisualizerApp
             //panel4peakVal.Dock = DockStyle.Bottom;
             panel1_menu.Controls.Add(panel4peakVal);
 
+
+            string slq_query = $"SELECT * FROM {S_DeviceTable}";
+            //SqlConnection myConn = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
+
+            var cmd = new SqlCommand(slq_query, myConn);
+            cmd.CommandTimeout = 0;
             try
             {
-                string slq_query = "SELECT ID, Name, Location, Other, Usage FROM SensorDataDB.dbo.SENSOR_INFO";
-                SqlConnection con = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-
-                using (var cmd = new SqlCommand(slq_query, con))
+                if (myConn.State != ConnectionState.Open)
                 {
-                    cmd.CommandTimeout = 0;
-                    con.Open();
-                    //Console.WriteLine("Connection opened");
-                    using (var myReader = cmd.ExecuteReader())
+                    myConn.Open();
+                }
+                //Console.WriteLine("Connection opened");
+                using (var myReader = cmd.ExecuteReader())
+                {
+                    while (myReader.Read())
                     {
-                        while (myReader.Read())
+                        ListViewItem item1 = new ListViewItem(myReader.GetValue(0).ToString());
+                        for (int i = 1; i < myReader.FieldCount; i++)
                         {
-                            ListViewItem item1 = new ListViewItem(myReader.GetValue(0).ToString());
-                            item1.SubItems.Add(myReader.GetString(1));
-                            item1.SubItems.Add(myReader.GetString(2));
-                            item1.SubItems.Add(myReader.GetString(3));
-                            item1.SubItems.Add(myReader.GetString(4));
-                            listView1.Items.Add(item1);
-
+                            item1.SubItems.Add(myReader.GetString(i));
                         }
+                        /*
+                        item1.SubItems.Add(myReader.GetString(2));
+                        item1.SubItems.Add(myReader.GetString(3));
+                        item1.SubItems.Add(myReader.GetString(4));*/
+                        listView1.Items.Add(item1);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show(ex.Message, "에러 메시지");
+                MessageBox.Show(ex.Message, "에러 메시지", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (myConn.State == ConnectionState.Open)
+                {
+                    myConn.Close();
+                }
             }
             label_Title_main.Left = panel2_ChartArea.Bounds.Width / 2 - label_Title_main.Bounds.Width / 2;
             label_title_ver.Left = label_Title_main.Right + 15;
@@ -200,7 +262,7 @@ namespace DataVisualizerApp
                 formsPlots = new List<FormsPlot>();
                 TableLayoutPrep(tableLayoutPanel, MyDataTypes);
                 DataQuery dataQuery = new DataQuery();
-                
+
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
                     if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
@@ -232,14 +294,14 @@ namespace DataVisualizerApp
                             minValues.Add(String.Format("{0:n0}", min));
                         }
 
-                       // Console.WriteLine(i + "Max: " + max + " at " + DateTime.FromOADate(xs[indexOfMax]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
-                       // Console.WriteLine(i + "Min: " +  min + " at " + DateTime.FromOADate(xs[indexOfMin]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
+                        // Console.WriteLine(i + "Max: " + max + " at " + DateTime.FromOADate(xs[indexOfMax]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
+                        // Console.WriteLine(i + "Min: " +  min + " at " + DateTime.FromOADate(xs[indexOfMin]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
 
                     }
 
                     pltStyler(MyDataTypes, index_DataType);
 
-                    
+
                     DrawAnnotationBackground(index_DataType, MyIDs);
                     AnnotateMinMax(index_DataType, MyIDs, maxValues, minValues);
 
@@ -517,7 +579,7 @@ namespace DataVisualizerApp
 
 
                                 //formsPlots[i].plt.Grid(enable: false);      //Enable-Disable Gridn
-                                
+
                                 plts.Add(signalPlot);
 
                             }
@@ -583,7 +645,7 @@ namespace DataVisualizerApp
 
 
 
-        
+
         /// <summary>
         /// 차트 배경 색갈 세팅함: FormsPlot figure background color setter
         /// </summary>
@@ -697,15 +759,15 @@ namespace DataVisualizerApp
         }
 
 
-        private (int, double) minMaxIndex(double[] items, bool maxMin) 
+        private (int, double) minMaxIndex(double[] items, bool maxMin)
         {
             int index = 0;
             double target = items[0];
             if (maxMin)
             {
-                for(int i=1; i < items.Length; i++)
+                for (int i = 1; i < items.Length; i++)
                 {
-                    if(target < items[i])
+                    if (target < items[i])
                     {
                         target = items[i];
                         index = i;
@@ -733,7 +795,7 @@ namespace DataVisualizerApp
             {
                 formsPlots[index_DataType].plt.PlotAnnotation(maxVals[index_ID] + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
                 formsPlots[index_DataType].plt.PlotAnnotation(minVals[index_ID] + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
-                
+
                 annotY += 25;
             }
         }
@@ -919,7 +981,7 @@ namespace DataVisualizerApp
                 timeInterval[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 timeInterval[1] = "RT";
 
-                
+
                 List<List<List<string[]>>> DataRetrieved_RT = myDataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
                 IDs_next = new List<int>(IDs_now);
                 DataTypesNext = new List<string>(DataTypesNow);
@@ -944,15 +1006,15 @@ namespace DataVisualizerApp
                 string[] startEndDate = { startTime, endTime };
                 progressbarThread = new Thread(new ThreadStart(WaitForm));
                 progressbarThread.Start();
-                
+
                 //Console.WriteLine("mapvals: ", mapVals.Count, mapTime.Count);
-               
-                    ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
-               
-                    /*progressbarThread.Abort();
-                    progressbarThread = null;
-                    MessageBox.Show("No data for visualization.", "Error Message");*/
-                
+
+                ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
+
+                /*progressbarThread.Abort();
+                progressbarThread = null;
+                MessageBox.Show("No data for visualization.", "Error Message");*/
+
 
                 //ChartingForm GeneralChart = new ChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
                 //NewChartingForm GeneralChart = new NewChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
@@ -974,9 +1036,9 @@ namespace DataVisualizerApp
                     progressbarThread = new Thread(new ThreadStart(WaitForm));
                     progressbarThread.Start();
 
-                   /* System.Data.DataSet ds = myDataQuery.GetTempValues();
-                    double[] xs = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                    double[] ys = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDouble(r.Field<decimal>("Temperature"))).ToArray();*/
+                    /* System.Data.DataSet ds = myDataQuery.GetTempValues();
+                     double[] xs = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
+                     double[] ys = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDouble(r.Field<decimal>("Temperature"))).ToArray();*/
                     //Form form = new Form();
 
                     //FormsPlot formsPlot = new FormsPlot();
@@ -1137,7 +1199,7 @@ namespace DataVisualizerApp
         {
             List<int> SensorIDs_available = new List<int>();
             SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-            string sql_getIDs = "SELECT * FROM SensorDataDB.dbo.SENSOR_INFO a WHERE a.Usage = 'YES'";
+            string sql_getIDs = "SELECT * FROM SensorDataDB.dbo.SENSOR_INFO a WHERE a.sUsage = 'YES'";
             try
             {
                 using (var cmd = new SqlCommand(sql_getIDs, myConnection))
@@ -1152,8 +1214,8 @@ namespace DataVisualizerApp
                             while (myReader.Read())
                             {
                                 //string[] rowInfo = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString() };
-                                SensorIDs_available.Add(Convert.ToInt32(myReader["ID"]));
-                                SensorLocation.Add(myReader["Location"].ToString());
+                                SensorIDs_available.Add(Convert.ToInt32(myReader["sID"]));
+                                S_DeviceLocation.Add(myReader["sLocation"].ToString());
                                 // SensorIDs_available.Add(Convert.ToInt32(rowInfo[0])+3); //test
                             }
                         }
@@ -1197,7 +1259,7 @@ namespace DataVisualizerApp
                     return true;
                 }
             }
-            catch (WebException ex)
+            catch
             {
                 return false;
             }
@@ -1554,7 +1616,7 @@ namespace DataVisualizerApp
                     {
                         x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
                     }
-                    button1.Text = SensorLocation[index_btn3];
+                    button1.Text = S_DeviceLocation[index_btn3];
                     button1.Font = new Font(button1.Font.FontFamily, 12);
                     button1.Name = btn_addresses[index_btn3].ToString();
                     //button1.FlatStyle = FlatStyle.Flat;

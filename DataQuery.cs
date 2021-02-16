@@ -12,11 +12,64 @@ namespace DataVisualizerApp
 
     class DataQuery
     {
+        private string _dbServer;
 
-        public string dbServerAddress = "127.0.0.1";    //"10.1.55.174";
-        public string dbName = "SensorDataDB";
-        public string dbUID = "dlitdb01";
-        public string dbPWD = "dlitdb01";
+        public string dbServerAddress
+        {
+            get { return _dbServer; }
+            set { _dbServer = value; }
+        }
+
+        private string _dbName;
+
+        public string dbName
+        {
+            get { return _dbName; }
+            set { _dbName = value; }
+        }
+        private string _dbUserId;
+
+        public string dbUID
+        {
+            get { return _dbUserId; }
+            set { _dbUserId = value; }
+        }
+        private string _dbPWD;
+
+        public string dbPWD
+        {
+            get { return _dbPWD; }
+            set { _dbPWD = value; }
+        }
+        private string _sensorUsage;
+
+        public string SensorUsage
+        {
+            get { return _sensorUsage; }
+            set { _sensorUsage = value; }
+        }
+
+        private List<string> _sensorUsageColumn;
+
+        public List<string> SensorUsageColumn
+        {
+            get { return _sensorUsageColumn; }
+            set { _sensorUsageColumn = value; }
+        }
+
+        private string _deviceTable;
+
+        public string S_DeviceTable
+        {
+            get { return _deviceTable; }
+            set { _deviceTable = value; }
+        }
+
+
+        public DataQuery()
+        {
+
+        }
 
         /// <summary>
         /// 데이터 쿼리 함수
@@ -306,7 +359,7 @@ namespace DataVisualizerApp
                         using (var myReader = cmd.ExecuteReader())
                         {
                             Console.WriteLine("Executing Reader() method...");
-                            int i_sensorID = 0;
+                            //int i_sensorID = 0;
                             
                             while (myReader.Read())
                             {
