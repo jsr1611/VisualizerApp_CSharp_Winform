@@ -10,15 +10,8 @@ using System.Windows.Controls;
 namespace DataVisualizerApp
 {
 
-    class DataQuery
+    public class DataQuery
     {
-        private string _dbServer;
-
-        public string dbServerAddress
-        {
-            get { return _dbServer; }
-            set { _dbServer = value; }
-        }
 
         private string _dbName;
 
@@ -27,20 +20,9 @@ namespace DataVisualizerApp
             get { return _dbName; }
             set { _dbName = value; }
         }
-        private string _dbUserId;
 
-        public string dbUID
-        {
-            get { return _dbUserId; }
-            set { _dbUserId = value; }
-        }
-        private string _dbPWD;
 
-        public string dbPWD
-        {
-            get { return _dbPWD; }
-            set { _dbPWD = value; }
-        }
+
         private string _sensorUsage;
 
         public string SensorUsage
@@ -65,10 +47,29 @@ namespace DataVisualizerApp
             set { _deviceTable = value; }
         }
 
+        private SqlConnection _myConn;
+
+        public SqlConnection myConn
+        {
+            get { return _myConn; }
+            set { _myConn = value; }
+        }
+
+        public List<string> FourRangeColmn { get; }
 
         public DataQuery()
         {
 
+        }
+
+        public DataQuery(SqlConnection myConn, string dbName, string deviceTable, string sensorUsage, List<string> sensorUsageColumn, List<string> fourRangeColmn)
+        {
+            this.myConn = myConn;
+            this.dbName = dbName;
+            S_DeviceTable = deviceTable;
+            SensorUsage = sensorUsage;
+            SensorUsageColumn = sensorUsageColumn;
+            FourRangeColmn = fourRangeColmn;
         }
 
         /// <summary>
@@ -80,15 +81,14 @@ namespace DataVisualizerApp
         public List<List<List<string[]>>> DBQuery(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
         {
 
-            
-
             List<List<List<string[]>>> DataArr = new List<List<List<string[]>>>(); // new List<List<List<string[]>>>();
             List<SortedDictionary<int, List<string>>> mapVals = new List<SortedDictionary<int, List<string>>>();
             List<SortedDictionary<int, List<string>>> mapTime = new List<SortedDictionary<int, List<string>>>();
 
             List<string> sql_names = new List<string>();
 
-            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)   //temperature, humidity, particle03, particle05
+            //temperature, humidity, particle03, particle05, particle10, particle25, particle50, particle100
+            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)
             {
                 DataArr.Add(new List<List<string[]>>());
                 mapVals.Add(new SortedDictionary<int, List<string>>());
@@ -139,12 +139,11 @@ namespace DataVisualizerApp
 
                     Console.WriteLine("SQL 쿼리문: " + sql_head);
                     //로컬 db접속 방식
-                    //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                    SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                    using (var cmd = new SqlCommand(sql_head, myConnection))
+
+                    using (var cmd = new SqlCommand(sql_head, myConn))
                     {
                         cmd.CommandTimeout = 0;
-                        myConnection.Open();
+                        myConn.Open();
                         Console.WriteLine("Connection opened");
                         using (var myReader = cmd.ExecuteReader())
                         {
@@ -165,7 +164,7 @@ namespace DataVisualizerApp
                                 i_ID2 += 1;
                             }
                         }
-                        myConnection.Close();
+                        myConn.Close();
                     }
                     Console.WriteLine("mapVals, mapTime, dataArr:", mapVals.Count, mapTime.Count, DataArr.Count);
                 }
@@ -180,10 +179,8 @@ namespace DataVisualizerApp
 
         public System.Data.DataSet GetTempValues()
         {
-            SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-
             SqlDataAdapter da = new SqlDataAdapter();
-            da.SelectCommand = new SqlCommand("SELECT sensor_id, Temperature, dateandtime FROM( SELECT 1 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_1 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) UNION ALL SELECT 2 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_2 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) UNION ALL SELECT 3 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_3 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) )a ORDER BY dateandtime", myConnection);
+            da.SelectCommand = new SqlCommand("SELECT sensor_id, Temperature, dateandtime FROM( SELECT 1 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_1 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) UNION ALL SELECT 2 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_2 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) UNION ALL SELECT 3 AS sensor_id, AVG(CAST(Temperature AS DECIMAL(18, 2))) AS Temperature, SUBSTRING(dateandtime, 1,16) AS dateandtime FROM dev_temp_3 WHERE dateandtime BETWEEN '2020-01-07 12:29' AND '2021-01-08 12:29' GROUP BY SUBSTRING(dateandtime, 1, 16) )a ORDER BY dateandtime", myConn);
             System.Data.DataSet ds = new System.Data.DataSet();
 
             ///conn.Open();
@@ -193,8 +190,6 @@ namespace DataVisualizerApp
 
         public System.Data.DataSet GetValues(string startTime, string endTime, string whatToQuery, List<int> IDs)
         {
-            SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-
             //startTime = "2020-01-07 12:29";
             //endTime = "2021-01-08 12:29";
             //whatToQuery = "Temperature";
@@ -203,7 +198,7 @@ namespace DataVisualizerApp
             {
                 MyDataTypes = "temp";
             }
-            else if(whatToQuery == "Humidity")
+            else if (whatToQuery == "Humidity")
             {
                 MyDataTypes = "humid";
             }
@@ -211,7 +206,7 @@ namespace DataVisualizerApp
             {
                 MyDataTypes = "part03";
             }
-            else 
+            else
             {
                 MyDataTypes = "part05";
             }
@@ -219,7 +214,7 @@ namespace DataVisualizerApp
 
             //whatToQuery[0] = ;
             SqlDataAdapter da = new SqlDataAdapter();
-            
+
             /*string SQL_query = "SELECT sensor_id, " + whatToQuery + ", dateandtime " +
                 "FROM( " +
                     "SELECT 1 AS sensor_id, " +
@@ -243,13 +238,13 @@ namespace DataVisualizerApp
                     "WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
                     "GROUP BY SUBSTRING(dateandtime, 1, 16) )a " +
                 "ORDER BY dateandtime";*/
-            
+
             string sql_head = "SELECT " +
                                             "sensor_id" +
                                             ", " + whatToQuery +
                                             ", dateandtime " +
                                         "FROM( ";
-            string sql_connector = " UNION ALL "; 
+            string sql_connector = " UNION ALL ";
             string sql_tail = " )a ORDER BY dateandtime";
 
 
@@ -267,7 +262,7 @@ namespace DataVisualizerApp
             }
 
             sql_head += sql_tail;
-            da.SelectCommand = new SqlCommand(sql_head, myConnection);
+            da.SelectCommand = new SqlCommand(sql_head, myConn);
 
 
 
@@ -282,15 +277,15 @@ namespace DataVisualizerApp
         public (List<SortedDictionary<int, List<string>>>, List<SortedDictionary<int, List<string>>>) DBQuery2(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
         {
 
-            
+
             //Console.WriteLine(devices[0].Temperature.Values.Count.ToString() + devices[0].Temperature.Times.Count);
 
 
             List<SortedDictionary<int, List<string>>> mapVals = new List<SortedDictionary<int, List<string>>>();
             List<SortedDictionary<int, List<string>>> mapTime = new List<SortedDictionary<int, List<string>>>();
             List<string> sql_names = new List<string>();
-            
-          
+
+
             for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)   //temperature, humidity, particle03, particle05
             {
                 mapVals.Add(new SortedDictionary<int, List<string>>());
@@ -341,26 +336,25 @@ namespace DataVisualizerApp
                     Console.WriteLine("SQL 쿼리문: " + sql_head);
                     //로컬 db접속 방식
                     //SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                    SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
 
                     SqlDataAdapter da = new SqlDataAdapter();
-                    da.SelectCommand = new SqlCommand(sql_head, myConnection);
+                    da.SelectCommand = new SqlCommand(sql_head, myConn);
                     System.Data.DataSet ds = new System.Data.DataSet();
 
                     ///conn.Open();
                     da.Fill(ds);
 
 
-                    using (var cmd = new SqlCommand(sql_head, myConnection))
+                    using (var cmd = new SqlCommand(sql_head, myConn))
                     {
                         cmd.CommandTimeout = 0;
-                        myConnection.Open();
+                        myConn.Open();
                         Console.WriteLine("Connection opened");
                         using (var myReader = cmd.ExecuteReader())
                         {
                             Console.WriteLine("Executing Reader() method...");
                             //int i_sensorID = 0;
-                            
+
                             while (myReader.Read())
                             {
                                 Console.WriteLine("Reading data...");
@@ -376,7 +370,7 @@ namespace DataVisualizerApp
                                 //Console.WriteLine(sql_names[i_DataType] + " : " + allDataRead[1] + " " + allDataRead[2] + " " + allDataRead[0]);
                             }
                         }
-                        myConnection.Close();
+                        myConn.Close();
                     }
                     Console.WriteLine("SQL 쿼리문: " + sql_head);
                     Console.WriteLine("mapVals, mapTime, dataArr:", mapVals.Count, mapTime.Count);
@@ -392,65 +386,80 @@ namespace DataVisualizerApp
             return (mapVals, mapTime);
         }
 
-        
-/*
-        private Device GetDeviceByDeviceId(Device[] devices, int deviceId)
-        {
-            return devices.Where(r => r.ID == deviceId).FirstOrDefault();
-        }*/
+
+        /*
+                private Device GetDeviceByDeviceId(Device[] devices, int deviceId)
+                {
+                    return devices.Where(r => r.ID == deviceId).FirstOrDefault();
+                }*/
 
         /// <summary>
         /// 실시간 데이터 쿼리를 위한 쿼리 함수
         /// </summary>
         /// <param name="IDs"></param>
-        /// <param name="whatToQuery"></param>
+        /// <param name="whatToQuery_tbName"></param>
         /// <returns="List<List<string[]>> DataArr "></returns>
-        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> whatToQuery, List<string> sql_names)
+        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> whatToQuery_tbName, List<string> sql_wtq)
         {
             List<List<List<string[]>>> DataArrRT = new List<List<List<string[]>>>();
-            for (int ind = 0; ind < whatToQuery.Count; ind++)
+            for (int ind = 0; ind < whatToQuery_tbName.Count; ind++)
             {
                 DataArrRT.Add(new List<List<string[]>>());
             }
 
-            for (int index = 0; index < whatToQuery.Count; index++)
+            for (int index = 0; index < whatToQuery_tbName.Count; index++)
             {
+                string queryTableName = $"d_{sql_wtq[index].Substring(2)}";
+                string sql_head = "SELECT sensor_id, " + sql_wtq[index] + ", dateandtime FROM( ";
+                string sql_connector = " UNION ALL "; // 테이블 연결하는 것
+                string sql_tail = " )a ORDER BY sensor_id";
+
+                for (int i = 0; i < IDs.Count; i++)
+                {
+                    DataArrRT[index].Add(new List<string[]>());
+                    sql_head += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {sql_wtq[index]}, dateandtime " +
+                                $"FROM  {queryTableName}" +
+                                " ORDER BY dateandtime DESC ";
+                    if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+                }
+                sql_head += sql_tail;
+
+                /*sql_head = "SELECT sensor_id, c_tUsage as Temperature, dateandtime FROM (" +
+                                "SELECT TOP 1 2 AS sensor_id, c_tUsage, dateandtime " +
+                                "FROM d_tUsage ORDER BY dateandtime DESC)a " +
+                            "ORDER BY sensor_id";*/
+                //Console.WriteLine("SQL RT query: " + sql_head);
+
+
+                var cmd = new SqlCommand(sql_head, myConn);
                 try
                 {
-                    string sql_head = "SELECT sensor_id, " + sql_names[index] + ", dateandtime FROM( ";
-                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
-                    string sql_tail = " )a ORDER BY sensor_id";
-
-                    for (int i = 0; i < IDs.Count; i++)
+                    if (myConn.State != System.Data.ConnectionState.Open)
                     {
-                        DataArrRT[index].Add(new List<string[]>());
-                        sql_head += "SELECT TOP 1 " + IDs[i].ToString() + " AS sensor_id, " + sql_names[index] + ", dateandtime " +
-                                    "FROM dev_" + whatToQuery[index] + "_" + IDs[i].ToString() +
-                                    " ORDER BY dateandtime DESC ";
-                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+                        myConn.Open();
                     }
-                    sql_head += sql_tail;
-                    //Console.WriteLine("SQL RT query: " + sql_head);
-                    SqlConnection myConnection = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20");
-                    myConnection.Open();
-                    using (var cmd = new SqlCommand(sql_head, myConnection))
+                    using (var myReader = cmd.ExecuteReader())
                     {
-                        using (var myReader = cmd.ExecuteReader())
+                        int i = 0;
+                        while (myReader.Read())
                         {
-                            int i = 0;
-                            while (myReader.Read())
-                            {
-                                DataArrRT[index][i].Add(new string[] { myReader[sql_names[index]].ToString(), myReader["DateAndTime"].ToString() });
-                                i += 1;
-                            }
+                            DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader["DateAndTime"].ToString() });
+                            i += 1;
                         }
                     }
-                    myConnection.Close();
                 }
                 catch (Exception ee)
                 {
                     MessageBox.Show("에러 메시지:\n" + ee.ToString());
                     //MessageBox.Show(ee.Message, "에러 메시지");
+                }
+                finally
+                {
+                    if (myConn.State == System.Data.ConnectionState.Open)
+                    {
+                        myConn.Close();
+                    }
+
                 }
             }
             return DataArrRT;
