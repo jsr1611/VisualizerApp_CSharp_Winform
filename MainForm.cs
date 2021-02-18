@@ -479,7 +479,7 @@ namespace DataVisualizerApp
 
                     for (int i = 1; i < SensorUsageColumn.Count; i++)
                     {
-                        if (MyDataTypes[index_DataType].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; }
+                        if (MyDataTypes[index_DataType].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; break; }
                     }
 
 
@@ -492,51 +492,66 @@ namespace DataVisualizerApp
                     List<string> minValues = new List<string>();
 
                     System.Data.DataSet ds = G_DataQuery.GetValuesFromDB(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
-                    for (int i = 0; i < MyIDs.Count; i++)
+                    int emptyTableCounter = 0;
+                    if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                     {
-                        /*var dtd = ds.Tables[0].Columns[0].DataType;
-                        var dt2d = ds.Tables[0].Columns[1].DataType;
-                        var dt3d = ds.Tables[0].Columns[2].DataType;*/
-                        List<double> myData = new List<double>();
-                        if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
-                        {
-                            myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType]))/100d).ToList();
-                        }
-                        else
-                        {
-                            myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType]))).ToList();
-                        }
-                        double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                        double[] ys_data = myData.ToArray();
-                        formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
 
-                        var (indexOfMax, max) = minMaxIndex(ys_data, true);
-                        var (indexOfMin, min) = minMaxIndex(ys_data, false);
-
-                        if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
+                        for (int i = 0; i < MyIDs.Count; i++)
                         {
-                            maxValues.Add(max.ToString("F", CultureInfo.InvariantCulture));
-                            minValues.Add(min.ToString("F", CultureInfo.InvariantCulture));
-                        }
-                        else
-                        {
-                            maxValues.Add(String.Format("{0:n0}", max));
-                            minValues.Add(String.Format("{0:n0}", min));
+                            /*var dtd = ds.Tables[0].Columns[0].DataType;
+                            var dt2d = ds.Tables[0].Columns[1].DataType;
+                            var dt3d = ds.Tables[0].Columns[2].DataType;*/
+                            List<double> myData = new List<double>();
+                            if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
+                            {
+                                myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType])) / 100d).ToList();
+                            }
+                            else
+                            {
+                                myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType]))).ToList();
+                            }
+                            double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
+                            double[] ys_data = myData.ToArray();
+                            formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
+
+                            var (indexOfMax, max) = minMaxIndex(ys_data, true);
+                            var (indexOfMin, min) = minMaxIndex(ys_data, false);
+
+                            if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
+                            {
+                                maxValues.Add(max.ToString("F", CultureInfo.InvariantCulture));
+                                minValues.Add(min.ToString("F", CultureInfo.InvariantCulture));
+                            }
+                            else
+                            {
+                                maxValues.Add(String.Format("{0:n0}", max));
+                                minValues.Add(String.Format("{0:n0}", min));
+                            }
+
+                            // Console.WriteLine(i + "Max: " + max + " at " + DateTime.FromOADate(xs[indexOfMax]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
+                            // Console.WriteLine(i + "Min: " +  min + " at " + DateTime.FromOADate(xs[indexOfMin]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
+
                         }
 
-                        // Console.WriteLine(i + "Max: " + max + " at " + DateTime.FromOADate(xs[indexOfMax]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
-                        // Console.WriteLine(i + "Min: " +  min + " at " + DateTime.FromOADate(xs[indexOfMin]).ToString("yyyy-MM-dd HH:mm:ss.sss"));
+                        pltStyler(MyDataTypes, index_DataType);
 
+
+                        DrawAnnotationBackground(index_DataType, MyIDs);
+                        AnnotateMinMax(index_DataType, MyIDs, maxValues, minValues);
                     }
-
-                    pltStyler(MyDataTypes, index_DataType);
-
-
-                    DrawAnnotationBackground(index_DataType, MyIDs);
-                    AnnotateMinMax(index_DataType, MyIDs, maxValues, minValues);
-
-                    
-
+                    else
+                    {
+                        emptyTableCounter += 1;
+                        if(formsPlots.Count == emptyTableCounter)
+                        {
+                            progressbarThread.Abort();
+                            progressbarThread = null;
+                            break;
+                            MessageBox.Show("조회된 데이터가 없습니다.", "에러 매시지", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            
+                        }
+                        
+                    }
                 }
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
@@ -625,7 +640,20 @@ namespace DataVisualizerApp
                                         textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
                                         textBox1.BackColor = this.BackColor;
                                         textBox1.BorderStyle = BorderStyle.None;
-                                        textBox1.Name = "textBox" + txtBoxCount + "_" + boxIndex;
+
+
+                                        for(int k=1; k < SensorUsageColumn.Count; k++)
+                                        {
+                                            if (MyDataTypes[boxIndex].Equals(SensorUsageColumn[k]))
+                                            {
+                                                textBox1.Name = SensorNames[k-1];
+                                            }
+                                        }
+                                        
+
+
+
+
                                         yBound += 75;
                                         panel.Controls.Add(textBox1);
                                         RT_textBoxes[txtBoxCount].Add(textBox1);
@@ -1816,6 +1844,12 @@ namespace DataVisualizerApp
         }
 
 
+
+
+
+
+
+
         private void button3_Click(object sender, EventArgs e)
         {
             if (Btn2_DataType[0].Visible == false)
@@ -1856,6 +1890,8 @@ namespace DataVisualizerApp
             IDs_now.Clear();
 
         }
+
+
 
 
         private void button1_numRT_Click(object sender, EventArgs e)
@@ -1963,6 +1999,9 @@ namespace DataVisualizerApp
 
 
         }
+
+
+
 
 
         private void btn2_data_Click(object sender, EventArgs e)
@@ -2172,6 +2211,10 @@ namespace DataVisualizerApp
 
         }
 
+
+
+
+
         private string GetButtonText(string sqlStr, int button_index)
         {
 
@@ -2235,6 +2278,11 @@ namespace DataVisualizerApp
             return btnTxt;
         }
 
+
+
+
+
+
         private void btn3_address_Click(object sender, EventArgs e)
         {
             Button button = (Button)sender; // receive clicked button properties
@@ -2257,9 +2305,11 @@ namespace DataVisualizerApp
 
         private void timer1_Tick_1(object sender, EventArgs e)
         {
-            DataQuery myDataQuery = new DataQuery();
+            //DataQuery DTQuery = new DataQuery();
+
+
             List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
-            DataRetrieved_RT = myDataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
+            DataRetrieved_RT = G_DataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
             if (DataRetrieved_RT.Count == 0)
             {
                 timer1.Stop();
@@ -2276,12 +2326,25 @@ namespace DataVisualizerApp
                     {
                         for (int i = 0; i < RT_textBoxes[RT_textBox_index].Count; i++) //whatToShow2
                         {
-                            if (DataTypesNext[i].Contains("temp"))
+                            for(int k=0; k < SensorUsageColumn.Count; k++)
                             {
-                                printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " °C";
-                                RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                                if (DataTypesNext[i].Equals(SensorUsageColumn[k]))
+                                {
+                                    if(DataTypesNext[i].Equals(SensorUsageColumn[1]) || DataTypesNext[i].Equals(SensorUsageColumn[2]))
+                                    {
+                                        //
+                                        printedData = (Convert.ToDouble(String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0]).Where(c => !Char.IsWhiteSpace(c))) / 100d).ToString() + " " + RT_textBoxes[RT_textBox_index][i].Name;
+                                    }
+                                    else
+                                    {
+                                        printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " " + RT_textBoxes[RT_textBox_index][i].Name;
+                                    }
+                                    
+                                    RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                                }
                             }
-                            else if (DataTypesNext[i].Contains("humid"))
+                            
+                            /*if (DataTypesNext[i].Contains("humid"))
                             {
                                 printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " %";
                                 RT_textBoxes[RT_textBox_index][i].Text = printedData;
@@ -2295,7 +2358,7 @@ namespace DataVisualizerApp
                             {
                                 printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][RT_textBox_index][0][0])) + " (0.5μm)";
                                 RT_textBoxes[RT_textBox_index][i].Text = printedData;
-                            }
+                            }*/
                         }
                     }
                 }
@@ -2692,7 +2755,7 @@ namespace DataVisualizerApp
                                     tableLayoutPanel.Controls.Add(panel, index_row, index_column);
 
                                     Label label = new Label();
-                                    label.SetBounds(panel.Bounds.Width / 2 - 150, 20, 300, 50);
+                                    label.SetBounds(panel.Bounds.Width / 2 - 200, 20, 400, 50);
                                     label.Font = new Font(label.Font.FontFamily, 20, System.Drawing.FontStyle.Bold);
                                     label.TextAlign = ContentAlignment.MiddleCenter;
 
@@ -2707,12 +2770,22 @@ namespace DataVisualizerApp
                                         int counter = 0;
                                         if (MyDataTypes.Count > 1) { counter = MyDataTypes.Count; }
                                         TextBox textBox1 = new TextBox();
-                                        textBox1.SetBounds(panel.Bounds.Width / 2 - 275, 100 + yBound, 550, 70);
+                                        textBox1.SetBounds(panel.Bounds.Width / 2 - 350, 100 + yBound, 700, 70);
                                         textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
                                         textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
                                         textBox1.BackColor = this.BackColor;
                                         textBox1.BorderStyle = BorderStyle.None;
-                                        textBox1.Name = "textBox" + txtBoxCount + "_" + boxIndex;
+
+
+
+                                        for (int k = 1; k < SensorUsageColumn.Count; k++)
+                                        {
+                                            if (MyDataTypes[boxIndex].Equals(SensorUsageColumn[k]))
+                                            {
+                                                textBox1.Name = SensorNames[k - 1];
+                                            }
+                                        }
+                                        
                                         yBound += 75;
                                         panel.Controls.Add(textBox1);
                                         RT_textBoxes[txtBoxCount].Add(textBox1);

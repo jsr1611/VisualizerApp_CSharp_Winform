@@ -212,16 +212,30 @@ namespace DataVisualizerApp
            
 
             sql_head += sql_tail;
-
-
-            da.SelectCommand = new SqlCommand(sql_head, myConn);
-
-
-
             System.Data.DataSet ds = new System.Data.DataSet();
+            try
+            {
+                if(myConn.State != System.Data.ConnectionState.Open)
+                {
+                    myConn.Open();
+                }
+                da.SelectCommand = new SqlCommand(sql_head, myConn);
+                
+                ///conn.Open();
+                da.Fill(ds);
+            }
+            catch(System.Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if(myConn.State == System.Data.ConnectionState.Open)
+                {
+                    myConn.Close();
+                }
+            }
 
-            ///conn.Open();
-            da.Fill(ds);
             return ds;
         }
 
