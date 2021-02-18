@@ -37,6 +37,7 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.Column0_No = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column1_SensorName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.column2_Zone = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column3_Location = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column4_info = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column5_usage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -55,7 +56,6 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
-            this.column2_Zone = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panel1_menu.SuspendLayout();
             this.panel2_ChartArea.SuspendLayout();
             this.panel_logo.SuspendLayout();
@@ -135,7 +135,7 @@
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(0, 609);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(414, 309);
+            this.listView1.Size = new System.Drawing.Size(397, 315);
             this.listView1.TabIndex = 75;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -149,6 +149,12 @@
             // 
             this.Column1_SensorName.Text = "센서이름";
             // 
+            // column2_Zone
+            // 
+            this.column2_Zone.Text = "존";
+            this.column2_Zone.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.column2_Zone.Width = 50;
+            // 
             // Column3_Location
             // 
             this.Column3_Location.Text = "위치";
@@ -161,7 +167,7 @@
             // 
             // Column5_usage
             // 
-            this.Column5_usage.Text = "사용여부";
+            this.Column5_usage.Text = "수집";
             this.Column5_usage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // button1_chartRT
@@ -333,12 +339,6 @@
             this.timer3_render.Interval = 1000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
             // 
-            // column2_Zone
-            // 
-            this.column2_Zone.Text = "존";
-            this.column2_Zone.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.column2_Zone.Width = 50;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -373,8 +373,6 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button button1_chartRT;
         private System.Windows.Forms.Button button1_numRT;
-        private System.Windows.Forms.Timer timer2;
-        private System.Windows.Forms.Timer timer3_render;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader Column0_No;
         private System.Windows.Forms.ColumnHeader Column1_SensorName;
@@ -386,6 +384,8 @@
         private System.Windows.Forms.PictureBox pictureBox_logo;
         private System.Windows.Forms.Label label_title_ver;
         private System.Windows.Forms.ColumnHeader column2_Zone;
+        public System.Windows.Forms.Timer timer2;
+        public System.Windows.Forms.Timer timer3_render;
     }
 }
 

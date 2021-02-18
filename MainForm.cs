@@ -69,6 +69,7 @@ namespace DataVisualizerApp
         
         public List<int> IDs_now = new List<int>();
         public List<int> IDs_next = new List<int>();
+        public List<int> allIDs = new List<int>();
         public List<string> DataTypesNow = new List<string>();
         public List<string> DataTypesNext = new List<string>();
         public List<string> Sql_NamesNow = new List<string>();
@@ -134,12 +135,12 @@ namespace DataVisualizerApp
             //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
 
             DeviceZoneLocInfo = new Dictionary<string, List<string>>();
-            string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]}";
-            List<string> sZones = GetDataAsList(getZoneLocation, S_DeviceTableColumn[2]);
+            string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]};";
+            List<string> sZones = GetColumnDataAsList(getZoneLocation, S_DeviceTableColumn[2]);
             for(int i=0; i<sZones.Count; i++)
             {
                 string getLocations = $"SELECT {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[2]} = '{sZones[i]}';";
-                List<string> sLocations = GetDataAsList(getLocations, S_DeviceTableColumn[3]);
+                List<string> sLocations = GetColumnDataAsList(getLocations, S_DeviceTableColumn[3]);
                 DeviceZoneLocInfo.Add(sZones[i], sLocations);
             }
 
@@ -231,15 +232,15 @@ namespace DataVisualizerApp
             Btn_MinimizeMenuPanel.Dock = DockStyle.Right;
             toolTip1.SetToolTip(Btn_MinimizeMenuPanel, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
             panel1_menu.Controls.Add(Btn_MinimizeMenuPanel);
-
+/*
             // Panel for peak values under the select menu
             panel4peakVal.SetBounds(15, 569, Btn_MinimizeMenuPanel.Bounds.X, 349);
             panel4peakVal.BorderStyle = BorderStyle.None;
             //panel4peakVal.Dock = DockStyle.Bottom;
             panel1_menu.Controls.Add(panel4peakVal);
+*/
 
-
-            string slq_query = $"SELECT * FROM {S_DeviceTable}";
+            string slq_query = $"SELECT * FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]}";
             var cmd = new SqlCommand(slq_query, myConn);
             cmd.CommandTimeout = 0;
             try
@@ -277,12 +278,12 @@ namespace DataVisualizerApp
             label_title_ver.Left = label_Title_main.Right + 15;
         }
 
-        private List<string> GetDataAsList(string getZoneLocation, string ColumnName)
+        private List<string> GetColumnDataAsList(string sqlStr, string ColumnName)
         {
             System.Data.DataSet ds = new System.Data.DataSet();
             List<string> res = new List<string>();
 
-            SqlCommand cmd = new SqlCommand(getZoneLocation, myConn);
+            SqlCommand cmd = new SqlCommand(sqlStr, myConn);
             try
             {
                 if(myConn.State != ConnectionState.Open)
@@ -291,8 +292,17 @@ namespace DataVisualizerApp
                 }
                 SqlDataAdapter dataAdapter = new SqlDataAdapter(cmd);
                 dataAdapter.Fill(ds);
+                try
+                {
+                    res = ds.Tables[0].AsEnumerable().Select(x => x.Field<string>(ColumnName)).ToList();
+                }
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Could not get data as type String. Now trying to get data as type Int");
+                    res = ds.Tables[0].AsEnumerable().Select(x => x.Field<int>(ColumnName).ToString()).ToList();
+                }
 
-                res = ds.Tables[0].AsEnumerable().Select(x=>x.Field<string>(ColumnName)).ToList();
             }
             catch(System.Exception ex)
             {
@@ -1112,6 +1122,9 @@ namespace DataVisualizerApp
 
 
 
+
+
+
         //확인 (시각화) 버튼 누를 때에의 행위
         /// <summary>
         /// Function to display results in form of chart for the selected time interval.
@@ -1127,7 +1140,9 @@ namespace DataVisualizerApp
             {
                 RangeLimitData.Add(IDs_now[i],GetRangeLimitData(IDs_now[i]));
             }
+
             
+
 
             endTime = "RT";
             string[] timeInterval = { startTime, endTime };
@@ -1158,7 +1173,16 @@ namespace DataVisualizerApp
                 List<List<List<string[]>>> DataRetrieved_RT = G_DataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
                 IDs_next = new List<int>(IDs_now);
                 DataTypesNext = new List<string>(DataTypesNow);
-                ScotPlot(DataRetrieved_RT, DataTypesNow, IDs_now, true);
+                if(DataRetrieved_RT.Count != 0)
+                {
+                    ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
+                }
+                else
+                {
+                    timer2.Stop();
+                    timer3_render.Stop();
+                }
+                
                 //RealTimeCharting(DataRetrieved_RT, timeInterval, IDs_selected, whatToShow);
 
                 //NewChartingForm RTChart = new NewChartingForm(DataRetrieved_RT, timeInterval, SensorIDs_selected, whatToShow);
@@ -1245,6 +1269,14 @@ namespace DataVisualizerApp
             }
 
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -1640,10 +1672,10 @@ namespace DataVisualizerApp
 
         private void button1_numRT_Click(object sender, EventArgs e)
         {
-            if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
+            /*if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
             {
                 Btn3_SensorLocation = null;
-            }
+            }*/
             if (button1_numRT.Image == btnClicked_small)//BackColor != Color.Transparent
             {
                 if (Btn3_SensorLocation != null)
@@ -1693,10 +1725,10 @@ namespace DataVisualizerApp
 
         private void button1_chartRT_Click(object sender, EventArgs e)
         {
-            if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
+         /*   if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
             {
                 Btn3_SensorLocation = null;
-            }
+            }*/
             if (button1_chartRT.Image == btnClicked_small)// BackColor != Color.Transparent
             {
                 if (Btn3_SensorLocation != null)
@@ -1747,12 +1779,14 @@ namespace DataVisualizerApp
 
         private void btn2_data_Click(object sender, EventArgs e)
         {
-            //"온도" button
-            if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
-            {
-                Btn3_SensorLocation = null;
-            }
+           
 
+            //"온도" button
+            /*          if (Btn3_SensorLocation != null && DataTypesNow.Count < 1)
+                      {
+                          Btn3_SensorLocation = null;
+                      }
+          */
 
             Button button = (Button)sender; // receive clicked button properties
             if (button.Image == btnClicked_small) //BackColor != Color.Transparent
@@ -1773,104 +1807,191 @@ namespace DataVisualizerApp
                     clearHighlighting(Btn3_SensorLocation, "small");
 
                 }
+
+                if(DataTypesNow.Count != 4)
+                {
+                    for (int i = 0; i < Btn2_DataType.Length; i++)
+                    {
+                        if (Btn2_DataType[i].Image != btnClicked_small)
+                        {
+                            Btn2_DataType[i].Enabled = true;
+                        }
+                    }
+                }
+
+
             }
             else
             {
-                button.Image = btnClicked_small; //BackColor = Color.Chartreuse;
-                DataTypesNow.Add(button.Name);
+
+
+                //4개 이상의 센서를 선택 못하게 If문으로 확인함.
+
+                if (DataTypesNow.Count < 4)
+                {
+                    button.Image = btnClicked_small; //BackColor = Color.Chartreuse;
+                    DataTypesNow.Add(button.Name);
+
+                    if (DataTypesNow.Count == 4)
+                    {
+
+                        for (int i = 0; i < Btn2_DataType.Length; i++)
+                        {
+                            if (Btn2_DataType[i].Image != btnClicked_small)
+                            {
+                                Btn2_DataType[i].Enabled = false;
+                            }
+                        }
+                    }
+                    
+                }
+
+
             }
 
-
-
-
-            if (Btn3_SensorLocation == null || Btn3_SensorLocation.Length == 0)
+            //4개 이상의 센서를 선택 못하게 If문으로 확인함.
+            if (DataTypesNow.Count < 4)
             {
-                List<int> btn_addresses = new List<int>();
-                btn_addresses = IDs_AvailCheck(); // 시각화 하려는 센서 ID 조회 및 배열에 ID번호 추가하기
-                int x_btn = Btn2_DataType[0].Left;
-                int y_btn = Btn2_DataType[Btn2_DataType.Length-1].Bounds.Y + Btn2_DataType[Btn2_DataType.Length - 1].Height * 3 / 2;
-
-                Btn3_SensorLocation = new Button[btn_addresses.Count];
-                for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
+                if (allIDs.Count == 0)
                 {
-                    Button button1 = new Button()
+                    string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]};";
+                    allIDs = GetColumnDataAsList(GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
+                }
+
+                if (Btn3_SensorLocation == null || Btn3_SensorLocation.Length == 0)
+                {
+                    List<int> btn_addresses = new List<int>();
+
+                    string sqlGetIDs = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]};";
+
+                    btn_addresses = GetColumnDataAsList(sqlGetIDs, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList(); // 시각화 하려는 센서 ID 조회 및 배열에 ID번호 추가하기
+
+                    int x_btn = Btn2_DataType[0].Left;
+                    int y_btn = Btn2_DataType[Btn2_DataType.Length - 1].Bounds.Y + Btn2_DataType[Btn2_DataType.Length - 1].Height * 3 / 2;
+
+                    Btn3_SensorLocation = new Button[btn_addresses.Count];
+                    for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
                     {
-                        FlatAppearance = {
+                        Button button1 = new Button()
+                        {
+                            FlatAppearance = {
                             BorderSize = 0,
                             MouseDownBackColor = Color.Transparent,
                             MouseOverBackColor=Color.Transparent,
                             BorderColor=Color.White },
-                        FlatStyle = FlatStyle.Flat,
-                        BackColor = Color.Transparent,
-                        Image = btnUnClicked_small
-                    };
-                    button1.SetBounds(x_btn,
-                                        y_btn,
-                                        Btn2_DataType[0].Bounds.Width,
-                                        Btn2_DataType[0].Bounds.Height);
-                    if (Btn1_time[2].Bounds.X <= x_btn)
-                    {
-                        x_btn = Btn2_DataType[0].Bounds.X;
-                        y_btn += Btn2_DataType[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
+                            FlatStyle = FlatStyle.Flat,
+                            BackColor = Color.Transparent,
+                            Image = btnUnClicked_small
+                        };
+                        button1.SetBounds(x_btn,
+                                            y_btn,
+                                            Btn2_DataType[0].Bounds.Width,
+                                            Btn2_DataType[0].Bounds.Height);
+                        if (Btn1_time[2].Bounds.X <= x_btn)
+                        {
+                            x_btn = Btn2_DataType[0].Bounds.X;
+                            y_btn += Btn2_DataType[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
+                        }
+                        else
+                        {
+                            x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
+                        }
+
+
+
+                        string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
+                        button1.Text = GetButtonText(sqlStr, btn_addresses[index_btn3]); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
+                        button1.Font = new Font(button1.Font.FontFamily, 8);
+                        button1.Name = btn_addresses[index_btn3].ToString();
+                        //button1.FlatStyle = FlatStyle.Flat;
+                        button1.Click += new EventHandler(this.btn3_address_Click);
+                        panel1_menu.Controls.Add(button1);
+                        button1.Visible = false;
+                        Btn3_SensorLocation[index_btn3] = button1;
+
                     }
-                    else
+                    if (Btn3_SensorLocation.Length != 0)
                     {
-                        x_btn += Btn2_DataType[1].Bounds.X - Btn2_DataType[0].Bounds.X;
+                        button_show.Image = btnUnClicked_big;
+
+                        button_show.SetBounds(panel1_menu.Bounds.Width / 2 - Btn1_time[0].Bounds.Width / 2,
+                                              Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2,
+                                              Btn1_time[0].Bounds.Width,
+                                              Btn1_time[0].Bounds.Height
+                                              );
+                        listView1.SetBounds(panel1_menu.Bounds.X,
+                                    button_show.Bounds.Y + 200,
+                                    panel1_menu.Bounds.Width - 15,
+                                    panel1_menu.Bounds.Height - button_show.Bounds.Y + 200);
+
                     }
-                    
 
-                    
-
-                    button1.Text = GetButtonText(index_btn3); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
-                    button1.Font = new Font(button1.Font.FontFamily, 10);
-                    button1.Name = btn_addresses[index_btn3].ToString();
-                    //button1.FlatStyle = FlatStyle.Flat;
-                    button1.Click += new EventHandler(this.btn3_address_Click);
-                    panel1_menu.Controls.Add(button1);
-                    button1.Visible = false;
-                    Btn3_SensorLocation[index_btn3] = button1;
-
+                    button_show.Text = "확인";
+                    button_show.Font = new Font(button_show.Font.FontFamily, 15);
+                    button_show.Click += new EventHandler(this.button_show_Click);
+                    panel1_menu.Controls.Add(button_show);
+                    button_show.Visible = false;
                 }
-                if (Btn3_SensorLocation.Length != 0)
+
+                if (Btn3_SensorLocation.Length != 0 && Btn3_SensorLocation[0].Visible == false)
                 {
-                    button_show.Image = btnUnClicked_big;
+                    foreach (var btn in Btn3_SensorLocation)
+                    {
+                        btn.Visible = true;
+                    }
+                }
 
-                    button_show.SetBounds(panel1_menu.Bounds.Width / 2 - Btn1_time[0].Bounds.Width / 2,
-                                          Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2,
-                                          Btn1_time[0].Bounds.Width,
-                                          Btn1_time[0].Bounds.Height
-                                          );
-                    listView1.SetBounds(panel1_menu.Bounds.X,
-                                button_show.Bounds.Y + 200,
-                                panel1_menu.Bounds.Width - 15,
-                                panel1_menu.Bounds.Height - button_show.Bounds.Y + 200);
+                //Read-only and Clickable buttons
+                if (DataTypesNow.Count >= 1)
+                {
+                    string getClickablesBtns = $"SELECT {S_DeviceTableColumn[0]} FROM {SensorUsage} WHERE ";
+                    for (int i = 0; i < DataTypesNow.Count; i++)
+                    {
+                        getClickablesBtns += $" {DataTypesNow[i]} = 'YES' ";
+                        if (DataTypesNow.Count > 1 && DataTypesNow.Count - 1 != i)
+                        {
+                            getClickablesBtns += $" AND ";
+                        }
+                    }
+
+                    List<int> clickableIDs = GetColumnDataAsList(getClickablesBtns, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
+
+                    for (int j = 0; j < allIDs.Count; j++)
+                    {
+                        if (clickableIDs.Contains(allIDs[j]))
+                        {
+                            Btn3_SensorLocation[j].Enabled = true;
+                        }
+                        else
+                        {
+                            Btn3_SensorLocation[j].Enabled = false;
+                        }
+                    }
+                    button_show.Visible = false;
 
                 }
 
-                button_show.Text = "확인";
-                button_show.Font = new Font(button_show.Font.FontFamily, 15);
-                button_show.Click += new EventHandler(this.button_show_Click);
-                panel1_menu.Controls.Add(button_show);
-                button_show.Visible = false;
+
+                // Unclick the buttons
+                IDs_now.Clear();
+                //IDs_next.Clear();
+                for (int i = 0; i < Btn3_SensorLocation.Length; i++)
+                {
+                    Btn3_SensorLocation[i].Image = btnUnClicked_small; //BackColor = Color.Transparent;
+                }
+
             }
 
-            if (Btn3_SensorLocation.Length != 0 && Btn3_SensorLocation[0].Visible == false)
-            {
-                foreach (var btn in Btn3_SensorLocation)
-                {
-                    btn.Visible = true;
-                }
-            }
         }
 
-        private string GetButtonText(int button_index)
+        private string GetButtonText(string sqlStr, int button_index)
         {
-            string sLocSql = $"SELECT {S_DeviceTableColumn[3]} FROM {S_DeviceTable};";
-            List<string> sLocations = GetDataAsList(sLocSql, S_DeviceTableColumn[3]);
-            var devZoneLoc = DeviceZoneLocInfo.Values;
+            
+            /*List<string> sLocations = GetColumnDataAsList(sLocSql, S_DeviceTableColumn[3]);
+            var devZoneLoc = DeviceZoneLocInfo.Values;*/
             string btnTxt = "";
 
-            for (int i = 0; i < DeviceZoneLocInfo.Count; i++)
+            /*for (int i = 0; i < DeviceZoneLocInfo.Count; i++)
             {
                 List<string> devZoneN_loc = DeviceZoneLocInfo.ElementAt(i).Value;
                 for (int i2 = 0; i2 < devZoneN_loc.Count; i2++)
@@ -1881,7 +2002,48 @@ namespace DataVisualizerApp
                         return btnTxt;
                     }
                 }
+            }*/
+            SqlCommand cmd = new SqlCommand(sqlStr, myConn);
+            try
+            {
+                if(myConn.State != ConnectionState.Open)
+                {
+                    myConn.Open();
+                }
+                using(SqlDataReader r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        for(int i=0; i < r.FieldCount; i++)
+                        {
+                            if (i == 0 && r.FieldCount > 1)
+                            {
+                                btnTxt += r.GetValue(i).ToString() + " (";
+                            }
+                            else if(i != 0 && i == r.FieldCount - 1)
+                            {
+                                btnTxt += r.GetValue(i).ToString() + ")";
+                            }
+                            else
+                            {
+                                btnTxt += r.GetValue(i).ToString();
+                            }
+                        }
+                    }
+                }
             }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if(myConn.State == ConnectionState.Open)
+                {
+                    myConn.Close();
+                }
+            }
+
             return btnTxt;
         }
 
@@ -1910,41 +2072,51 @@ namespace DataVisualizerApp
             DataQuery myDataQuery = new DataQuery();
             List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
             DataRetrieved_RT = myDataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
-            string printedData = "";
-            try
+            if (DataRetrieved_RT.Count == 0)
             {
-                for (int RT_textBox_index = 0; RT_textBox_index < RT_textBoxes.Count; RT_textBox_index++)
+                timer1.Stop();
+                timer2.Stop();
+                timer3_render.Stop();
+            }
+            else
+            {
+
+                string printedData = "";
+                try
                 {
-                    for (int i = 0; i < RT_textBoxes[RT_textBox_index].Count; i++) //whatToShow2
+                    for (int RT_textBox_index = 0; RT_textBox_index < RT_textBoxes.Count; RT_textBox_index++)
                     {
-                        if (DataTypesNext[i].Contains("temp"))
+                        for (int i = 0; i < RT_textBoxes[RT_textBox_index].Count; i++) //whatToShow2
                         {
-                            printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " °C";
-                            RT_textBoxes[RT_textBox_index][i].Text = printedData;
-                        }
-                        else if (DataTypesNext[i].Contains("humid"))
-                        {
-                            printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " %";
-                            RT_textBoxes[RT_textBox_index][i].Text = printedData;
-                        }
-                        else if (DataTypesNext[i].Contains("part03"))
-                        {
-                            printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][RT_textBox_index][0][0])) + " (0.3μm)";
-                            RT_textBoxes[RT_textBox_index][i].Text = printedData;
-                        }
-                        else
-                        {
-                            printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][RT_textBox_index][0][0])) + " (0.5μm)";
-                            RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                            if (DataTypesNext[i].Contains("temp"))
+                            {
+                                printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " °C";
+                                RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                            }
+                            else if (DataTypesNext[i].Contains("humid"))
+                            {
+                                printedData = String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0].Where(c => !Char.IsWhiteSpace(c))) + " %";
+                                RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                            }
+                            else if (DataTypesNext[i].Contains("part03"))
+                            {
+                                printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][RT_textBox_index][0][0])) + " (0.3μm)";
+                                RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                            }
+                            else
+                            {
+                                printedData = String.Format("{0:n0}", Convert.ToInt64(DataRetrieved_RT[i][RT_textBox_index][0][0])) + " (0.5μm)";
+                                RT_textBoxes[RT_textBox_index][i].Text = printedData;
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                timer1.Interval = 1000;
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            timer1.Interval = 1000;
         }
 
 
@@ -1952,98 +2124,107 @@ namespace DataVisualizerApp
         {
             List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
             DataRetrieved_RT = G_DataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
-            try
+            if (DataRetrieved_RT.Count == 0)
             {
-                string now = DateTime.Now.ToString("HH:mm:ss");
-                DateTime resetTime = Convert.ToDateTime(now);
-                if (resetTime > Convert.ToDateTime("23:59:58") && resetTime <= Convert.ToDateTime("23:59:59"))
+                timer2.Stop();
+                timer3_render.Stop();
+            }
+            else
+            {
+
+                try
                 {
-                    Console.WriteLine("Timer Reset Successful. Charts reset.");
-                    nextDataIndex = 0;
-                    timer2.Stop();
-                    timer3_render.Stop();
-                    ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
-                }
-                for (int index_DataType = 0; index_DataType < DataTypesNext.Count; index_DataType++)
-                {
-                    for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
+                    string now = DateTime.Now.ToString("HH:mm:ss");
+                    DateTime resetTime = Convert.ToDateTime(now);
+                    if (resetTime > Convert.ToDateTime("23:59:58") && resetTime <= Convert.ToDateTime("23:59:59"))
                     {
-                        if(DataTypesNext[index_DataType].Contains(SensorUsageColumn[1]) || DataTypesNext[index_DataType].Contains(SensorUsageColumn[2]))
-                        {
-                            RTDataArray[index_DataType][index_ID][0][nextDataIndex] = Convert.ToDouble(Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0])/100m);
-                        }
-                        else
-                        {
-                            RTDataArray[index_DataType][index_ID][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
-                        }
-                        
-                        DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
-                        RTDataArray[index_DataType][index_ID][1][nextDataIndex] = dtime.ToOADate();
-                        Console.WriteLine($"\nnextDataIndex: {nextDataIndex}, Data: {RTDataArray[index_DataType][index_ID][0][nextDataIndex]} at {dtime.ToString("yyyy-MM-dd HH:mm:ss")}");
-
-                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) > Convert.ToDouble(RT_Max[index_DataType][index_ID][0][0]))
+                        Console.WriteLine("Timer Reset Successful. Charts reset.");
+                        nextDataIndex = 0;
+                        timer2.Stop();
+                        timer3_render.Stop();
+                        ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
+                    }
+                    for (int index_DataType = 0; index_DataType < DataTypesNext.Count; index_DataType++)
+                    {
+                        for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
                         {
                             if (DataTypesNext[index_DataType].Contains(SensorUsageColumn[1]) || DataTypesNext[index_DataType].Contains(SensorUsageColumn[2]))
                             {
-                                RT_Max[index_DataType][index_ID][0][0] = (Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0])/100m).ToString();
+                                RTDataArray[index_DataType][index_ID][0][nextDataIndex] = Convert.ToDouble(Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0]) / 100m);
                             }
                             else
                             {
-                                RT_Max[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
+                                RTDataArray[index_DataType][index_ID][0][nextDataIndex] = Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]);
                             }
-                            RT_Max[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];
-                            string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
-                            Console.WriteLine($"numberStrMax: {numberStrMax}");
-                            if(numberStrMax.Length == 2)
+
+                            DateTime dtime = Convert.ToDateTime(DataRetrieved_RT[index_DataType][index_ID][0][1]);
+                            RTDataArray[index_DataType][index_ID][1][nextDataIndex] = dtime.ToOADate();
+                            Console.WriteLine($"\nnextDataIndex: {nextDataIndex}, Data: {RTDataArray[index_DataType][index_ID][0][nextDataIndex]} at {dtime.ToString("yyyy-MM-dd HH:mm:ss")}");
+
+                            if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) > Convert.ToDouble(RT_Max[index_DataType][index_ID][0][0]))
                             {
-                                Console.WriteLine($"I am the troubleMaker:  {numberStrMax}");
-                            }
+                                if (DataTypesNext[index_DataType].Contains(SensorUsageColumn[1]) || DataTypesNext[index_DataType].Contains(SensorUsageColumn[2]))
+                                {
+                                    RT_Max[index_DataType][index_ID][0][0] = (Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0]) / 100m).ToString();
+                                }
+                                else
+                                {
+                                    RT_Max[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
+                                }
+                                RT_Max[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];
+                                string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
+                                Console.WriteLine($"numberStrMax: {numberStrMax}");
+                                if (numberStrMax.Length == 2)
+                                {
+                                    Console.WriteLine($"I am the troubleMaker:  {numberStrMax}");
+                                }
                                 string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
-                            //Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
-                            plottableAnnotationsMaxVal[index_DataType * IDs_next.Count + index_ID].label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
-                        }
-                        if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < Convert.ToDouble(RT_Min[index_DataType][index_ID][0][0]))
-                        {
-                            if (DataTypesNext[index_DataType].Contains(SensorUsageColumn[1]) || DataTypesNext[index_DataType].Contains(SensorUsageColumn[2]))
-                            {
-                                RT_Min[index_DataType][index_ID][0][0] = (Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0])/ 100m).ToString();
+                                //Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
+                                plottableAnnotationsMaxVal[index_DataType * IDs_next.Count + index_ID].label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
                             }
-                            else
+                            if (Convert.ToDouble(DataRetrieved_RT[index_DataType][index_ID][0][0]) < Convert.ToDouble(RT_Min[index_DataType][index_ID][0][0]))
                             {
-                                RT_Min[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
-                            }
-                            RT_Min[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];
-                            //Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
-                            string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
-                            Console.WriteLine($"numberStrMin: {numberStrMin}");
-                            if (numberStrMin.Length == 2)
-                            {
-                                Console.WriteLine($"I am the troubleMaker:  {numberStrMin}");
-                            }
-                            string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
-                            plottableAnnotationsMinVal[index_DataType * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
+                                if (DataTypesNext[index_DataType].Contains(SensorUsageColumn[1]) || DataTypesNext[index_DataType].Contains(SensorUsageColumn[2]))
+                                {
+                                    RT_Min[index_DataType][index_ID][0][0] = (Convert.ToInt64(DataRetrieved_RT[index_DataType][index_ID][0][0]) / 100m).ToString();
+                                }
+                                else
+                                {
+                                    RT_Min[index_DataType][index_ID][0][0] = DataRetrieved_RT[index_DataType][index_ID][0][0];
+                                }
+                                RT_Min[index_DataType][index_ID][1][0] = DataRetrieved_RT[index_DataType][index_ID][0][1];
+                                //Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
+                                string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
+                                Console.WriteLine($"numberStrMin: {numberStrMin}");
+                                if (numberStrMin.Length == 2)
+                                {
+                                    Console.WriteLine($"I am the troubleMaker:  {numberStrMin}");
+                                }
+                                string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                                plottableAnnotationsMinVal[index_DataType * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
+                            }
                         }
                     }
-                }
-                for (int pltIndex = 0; pltIndex < plts.Count; pltIndex++)
-                {
-                    plts[pltIndex].maxRenderIndex = nextDataIndex - 1;
-                }
+                    for (int pltIndex = 0; pltIndex < plts.Count; pltIndex++)
+                    {
+                        plts[pltIndex].maxRenderIndex = nextDataIndex - 1;
+                    }
 
-                for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
-                {
-                    formsPlots[formPltIndex].plt.AxisAuto();
-                    formsPlots[formPltIndex].Render();
+                    for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
+                    {
+                        formsPlots[formPltIndex].plt.AxisAuto();
+                        formsPlots[formPltIndex].Render();
+                    }
                 }
+                catch (Exception ex)
+                {
+                    //MessageBox.Show(ex.Message, "에러 메시지");
+                    throw new Exception(ex.Message);
+                }
+                nextDataIndex += 1;
+                timer2.Interval = 1000;
             }
-            catch (Exception ex)
-            {
-                //MessageBox.Show(ex.Message, "에러 메시지");
-                throw new Exception(ex.Message);
-            }
-            nextDataIndex += 1;
-            timer2.Interval = 1000;
         }
 
 
@@ -2489,8 +2670,8 @@ namespace DataVisualizerApp
                                 Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
                                 string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
                                 string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
-                                string maxLabel = (numberStrMax.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
-                                string minLabel = (numberStrMin.Contains(".") == false && RT_Min[index_DataType][index_ID][0][0].Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                                string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                                string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
 
                                 PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: maxLabel + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
                                 PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: minLabel + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
@@ -2500,7 +2681,7 @@ namespace DataVisualizerApp
                                 annotY += 25;
                             }
                         }
-                        Console.WriteLine("\n\n\n");
+                        //Console.WriteLine("\n\n\n");
                     }
                     catch (Exception ex)
                     {
@@ -2534,14 +2715,42 @@ namespace DataVisualizerApp
                     {
                         break;
                     }
-
                     var item2 = item[sensor[i]].Values;
+
+/*                    // manually define Y axis tick positions and labels
+                    double[] yPositions = new double[4];
+                    string[] yLabels = { "하한2", "하한1", "상한1", "상한2" };
+                    int Y_index = 0;
+                    foreach (var item3 in item2)
+                    {
+                        yPositions[Y_index] = item3;
+                        Y_index += 1;  
+                    }
+
+                    formsPlots[i].plt.YTicks(yPositions, yLabels);
+
+*/                    
                     List<long> data2 = new List<long>();
                     int j = 0;
                     foreach (var item3 in item2)
                     {
                         data2.Add(item3);
-                        formsPlots[i].plt.PlotHLine(y: item3);
+                        formsPlots[i].plt.PlotHLine(y: item3, lineStyle: LineStyle.Dash, lineWidth:2);
+
+
+
+                        
+                        
+
+
+
+
+
+
+
+
+
+
                         formsPlots[i].Render();
                         j += 1;
                     }

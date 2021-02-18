@@ -402,64 +402,73 @@ namespace DataVisualizerApp
         public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> whatToQuery_tbName, List<string> sql_wtq)
         {
             List<List<List<string[]>>> DataArrRT = new List<List<List<string[]>>>();
-            for (int ind = 0; ind < whatToQuery_tbName.Count; ind++)
+            if (IDs.Count == 0 || whatToQuery_tbName.Count == 0 || sql_wtq.Count == 0)
             {
-                DataArrRT.Add(new List<List<string[]>>());
+                return DataArrRT;
             }
-
-            for (int index = 0; index < whatToQuery_tbName.Count; index++)
+            else
             {
-                string queryTableName = $"d_{sql_wtq[index].Substring(2)}";
-                string sql_head = "SELECT sensor_id, " + sql_wtq[index] + ", dateandtime FROM( ";
-                string sql_connector = " UNION ALL "; // 테이블 연결하는 것
-                string sql_tail = " )a ORDER BY sensor_id";
-
-                for (int i = 0; i < IDs.Count; i++)
+                for (int ind = 0; ind < whatToQuery_tbName.Count; ind++)
                 {
-                    DataArrRT[index].Add(new List<string[]>());
-                    sql_head += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {sql_wtq[index]}, dateandtime " +
-                                $"FROM  {queryTableName}" +
-                                " ORDER BY dateandtime DESC ";
-                    if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
+                    DataArrRT.Add(new List<List<string[]>>());
                 }
-                sql_head += sql_tail;
 
-                /*sql_head = "SELECT sensor_id, c_tUsage as Temperature, dateandtime FROM (" +
-                                "SELECT TOP 1 2 AS sensor_id, c_tUsage, dateandtime " +
-                                "FROM d_tUsage ORDER BY dateandtime DESC)a " +
-                            "ORDER BY sensor_id";*/
-                //Console.WriteLine("SQL RT query: " + sql_head);
-
-
-                var cmd = new SqlCommand(sql_head, myConn);
-                try
+                for (int index = 0; index < whatToQuery_tbName.Count; index++)
                 {
-                    if (myConn.State != System.Data.ConnectionState.Open)
+                    string queryTableName = $"d_{whatToQuery_tbName[index].Substring(2)}";
+                    string sql_head = "SELECT sensor_id, " + whatToQuery_tbName[index] + ", dateandtime FROM( ";
+                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ORDER BY sensor_id";
+
+                    for (int i = 0; i < IDs.Count; i++)
                     {
-                        myConn.Open();
+                        DataArrRT[index].Add(new List<string[]>());
+                        sql_head += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {whatToQuery_tbName[index]}, dateandtime " +
+                                    $"FROM  {queryTableName} " +
+                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
+                                    " ORDER BY dateandtime DESC ";
+                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sql_head += sql_connector; }
                     }
-                    using (var myReader = cmd.ExecuteReader())
+                    sql_head += sql_tail;
+
+                    /*sql_head = "SELECT sensor_id, c_tUsage as Temperature, dateandtime FROM (" +
+                                    "SELECT TOP 1 2 AS sensor_id, c_tUsage, dateandtime " +
+                                    "FROM d_tUsage ORDER BY dateandtime DESC)a " +
+                                "ORDER BY sensor_id";*/
+                    //Console.WriteLine("SQL RT query: " + sql_head);
+
+
+                    var cmd = new SqlCommand(sql_head, myConn);
+                    try
                     {
-                        int i = 0;
-                        while (myReader.Read())
+                        if (myConn.State != System.Data.ConnectionState.Open)
                         {
-                            DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader["DateAndTime"].ToString() });
-                            i += 1;
+                            myConn.Open();
+                        }
+                        using (var myReader = cmd.ExecuteReader())
+                        {
+                            int i = 0;
+                            while (myReader.Read())
+                            {
+                                DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader["DateAndTime"].ToString() });
+                                i += 1;
+                            }
                         }
                     }
-                }
-                catch (Exception ee)
-                {
-                    MessageBox.Show("에러 메시지:\n" + ee.ToString());
-                    //MessageBox.Show(ee.Message, "에러 메시지");
-                }
-                finally
-                {
-                    if (myConn.State == System.Data.ConnectionState.Open)
+                    catch (Exception ee)
                     {
-                        myConn.Close();
-                    }
+                        MessageBox.Show("에러 메시지:\n" + ee.ToString());
+                        //MessageBox.Show(ee.Message, "에러 메시지");
 
+                    }
+                    finally
+                    {
+                        if (myConn.State == System.Data.ConnectionState.Open)
+                        {
+                            myConn.Close();
+                        }
+
+                    }
                 }
             }
             return DataArrRT;
