@@ -469,7 +469,7 @@ namespace DataVisualizerApp
                 timer3_render.Stop();
                 formsPlots = new List<FormsPlot>();
                 TableLayoutPrep(tableLayoutPanel, MyDataTypes);
-                DataQuery dataQuery = new DataQuery();
+                //DataQuery G_DataQuery = new DataQuery();
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
@@ -488,11 +488,11 @@ namespace DataVisualizerApp
                     List<string> maxValues = new List<string>();
                     List<string> minValues = new List<string>();
 
-                    System.Data.DataSet ds = dataQuery.GetValues(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
+                    System.Data.DataSet ds = G_DataQuery.GetValuesFromDB(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
                     for (int i = 0; i < MyIDs.Count; i++)
                     {
-                        double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                        double[] ys_data = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<decimal>(MySqlNames[index_DataType]))).ToArray();
+                        double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => Convert.ToInt32(r.Field<string>("sensor_id")) == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
+                        double[] ys_data = ds.Tables[0].AsEnumerable().Where(r => Convert.ToInt32(r.Field<string>("sensor_id")) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<string>(MySqlNames[index_DataType]))).ToArray();
                         formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
 
                         var (indexOfMax, max) = minMaxIndex(ys_data, true);

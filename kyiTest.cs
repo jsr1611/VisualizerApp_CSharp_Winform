@@ -31,7 +31,7 @@ namespace DataVisualizerApp
 
             for (int j = 0; j < MyDataTypes.Count; j++)
             {
-                System.Data.DataSet ds = dataQuery.GetValues("", "", MyDataTypes[j], MyIDs);
+                System.Data.DataSet ds = dataQuery.GetValuesFromDB("", "", MyDataTypes[j], MyIDs);
                 for (int i = 0; i < MyIDs.Count; i++)
                 {
                     double[] xs = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();

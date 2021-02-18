@@ -177,6 +177,9 @@ namespace DataVisualizerApp
             return DataArr;
         }
 
+
+
+
         public System.Data.DataSet GetTempValues()
         {
             SqlDataAdapter da = new SqlDataAdapter();
@@ -188,80 +191,29 @@ namespace DataVisualizerApp
             return ds;
         }
 
-        public System.Data.DataSet GetValues(string startTime, string endTime, string whatToQuery, List<int> IDs)
+        public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, string whatToQuery, List<int> IDs)
         {
-            //startTime = "2020-01-07 12:29";
-            //endTime = "2021-01-08 12:29";
-            //whatToQuery = "Temperature";
-            string MyDataTypes = "";
-            if (whatToQuery == "Temperature")
-            {
-                MyDataTypes = "temp";
-            }
-            else if (whatToQuery == "Humidity")
-            {
-                MyDataTypes = "humid";
-            }
-            else if (whatToQuery == "Particle03")
-            {
-                MyDataTypes = "part03";
-            }
-            else
-            {
-                MyDataTypes = "part05";
-            }
-
-
-            //whatToQuery[0] = ;
             SqlDataAdapter da = new SqlDataAdapter();
 
-            /*string SQL_query = "SELECT sensor_id, " + whatToQuery + ", dateandtime " +
-                "FROM( " +
-                    "SELECT 1 AS sensor_id, " +
-                    "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery + "" +
-                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                    "FROM dev_temp_1 " +
-                    "WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
-                    "GROUP BY SUBSTRING(dateandtime, 1, 16) " +
-                "UNION ALL " +
-                    "SELECT 2 AS sensor_id, " +
-                    "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery + "" +
-                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                    "FROM dev_temp_2 " +
-                    "WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
-                    "GROUP BY SUBSTRING(dateandtime, 1, 16) " +
-                "UNION ALL " +
-                    "SELECT 3 AS sensor_id, " +
-                    "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery + "" +
-                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                    "FROM dev_temp_3 " +
-                    "WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
-                    "GROUP BY SUBSTRING(dateandtime, 1, 16) )a " +
-                "ORDER BY dateandtime";*/
-
-            string sql_head = "SELECT " +
-                                            "sensor_id" +
-                                            ", " + whatToQuery +
-                                            ", dateandtime " +
-                                        "FROM( ";
+            string sql_head = $"SELECT sensor_id, {whatToQuery}, dateandtime FROM ( ";
+                
             string sql_connector = " UNION ALL ";
-            string sql_tail = " )a ORDER BY dateandtime";
+            string sql_tail = ")a ORDER BY dateandtime";
 
 
             for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
             {
-                sql_head += "SELECT " +
-                                    IDs[i_sensorID].ToString() + " AS sensor_id" +
-                                    ", " + "AVG(CAST(" + whatToQuery + " AS DECIMAL(18, 2))) AS " + whatToQuery +
-                                    ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                            "FROM dev_" + MyDataTypes + "_" + IDs[i_sensorID].ToString() +
-                           " WHERE dateandtime BETWEEN '" + startTime + "' AND '" + endTime + "' " +
-                           "GROUP BY SUBSTRING(dateandtime, 1, 16)";
-                if (IDs.Count > 1 && i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+                sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery} AS int)) AS {whatToQuery}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
+                    $" FROM d_{whatToQuery.Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
+                    $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
 
+                if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
             }
+           
 
             sql_head += sql_tail;
+
+
             da.SelectCommand = new SqlCommand(sql_head, myConn);
 
 
