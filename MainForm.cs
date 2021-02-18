@@ -2333,7 +2333,7 @@ namespace DataVisualizerApp
                                     if(DataTypesNext[i].Equals(SensorUsageColumn[1]) || DataTypesNext[i].Equals(SensorUsageColumn[2]))
                                     {
                                         //
-                                        printedData = (Convert.ToDouble(String.Concat(DataRetrieved_RT[i][RT_textBox_index][0][0]).Where(c => !Char.IsWhiteSpace(c))) / 100d).ToString() + " " + RT_textBoxes[RT_textBox_index][i].Name;
+                                        printedData = (Convert.ToDouble(DataRetrieved_RT[i][RT_textBox_index][0][0]) / 100d).ToString() + " " + RT_textBoxes[RT_textBox_index][i].Name;
                                     }
                                     else
                                     {
