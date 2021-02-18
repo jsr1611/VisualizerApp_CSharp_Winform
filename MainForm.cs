@@ -471,6 +471,9 @@ namespace DataVisualizerApp
                 TableLayoutPrep(tableLayoutPanel, MyDataTypes);
                 //DataQuery G_DataQuery = new DataQuery();
 
+                DrawRangeLimitChart(formsPlots, MyDataTypes);
+
+
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
 
@@ -491,14 +494,26 @@ namespace DataVisualizerApp
                     System.Data.DataSet ds = G_DataQuery.GetValuesFromDB(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
                     for (int i = 0; i < MyIDs.Count; i++)
                     {
-                        double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => Convert.ToInt32(r.Field<string>("sensor_id")) == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                        double[] ys_data = ds.Tables[0].AsEnumerable().Where(r => Convert.ToInt32(r.Field<string>("sensor_id")) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<string>(MySqlNames[index_DataType]))).ToArray();
+                        /*var dtd = ds.Tables[0].Columns[0].DataType;
+                        var dt2d = ds.Tables[0].Columns[1].DataType;
+                        var dt3d = ds.Tables[0].Columns[2].DataType;*/
+                        List<double> myData = new List<double>();
+                        if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
+                        {
+                            myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType]))/100d).ToList();
+                        }
+                        else
+                        {
+                            myData = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(MySqlNames[index_DataType]))).ToList();
+                        }
+                        double[] xs_time = ds.Tables[0].AsEnumerable().Where(r => r.Field<int>("sensor_id") == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
+                        double[] ys_data = myData.ToArray();
                         formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
 
                         var (indexOfMax, max) = minMaxIndex(ys_data, true);
                         var (indexOfMin, min) = minMaxIndex(ys_data, false);
 
-                        if (MySqlNames[index_DataType] == "Temperature" || MySqlNames[index_DataType] == "Humidity")
+                        if (MySqlNames[index_DataType].Equals(SensorUsageColumn[1]) || MySqlNames[index_DataType].Equals(SensorUsageColumn[2]))
                         {
                             maxValues.Add(max.ToString("F", CultureInfo.InvariantCulture));
                             minValues.Add(min.ToString("F", CultureInfo.InvariantCulture));
@@ -520,7 +535,7 @@ namespace DataVisualizerApp
                     DrawAnnotationBackground(index_DataType, MyIDs);
                     AnnotateMinMax(index_DataType, MyIDs, maxValues, minValues);
 
-
+                    
 
                 }
 
