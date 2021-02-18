@@ -131,44 +131,45 @@ namespace DataVisualizerApp
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
             var S_FourRangeColmn = new List<string>() { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
             RangeNames = new List<string>() { "상한2", "상한1", "하한1", "하한2" };
-            SensorNames = new List<string>() { "온도", "습도", "파티클(0.3)", "파티클(0.5)", "파티클(1.0)", "파티클(2.5)", "파티클(5.0)", "파티클(10.0)" };
-            //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
-
-            DeviceZoneLocInfo = new Dictionary<string, List<string>>();
-            string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]};";
-            List<string> sZones = GetColumnDataAsList(getZoneLocation, S_DeviceTableColumn[2]);
-            for(int i=0; i<sZones.Count; i++)
-            {
-                string getLocations = $"SELECT {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[2]} = '{sZones[i]}';";
-                List<string> sLocations = GetColumnDataAsList(getLocations, S_DeviceTableColumn[3]);
-                DeviceZoneLocInfo.Add(sZones[i], sLocations);
-            }
-
-
-
-
+            SensorNames = new List<string>() { "온도(°C)", "습도(%)", "파티클(0.3μm)", "파티클(0.5μm)", "파티클(1.0μm)", "파티클(2.5μm)", "파티클(5.0μm)", "파티클(10.0μm)" };
             
-            
+          //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
+
+          DeviceZoneLocInfo = new Dictionary<string, List<string>>();
+          string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]};";
+          List<string> sZones = GetColumnDataAsList(getZoneLocation, S_DeviceTableColumn[2]);
+          for(int i=0; i<sZones.Count; i++)
+          {
+              string getLocations = $"SELECT {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[2]} = '{sZones[i]}';";
+              List<string> sLocations = GetColumnDataAsList(getLocations, S_DeviceTableColumn[3]);
+              DeviceZoneLocInfo.Add(sZones[i], sLocations);
+          }
 
 
-            this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
-            this.AutoScroll = true;
-            datePicker1_start.Format = DateTimePickerFormat.Custom;
-            datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm";
-            datePicker2_end.Format = DateTimePickerFormat.Custom;
-            datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
 
-            colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green, Color.Brown, Color.Yellow, Color.Purple, Color.Red, Color.Azure, Color.Chocolate, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
 
-            /*KnownColor[] colors = (KnownColor[])Enum.GetValues(typeof(KnownColor));
-            colorset = new Color[colors.Length];
-            int i = 0;
-            foreach (KnownColor knowColor in colors)
-            {
-                Color color = Color.FromKnownColor(knowColor);
-                colorset[i] = color;
-                i += 1;
-            }*/
+
+
+
+
+          this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
+          this.AutoScroll = true;
+          datePicker1_start.Format = DateTimePickerFormat.Custom;
+          datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm";
+          datePicker2_end.Format = DateTimePickerFormat.Custom;
+          datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
+
+          colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green, Color.Brown, Color.Yellow, Color.Purple, Color.Red, Color.Azure, Color.Chocolate, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
+
+          /*KnownColor[] colors = (KnownColor[])Enum.GetValues(typeof(KnownColor));
+          colorset = new Color[colors.Length];
+          int i = 0;
+          foreach (KnownColor knowColor in colors)
+          {
+              Color color = Color.FromKnownColor(knowColor);
+              colorset[i] = color;
+              i += 1;
+          }*/
 
             Console.WriteLine(colorset.Length);
 
@@ -443,10 +444,17 @@ namespace DataVisualizerApp
 
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
-                    if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
+
+                    for (int i = 1; i < SensorUsageColumn.Count; i++)
+                    {
+                        if (MyDataTypes[index_DataType].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; }
+                    }
+
+
+                    /*if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
                     else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
                     else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                    else { titleName = "파티클(0.5μm)"; }
+                    else { titleName = "파티클(0.5μm)"; }*/
 
                     List<string> maxValues = new List<string>();
                     List<string> minValues = new List<string>();
@@ -629,10 +637,11 @@ namespace DataVisualizerApp
                                                         RT_Max.Add(vs_max);
                                                         RT_Min.Add(vs_min);*/
 
-                            if (MyDataTypes[i_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                            else if (MyDataTypes[i_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                            else if (MyDataTypes[i_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                            else { titleName = "파티클(0.5μm)"; }
+                            for (int i = 1; i < SensorUsageColumn.Count; i++)
+                            {
+                                if (MyDataTypes[i_DataType].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; }
+                            }
+
 
                             for (int i_sensorID = 0; i_sensorID < MyIDs.Count; i_sensorID++)
                             {
@@ -2365,10 +2374,10 @@ namespace DataVisualizerApp
                 for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                 {
 
-                    if (MyDataTypes[index_DataType].Contains("temp")) { titleName = "온도(°C)"; }
-                    else if (MyDataTypes[index_DataType].Contains("humid")) { titleName = "습도(%)"; }
-                    else if (MyDataTypes[index_DataType].Contains("part03")) { titleName = "파티클(0.3μm)"; }
-                    else { titleName = "파티클(0.5μm)"; }
+                    for (int i = 1; i < SensorUsageColumn.Count; i++)
+                    {
+                        if (MyDataTypes[index_DataType].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; }
+                    }
 
 
                     var plt = formsPlots[index_DataType];
