@@ -450,7 +450,7 @@ namespace DataVisualizerApp
                             int i = 0;
                             while (myReader.Read())
                             {
-                                DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader["DateAndTime"].ToString() });
+                                DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader.GetValue(myReader.FieldCount-1).ToString() });
                                 i += 1;
                             }
                         }
