@@ -154,7 +154,8 @@ namespace DataVisualizerApp
 
 
 
-            this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
+            //this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
+            this.WindowState = FormWindowState.Maximized;
             this.AutoScroll = true;
             datePicker1_start.Format = DateTimePickerFormat.Custom;
             datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm";

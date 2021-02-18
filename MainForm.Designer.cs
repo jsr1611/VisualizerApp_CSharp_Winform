@@ -347,7 +347,7 @@
             this.Controls.Add(this.panel2_ChartArea);
             this.Controls.Add(this.panel1_menu);
             this.Name = "MainForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "모니터링";
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
