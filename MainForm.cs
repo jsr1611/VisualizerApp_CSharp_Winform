@@ -1260,7 +1260,10 @@ namespace DataVisualizerApp
                 timeInterval[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 timeInterval[1] = "RT";
 
+                //Dictionary<int, Dictionary<string, bool>> sIDTableNames = new Dictionary<int, Dictionary<string, bool>>();
+                //GetDataFromAsDictionary()
 
+                //System.Data.DataSet ds = G_DataQuery.GetValuesFromDB(IDs_now, tableNames);
                 List<List<List<string[]>>> DataRetrieved_RT = G_DataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
                 IDs_next = new List<int>(IDs_now);
                 DataTypesNext = new List<string>(DataTypesNow);
@@ -2078,7 +2081,7 @@ namespace DataVisualizerApp
             }
 
             //4개 이상의 센서를 선택 못하게 If문으로 확인함.
-            if (DataTypesNow.Count < 4)
+            if (DataTypesNow.Count <= 4)
             {
                 if (allIDs.Count == 0)
                 {
@@ -2163,8 +2166,10 @@ namespace DataVisualizerApp
 
                 if (Btn3_SensorLocation.Length != 0 && Btn3_SensorLocation[0].Visible == false)
                 {
+                    
                     foreach (var btn in Btn3_SensorLocation)
                     {
+                        Console.WriteLine($"btn.Visible: {btn.Visible}");
                         btn.Visible = true;
                     }
                 }
@@ -2178,10 +2183,10 @@ namespace DataVisualizerApp
                         getClickablesBtns += $" {DataTypesNow[i]} = 'YES' ";
                         if (DataTypesNow.Count > 1 && DataTypesNow.Count - 1 != i)
                         {
-                            getClickablesBtns += $" AND ";
+                            getClickablesBtns += $" OR ";
                         }
                     }
-
+                    Console.Write(getClickablesBtns);
                     List<int> clickableIDs = GetColumnDataAsList("int", getClickablesBtns, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
 
                     for (int j = 0; j < allIDs.Count; j++)
