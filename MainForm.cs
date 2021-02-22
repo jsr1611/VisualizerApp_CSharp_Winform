@@ -122,8 +122,8 @@ namespace DataVisualizerApp
             // Initialize DB access variables
             dbServerAddress = "localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
             dbName = "SensorDataDB";
-            dbUID = "dlitadmin";
-            dbPWD = "dlitadmin";
+            dbUID = "admin";
+            dbPWD = "admin";
             myConn = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20"); // ; Integrated Security=True ");
 
             S_DeviceTable = "SENSOR_INFO";
