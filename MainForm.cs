@@ -1198,6 +1198,10 @@ namespace DataVisualizerApp
 
 
 
+        //Starting Point for Visualization
+        
+
+
         //확인 (시각화) 버튼 누를 때에의 행위
         /// <summary>
         /// Function to display results in form of chart for the selected time interval.

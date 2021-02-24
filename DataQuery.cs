@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -363,33 +364,114 @@ namespace DataVisualizerApp
         /// 실시간 데이터 쿼리를 위한 쿼리 함수
         /// </summary>
         /// <param name="IDs"></param>
-        /// <param name="whatToQuery_tbName"></param>
+        /// <param name="tbName"></param>
         /// <returns="List<List<string[]>> DataArr "></returns>
-        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> whatToQuery_tbName, List<string> sql_wtq)
+        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> tbName, List<string> sql_wtq)
         {
             List<List<List<string[]>>> DataArrRT = new List<List<List<string[]>>>();
-            if (IDs.Count == 0 || whatToQuery_tbName.Count == 0 || sql_wtq.Count == 0)
+            if (IDs.Count == 0 || tbName.Count == 0 || sql_wtq.Count == 0)
             {
                 return DataArrRT;
             }
             else
             {
-                for (int ind = 0; ind < whatToQuery_tbName.Count; ind++)
+
+
+                string sqlStrNew = "WITH ";
+                DataSet ds = new DataSet();
+                for (int ind = 0; ind < tbName.Count; ind++)
                 {
                     DataArrRT.Add(new List<List<string[]>>());
+                    
+                    string queryTbName = $"d_{tbName[ind].Substring(2)}";
+                    string sqlStr = "SELECT sensor_id, " + tbName[ind] + ", dateandtime FROM( ";
+                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ";
+
+                    sqlStrNew += $" {tbName[ind]} AS ( ";
+                    
+                    
+                    
+                    
+                    /*
+                    cUsage AS(SELECT TOP 1 h.sID AS sensor_id, h.c_hUsage AS c_hUsage, h.DateAndTime as DateAndTime
+                    FROM d_hUsage h WHERE h.sID = 1 ORDER BY h.DateAndTime DESC
+                    UNION ALL
+                    SELECT TOP 1 h.sID AS sensor_id, h.c_hUsage AS c_hUsage, h.DateAndTime as DateAndTime
+                    FROM d_hUsage h WHERE h.sID = 2 ORDER BY h.DateAndTime DESC
+                    ),
+
+                    */
+
+
+                    for (int i = 0; i < IDs.Count; i++)
+                    {
+
+                        sqlStrNew += $" SELECT TOP 1 t_{ind}{i}.{SensorUsageColumn[0]} AS sensor_id, t_{ind}{i}.{tbName} AS {tbName}, t_{ind}{i}.DateAndTime as DateAndTime " +
+                        $" FROM {queryTbName} t_{ind}{i} WHERE t_{ind}{i}.{SensorUsageColumn[0]} = {IDs[i]} ORDER BY DateAndTime DESC ";
+                        if(i != IDs.Count - 1)
+                        {
+                            sqlStrNew += $" UNION ALL ";
+                        }
+
+                        sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
+                                    $"FROM  {queryTbName} " +
+                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
+                                    " ORDER BY dateandtime DESC ";
+                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+
+                    }
+
+
+
+
+
+
+
+
+
+
+                    sqlStrNew += " ) ";
+                    if(ind != tbName.Count -1) {
+                        sqlStrNew += ", ";
+                    }
+                    else
+                    {
+                        sqlStrNew += $" SELECT t_00.sensor_id ";
+                        for (int k =0; k < tbName.Count; k++)
+                        {
+                            sqlStrNew += $" ";
+                        }
+                        
+                    }
+                    
+                    sqlStr += sql_tail;
+                    sqlStr += " ORDER BY sensor_id ;";
+
                 }
 
-                for (int index = 0; index < whatToQuery_tbName.Count; index++)
+
+
+
+
+
+
+
+
+
+
+
+                for (int index = 0; index < tbName.Count; index++)
                 {
-                    string queryTableName = $"d_{whatToQuery_tbName[index].Substring(2)}";
-                    string sql_head = "SELECT sensor_id, " + whatToQuery_tbName[index] + ", dateandtime FROM( ";
+                    string queryTableName = $"d_{tbName[index].Substring(2)}";
+                    string sql_head = "SELECT sensor_id, " + tbName[index] + ", dateandtime FROM( ";
                     string sql_connector = " UNION ALL "; // 테이블 연결하는 것
                     string sql_tail = " )a ORDER BY sensor_id";
 
                     for (int i = 0; i < IDs.Count; i++)
                     {
                         DataArrRT[index].Add(new List<string[]>());
-                        sql_head += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {whatToQuery_tbName[index]}, dateandtime " +
+                        sql_head += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[index]}, dateandtime " +
                                     $"FROM  {queryTableName} " +
                                     $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
                                     " ORDER BY dateandtime DESC ";
