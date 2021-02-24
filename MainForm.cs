@@ -1498,7 +1498,7 @@ namespace DataVisualizerApp
         }
  
 
-            private List<long> GetRangeLimitData(List<int> sensor_Id, string tableName)
+        private List<long> GetRangeLimitData(List<int> sensor_Id, string tableName)
         {
             List<long> response = new List<long>();
             string ifRangesSameStr = $"SELECT {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]}, COUNT(*) occurrences " +
@@ -3108,6 +3108,7 @@ namespace DataVisualizerApp
 
                                 double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerSecond);
                                 signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
+
 
                                 plts.Add(signalPlot);
 
