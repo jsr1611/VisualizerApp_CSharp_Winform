@@ -376,9 +376,7 @@ namespace DataVisualizerApp
             else
             {
 
-
-                string sqlStrNew = "WITH ";
-                DataSet ds = new DataSet();
+               
                 for (int ind = 0; ind < tbName.Count; ind++)
                 {
                     DataArrRT.Add(new List<List<string[]>>());
@@ -388,32 +386,8 @@ namespace DataVisualizerApp
                     string unionStr = " UNION ALL "; // 테이블 연결하는 것
                     string sql_tail = " )a ";
 
-                    sqlStrNew += $" {tbName[ind]} AS ( ";
-                    
-                    
-                    
-                    
-                    /*
-                    cUsage AS(SELECT TOP 1 h.sID AS sensor_id, h.c_hUsage AS c_hUsage, h.DateAndTime as DateAndTime
-                    FROM d_hUsage h WHERE h.sID = 1 ORDER BY h.DateAndTime DESC
-                    UNION ALL
-                    SELECT TOP 1 h.sID AS sensor_id, h.c_hUsage AS c_hUsage, h.DateAndTime as DateAndTime
-                    FROM d_hUsage h WHERE h.sID = 2 ORDER BY h.DateAndTime DESC
-                    ),
-
-                    */
-
-
                     for (int i = 0; i < IDs.Count; i++)
                     {
-
-                        sqlStrNew += $" SELECT TOP 1 t_{ind}{i}.{SensorUsageColumn[0]} AS sensor_id, t_{ind}{i}.{tbName} AS {tbName}, t_{ind}{i}.DateAndTime as DateAndTime " +
-                        $" FROM {queryTbName} t_{ind}{i} WHERE t_{ind}{i}.{SensorUsageColumn[0]} = {IDs[i]} ORDER BY DateAndTime DESC ";
-                        if(i != IDs.Count - 1)
-                        {
-                            sqlStrNew += $" UNION ALL ";
-                        }
-
                         sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
                                     $"FROM  {queryTbName} " +
                                     $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
@@ -422,43 +396,9 @@ namespace DataVisualizerApp
 
                     }
 
-
-
-
-
-
-
-
-
-
-                    sqlStrNew += " ) ";
-                    if(ind != tbName.Count -1) {
-                        sqlStrNew += ", ";
-                    }
-                    else
-                    {
-                        sqlStrNew += $" SELECT t_00.sensor_id ";
-                        for (int k =0; k < tbName.Count; k++)
-                        {
-                            sqlStrNew += $" ";
-                        }
-                        
-                    }
-                    
                     sqlStr += sql_tail;
                     sqlStr += " ORDER BY sensor_id ;";
-
                 }
-
-
-
-
-
-
-
-
-
-
 
 
                 for (int index = 0; index < tbName.Count; index++)
@@ -522,6 +462,80 @@ namespace DataVisualizerApp
             return DataArrRT;
         }
 
+
+        /// <summary>
+        /// 주어진 SQL쿼리를 위주로 데이터를 DataSet형테로 반환함.
+        /// </summary>
+        /// <param name="newSqlStr">SQL쿼리문</param>
+        /// <returns></returns>
+        public DataSet GetValuesFromDB(string newSqlStr)
+        {
+            DataSet ds = new DataSet();
+
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = new SqlCommand(newSqlStr, myConn);
+            if(myConn.State != ConnectionState.Open)
+            {
+                myConn.Open();
+            }
+            
+            da.Fill(ds);
+
+            return ds;
+        }
+
+
+
+        /// <summary>
+        /// SQL 쿼리문 생성해주는 함수.
+        /// </summary>
+        /// <param name="tbName"></param>
+        /// <param name="IDs"></param>
+        /// <returns></returns>
+        public string GetSqlQueryStrFor(List<string> tbName, List<int> IDs)
+        {
+            string sqlStrNew = "WITH ";
+            for (int ind = 0; ind < tbName.Count; ind++)
+            {
+                string queryTbName = $"d_{tbName[ind].Substring(2)}";
+                sqlStrNew += $" {tbName[ind]} AS ( ";
+
+                for (int i = 0; i < IDs.Count; i++)
+                {
+                    sqlStrNew += $" SELECT TOP 1 t_{ind}{i}.{SensorUsageColumn[0]} AS sensor_id, t_{ind}{i}.{tbName[ind]} AS {tbName[ind]}, t_{ind}{i}.DateAndTime as DateAndTime " +
+                    $" FROM {queryTbName} t_{ind}{i} WHERE t_{ind}{i}.{SensorUsageColumn[0]} = {IDs[i]} ORDER BY DateAndTime DESC ";
+                    if (i != IDs.Count - 1)
+                    {
+                        sqlStrNew += $" UNION ALL ";
+                    }
+                }
+
+                sqlStrNew += " ) ";
+                if (ind != tbName.Count - 1)
+                {
+                    sqlStrNew += ", ";
+                }
+                else
+                {
+                    string sqlStrNew_Head = $" SELECT {tbName[0]}.sensor_id ";
+                    string sqlStrNew_Joiner = "";
+                    string sqlStrNew_Tail = $", {tbName[0]}.DateAndTime FROM {tbName[0]} ";
+                    for (int k = 0; k < tbName.Count; k++)
+                    {
+                        sqlStrNew_Head += $", {tbName[k]}.{tbName[k]} ";
+                        if (k > 0)
+                        {
+                            sqlStrNew_Joiner += $" JOIN {tbName[k]} ON {tbName[k]}.sensor_id = {tbName[k - 1]}.sensor_id ";
+                        }
+
+                    }
+                    sqlStrNew += (sqlStrNew_Head + sqlStrNew_Tail + sqlStrNew_Joiner);
+                }
+
+
+            }
+            return sqlStrNew;
+        }
     }
 
 

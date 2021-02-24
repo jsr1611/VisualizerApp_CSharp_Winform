@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
+using DataSet = System.Data.DataSet;
 
 namespace DataVisualizerApp
 {
@@ -121,7 +122,7 @@ namespace DataVisualizerApp
 
             // Initialize DB access variables
             dbServerAddress = "localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
-            dbName = "SensorDataDB";
+            dbName = "SensorDataNewDB";
             dbUID = "admin";
             dbPWD = "admin";
             myConn = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20"); // ; Integrated Security=True ");
@@ -1262,8 +1263,17 @@ namespace DataVisualizerApp
                 List<List<List<string[]>>> DataRetrieved_RT = G_DataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
                 IDs_next = new List<int>(IDs_now);
                 DataTypesNext = new List<string>(DataTypesNow);
+
+
+
+                // 데이터를 DataSet형테로 쿼리하는 부분
+                //string newSqlStr = G_DataQuery.GetSqlQueryStrFor(DataTypesNext, IDs_next);
+                //DataSet ds = G_DataQuery.GetValuesFromDB(newSqlStr);
+
+
                 if (DataRetrieved_RT.Count != 0)
                 {
+                    //ScotPlot(ds, DataTypesNext, IDs_next, true);
                     ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
                 }
                 else
@@ -1272,10 +1282,6 @@ namespace DataVisualizerApp
                     timer3_render.Stop();
                 }
 
-                //RealTimeCharting(DataRetrieved_RT, timeInterval, IDs_selected, whatToShow);
-
-                //NewChartingForm RTChart = new NewChartingForm(DataRetrieved_RT, timeInterval, SensorIDs_selected, whatToShow);
-                //RTChart.Show();
             }
 
             //24시간 버튼 눌렀을 때
@@ -1297,14 +1303,6 @@ namespace DataVisualizerApp
 
                 ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
 
-                /*progressbarThread.Abort();
-                progressbarThread = null;
-                MessageBox.Show("No data for visualization.", "Error Message");*/
-
-
-                //ChartingForm GeneralChart = new ChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
-                //NewChartingForm GeneralChart = new NewChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
-                //GeneralChart.Show();
             }
             // 기간 설정 버튼 눌렀을 때
             else
@@ -1322,34 +1320,8 @@ namespace DataVisualizerApp
                     progressbarThread = new Thread(new ThreadStart(WaitForm));
                     progressbarThread.Start();
 
-                    /* System.Data.DataSet ds = myDataQuery.GetTempValues();
-                     double[] xs = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDateTime(r.Field<string>("dateandtime")).ToOADate()).ToArray();
-                     double[] ys = ds.Tables[0].AsEnumerable().Select(r => Convert.ToDouble(r.Field<decimal>("Temperature"))).ToArray();*/
-                    //Form form = new Form();
-
-                    //FormsPlot formsPlot = new FormsPlot();
-                    //formsPlot.plt.PlotScatter(xs, ys);
-                    //DataRetrieved_general = myDataQuery.DBQuery(startTime, endTime, IDs_now, DataTypesNow);
-                    //////////////////// new Chart ScotPlot ////////////////////////////////
-                    //ScotPlot(DataRetrieved_general, DataTypesNow, IDs_now, false);
-                    //var (mapVals, mapTime) = myDataQuery.DBQuery2(startTime, endTime, IDs_now, DataTypesNow);
-                    //Console.WriteLine("mapvals: ", mapVals.Count, mapTime.Count);
-
                     ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
-                    //if (mapVals[0][IDs_now[0]].Count > 0)
-                    //{
 
-                    //}
-                    //else
-                    //{
-                    //    progressbarThread.Abort();
-                    //    progressbarThread = null;
-                    //    MessageBox.Show("No data for visualization.", "Error Message");
-                    //}
-
-                    //ChartingForm GeneralChart = new ChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
-                    //NewChartingForm GeneralChart = new NewChartingForm(DataRetrieved_general, timeInterval, IDs_selected, whatToShow);
-                    //GeneralChart.Show();
                 }
                 else
                 {
@@ -1361,10 +1333,172 @@ namespace DataVisualizerApp
 
 
 
+        /// <summary>
+        /// 실시간 시각화 
+        /// </summary>
+        /// <param name="MyData"></param>
+        /// <param name="MyDataTypes"></param>
+        /// <param name="MyIDs"></param>
+        /// <param name="MyRT_flag"></param>
+        private void ScotPlot(DataSet MyData, List<string> MyDataTypes, List<int> MyIDs, bool MyRT_flag)
+        {
+            panel2_ChartArea.Controls.Clear();
+            panel4peakVal.Controls.Clear();
+            //formsPlots.Clear();
+            plts.Clear();
+            nextDataIndex = 0;
+            RTDataArray.Clear();
+
+            int numOfElmnt = 1;
+
+            TableLayoutPanel tableLayoutPanel = new TableLayoutPanel();
+            tableLayoutPanel.Dock = DockStyle.Fill;
+            panel2_ChartArea.Controls.Add(tableLayoutPanel);
+
+            try 
+            { 
+                formsPlots = new List<FormsPlot>();
+                plottableAnnotationsMaxVal.Clear();
+                plottableAnnotationsMinVal.Clear();
+                RT_Max.Clear();
+                RT_Min.Clear();
+                timer2.Start();
+                timer3_render.Start();
+                timer1.Stop();
+
+
+                TableLayoutPrep(tableLayoutPanel, MyDataTypes);
+
+                // 최대값 표시를 위한 textbox 및 label 
+
+
+                int peak_yAxis = 50;//button_show.Bounds.Y + button_show.Bounds.Height + 2*button_show.Bounds.Height;
+                int label_yAxis = peak_yAxis - 24;
+
+                DrawRangeLimitChart(formsPlots, MyDataTypes);
+                for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
+                {
+
+                    List<List<double[]>> vs = new List<List<double[]>>();
+                    RTDataArray.Add(vs);
+                    List<List<string[]>> vs_max = new List<List<string[]>>();
+                    List<List<string[]>> vs_min = new List<List<string[]>>();
+                    RT_Max.Add(vs_max);
+                    RT_Min.Add(vs_min);
+
+
+                    for (int i = 1; i < SensorUsageColumn.Count; i++)
+                    {
+                        if (MyDataTypes[index_chart].Contains(SensorUsageColumn[i])) { titleName = SensorNames[i - 1]; }
+                    }
+
+                    for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                    {
+                        List<double[]> vs0 = new List<double[]>();
+                        RTDataArray[index_chart].Add(vs0);
+
+                        double[] vs1 = new double[100_000];
+                        double[] vs2 = new double[100_000];
+                        RTDataArray[index_chart][index_ID].Add(vs1);
+                        RTDataArray[index_chart][index_ID].Add(vs2);
+
+                        List<string[]> vs0_max = new List<string[]>();
+                        List<string[]> vs0_min = new List<string[]>();
+                        RT_Max[index_chart].Add(vs0_max);
+                        RT_Min[index_chart].Add(vs0_min);
+
+                        string[] vs1_max = new string[1];
+                        string[] vs2_max = new string[1];
+                        string[] vs1_min = new string[1];
+                        string[] vs2_min = new string[1];
+
+
+                        RT_Max[index_chart][index_ID].Add(vs1_max);
+                        RT_Max[index_chart][index_ID].Add(vs2_max);
+
+                        RT_Min[index_chart][index_ID].Add(vs1_min);
+                        RT_Min[index_chart][index_ID].Add(vs2_min);
+
+                        DateTime dtime_min;
 
 
 
-        private List<long> GetRangeLimitData(List<int> sensor_Id, string tableName)
+/*
+                        RT_Max[index_chart][index_ID][1][0] = MyData[index_chart][index_ID][0][1];// dtime_maxi.ToOADate();
+                        dtime_min = DateTime.Parse(MyData[index_chart][index_ID][0][1]);
+                        RT_Min[index_chart][index_ID][1][0] = MyData[index_chart][index_ID][0][1]; //dtime_min.ToOADate();
+
+                        if (MyDataTypes[index_chart].Contains(SensorUsageColumn[1]) || MyDataTypes[index_chart].Contains(SensorUsageColumn[2]))
+                        {
+                            RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData[index_chart][index_ID][0][0]) / 100m).ToString();
+                            RT_Min[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData[index_chart][index_ID][0][0]) / 100m).ToString();
+                        }
+                        else
+                        {
+                            RT_Max[index_chart][index_ID][0][0] = MyData[index_chart][index_ID][0][0];
+                            RT_Min[index_chart][index_ID][0][0] = MyData[index_chart][index_ID][0][0];
+                        }*/
+                        DateTime timeData = DateTime.Parse("2021-03-01 12:00:00.000"); //);
+
+
+
+
+
+
+
+
+
+                        double xs = timeData.ToOADate();
+
+                        double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerSecond);
+                        signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
+
+                        plts.Add(signalPlot);
+
+                    }
+
+                    pltStyler(MyDataTypes, index_chart);
+                }
+
+
+                AnnotationBackground(MyDataTypes, MyIDs);
+
+
+
+                // Plot Annotations separately to put them above the charts.
+                for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
+                {
+                    int annotY = -10 - 25 * (MyIDs.Count - 1);
+                    for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                    {
+
+                        Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
+                        string numberStrMax = RT_Max[index_DataType][index_ID][0][0];
+                        string numberStrMin = RT_Min[index_DataType][index_ID][0][0];
+                        string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                        string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+
+                        PlottableAnnotation pltAnnot = formsPlots[index_DataType].plt.PlotAnnotation(label: maxLabel + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
+                        PlottableAnnotation pltAnnot_min = formsPlots[index_DataType].plt.PlotAnnotation(label: minLabel + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
+                        //Console.WriteLine("Lbl: " + pltAnnot.label + ", vis: " + pltAnnot.visible + ", x: " + pltAnnot.xPixel + ", y: " + pltAnnot.yPixel);
+                        plottableAnnotationsMaxVal.Add(pltAnnot);
+                        plottableAnnotationsMinVal.Add(pltAnnot_min);
+                        annotY += 25;
+                    }
+                }
+                //Console.WriteLine("\n\n\n");
+            }
+            catch (Exception ex)
+            {
+                timer2.Stop();
+                timer3_render.Stop();
+                throw new Exception(ex.Message);
+            }
+                        //Console.WriteLine(RTDataArray.Count);
+        }
+ 
+
+            private List<long> GetRangeLimitData(List<int> sensor_Id, string tableName)
         {
             List<long> response = new List<long>();
             string ifRangesSameStr = $"SELECT {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]}, COUNT(*) occurrences " +
