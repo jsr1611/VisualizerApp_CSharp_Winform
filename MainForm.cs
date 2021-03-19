@@ -15,41 +15,19 @@ namespace DataVisualizerApp
 {
     public partial class MainForm : Form
     {
-        public string startTime = "";
-        public string endTime = "";
         public string dbServerAddress = "";
         public string dbName = "";
         public string dbUID = "";
         public string dbPWD = "";
         public SqlConnection myConn { get; set; }
 
-        private string _deviceTable;
-
-        public string S_DeviceTable
-        {
-            get { return _deviceTable; }
-            set { _deviceTable = value; }
-        }
+        public string S_DeviceTable { get; set; }
         public List<string> S_DeviceTableColumn { get; set; }
         public List<string> S_FourRangeColmn { get; }
 
-        private string _sensorUsage;
+        public string SensorUsage { get; set; }
 
-        public string SensorUsage
-        {
-            get { return _sensorUsage; }
-            set { _sensorUsage = value; }
-        }
-
-
-
-        private List<string> _sensorUsageColumn;
-
-        public List<string> SensorUsageColumn
-        {
-            get { return _sensorUsageColumn; }
-            set { _sensorUsageColumn = value; }
-        }
+        public List<string> SensorUsageColumn { get; set; }
 
         public List<string> SensorNames { get; set; }
         public Button[] Btn1_time { get; set; }
@@ -106,13 +84,7 @@ namespace DataVisualizerApp
         public Bitmap btnClicked_small = DataVisualizerApp.Properties.Resources.btn_sm7;
         public Bitmap btnUnClicked_small = DataVisualizerApp.Properties.Resources.btn_sm6;
 
-        private DataQuery _dataQuery;
-
-        public DataQuery G_DataQuery
-        {
-            get { return _dataQuery; }
-            set { _dataQuery = value; }
-        }
+        public DataQuery G_DataQuery { get; set; }
 
 
 
@@ -1084,6 +1056,47 @@ namespace DataVisualizerApp
         }
 
 
+/*
+
+        private void MouseHover()
+        {
+            var plottables = formsPlots[0].plt.GetPlottables();
+            var signalPlot = (ScottPlot.PlottableSignal)plottables[0];
+            var highlightSignal = (ScottPlot.PlottableSignal)plottables[1];
+            var highlightText = (ScottPlot.PlottableSignal)plottables[2];
+
+
+            // get mouse position on the screen
+            Point mouseLoc = new Point(Cursor.Position.X, Cursor.Position.Y);
+
+            //modify it to be mouse position on the ScottPlot
+            mouseLoc.X -= this.PointToScreen(formsPlots[0].Location).X;
+            mouseLoc.Y -= this.PointToScreen(formsPlots[0].Location).Y;
+
+
+            //PointF mousePos = formsPlots[0].plt.CoordinateFromPixelY(mouseLoc.Y);
+
+            int closestIndex = 0;
+            double closestDistance = double.PositiveInfinity;
+            for(int i=0; i < signalPlot.ys.Length; i++)
+            {
+                double dx = mouseLoc.X - formsPlots[0].plt.CoordinateToPixel(signalPlot. xs[i], 0).X;
+                double dy = mouseLoc.Y - formsPlots[0].plt.CoordinateToPixel(0, signalPlot.ys[i]).Y;
+                double distance = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+                if (closestIndex < 0)
+                {
+                    closestDistance = distance;
+                }
+                else if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestIndex = i;
+                }
+            }
+        }
+*/
+
+
         public void AnnotationsMinMax(List<string> MyDataTypes, List<int> MyIDs, List<string> MyDataVals, bool realtime)
         {
             if (realtime == false)
@@ -1229,10 +1242,8 @@ namespace DataVisualizerApp
             }
 
 
-
-
-            endTime = "RT";
-            string[] timeInterval = { startTime, endTime };
+            
+            string[] startEndTime = { "", "" };
 
             List<string> sql_names = new List<string>();
             for (int i = 0; i < DataTypesNow.Count; i++)
@@ -1253,8 +1264,8 @@ namespace DataVisualizerApp
                 timer3_render.Enabled = true;
 
                 IDs_now.Sort();
-                timeInterval[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                timeInterval[1] = "RT";
+                startEndTime[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                startEndTime[1] = "RT";
 
                 //Dictionary<int, Dictionary<string, bool>> sIDTableNames = new Dictionary<int, Dictionary<string, bool>>();
                 //GetDataFromAsDictionary()
@@ -1293,15 +1304,15 @@ namespace DataVisualizerApp
 
                 Console.WriteLine("Now 24H");
                 IDs_now.Sort();
-                startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
-                endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                string[] startEndDate = { startTime, endTime };
+                startEndTime[0] = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
+                startEndTime[1] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                
                 progressbarThread = new Thread(new ThreadStart(WaitForm));
                 progressbarThread.Start();
 
                 //Console.WriteLine("mapvals: ", mapVals.Count, mapTime.Count);
 
-                ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
+                ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndTime, false);
 
             }
             // 기간 설정 버튼 눌렀을 때
@@ -1313,14 +1324,12 @@ namespace DataVisualizerApp
                 IDs_now.Sort();
                 if (datePicker1_start.Value < datePicker2_end.Value)
                 {
-                    startTime = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
-                    endTime = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
-
-                    string[] startEndDate = { startTime, endTime };
+                    startEndTime[0] = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
+                    startEndTime[1] = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
                     progressbarThread = new Thread(new ThreadStart(WaitForm));
                     progressbarThread.Start();
 
-                    ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndDate, false);
+                    ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndTime, false);
 
                 }
                 else
@@ -1922,13 +1931,16 @@ namespace DataVisualizerApp
             //LinkLabelVisited(5);
             datePicker1_start.Value = DateTime.Now;
             datePicker2_end.Value = DateTime.Now;
-            endTime = "RT";
+            
             button_show.Visible = false;
             clearHighlighting(Btn2_DataType, "small");
             clearHighlighting(Btn3_SensorLocation, "small");
             DataTypesNow.Clear();
             IDs_now.Clear();
         }
+
+
+
 
 
         private void button2_Click(object sender, EventArgs e)
@@ -1966,10 +1978,8 @@ namespace DataVisualizerApp
             datePicker2_end.Visible = false;
             label_between.Visible = false;
             //LinkLabelVisited(2);
-            startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
-            datePicker1_start.Value = Convert.ToDateTime(startTime);
-            endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            datePicker2_end.Value = Convert.ToDateTime(endTime);
+            datePicker1_start.Value = Convert.ToDateTime(DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm"));
+            datePicker2_end.Value = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
             //Console.WriteLine(startTime + " " + endTime);
             button_show.Visible = false;
             DataTypesNow.Clear();
@@ -2011,13 +2021,13 @@ namespace DataVisualizerApp
             button1_chartRT.Visible = false;
             //"시간 설정" button
             highlightSelectedBtn(Btn1_time, 2, "big");
+            label_between.Visible = true;
             datePicker1_start.Visible = true;
             datePicker2_end.Visible = true;
-            label_between.Visible = true;
-            startTime = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
-            datePicker1_start.Value = Convert.ToDateTime(startTime);
-            endTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            datePicker2_end.Value = Convert.ToDateTime(endTime);
+            
+            datePicker1_start.Value = Convert.ToDateTime(DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm"));
+            datePicker2_end.Value = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
+            
             button_show.Visible = false;
             DataTypesNow.Clear();
             IDs_now.Clear();

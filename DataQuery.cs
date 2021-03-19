@@ -13,48 +13,15 @@ namespace DataVisualizerApp
 
     public class DataQuery
     {
+        public string dbName { get; set; }
 
-        private string _dbName;
+        public string SensorUsage { get; set; }
 
-        public string dbName
-        {
-            get { return _dbName; }
-            set { _dbName = value; }
-        }
+        public List<string> SensorUsageColumn { get; set; }
 
+        public string S_DeviceTable { get; set; }
 
-
-        private string _sensorUsage;
-
-        public string SensorUsage
-        {
-            get { return _sensorUsage; }
-            set { _sensorUsage = value; }
-        }
-
-        private List<string> _sensorUsageColumn;
-
-        public List<string> SensorUsageColumn
-        {
-            get { return _sensorUsageColumn; }
-            set { _sensorUsageColumn = value; }
-        }
-
-        private string _deviceTable;
-
-        public string S_DeviceTable
-        {
-            get { return _deviceTable; }
-            set { _deviceTable = value; }
-        }
-
-        private SqlConnection _myConn;
-
-        public SqlConnection myConn
-        {
-            get { return _myConn; }
-            set { _myConn = value; }
-        }
+        public SqlConnection myConn { get; set; }
 
         public List<string> FourRangeColmn { get; }
 
