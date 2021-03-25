@@ -1490,7 +1490,7 @@ namespace DataVisualizerApp
                         */
                         if (MyDataTypes[index_chart].Contains(SensorUsageColumn[1]) || MyDataTypes[index_chart].Contains(SensorUsageColumn[2]))
                         {
-                            RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]))/100m).ToString(); 
+                            RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
                             //RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData[index_chart][index_ID][0][0]) / 100m).ToString();
                             RT_Min[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
                         }
@@ -1973,6 +1973,7 @@ namespace DataVisualizerApp
                 {
                     btn2.Visible = false;
                     btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
+                    btn2.Enabled = true;
                 }
                 if (Btn3_SensorLocation != null)
                 {
@@ -2028,6 +2029,7 @@ namespace DataVisualizerApp
                     foreach (var btn2 in Btn2_DataType)
                     {
                         btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
+                        btn2.Enabled = true;
                     }
                     if (Btn3_SensorLocation != null)
                     {
@@ -2077,6 +2079,7 @@ namespace DataVisualizerApp
                 foreach (var btn2 in Btn2_DataType)
                 {
                     btn2.Image = btnUnClicked_small; // BackColor = Color.Transparent;
+                    btn2.Enabled = true;
                 }
                 if (Btn3_SensorLocation != null)
                 {
@@ -2168,19 +2171,23 @@ namespace DataVisualizerApp
                }*/
             if (button1_chartRT.Image == btnClicked_small)// BackColor != Color.Transparent
             {
-                if (Btn3_SensorLocation != null)
+                if (Btn2_DataType != null)
                 {
-                    foreach (var btn in Btn3_SensorLocation)
+                    foreach (var btn in Btn2_DataType)
                     {
-                        btn.Visible = false;
+                        btn.Visible = true;
+                        btn.Enabled = true;
+                    }
+                    if (Btn3_SensorLocation != null)
+                    {
+                        foreach (var btn in Btn3_SensorLocation)
+                        {
+                            btn.Visible = false;
+                        }
                     }
                 }
 
-                button_show.Visible = false;
-                DataTypesNow.Clear();
-                IDs_now.Clear();
-                clearHighlighting(Btn2_DataType, "small");
-                clearHighlighting(Btn3_SensorLocation, "small");
+                
 
             }
             else
@@ -2193,6 +2200,7 @@ namespace DataVisualizerApp
                     foreach (var btn in Btn2_DataType)
                     {
                         btn.Visible = true;
+                        btn.Enabled = true;
                     }
                     if (Btn3_SensorLocation != null)
                     {
@@ -2202,14 +2210,13 @@ namespace DataVisualizerApp
                         }
                     }
                 }
-
-                button_show.Visible = false;
-                DataTypesNow.Clear();
-                IDs_now.Clear();
-                clearHighlighting(Btn2_DataType, "small");
-                clearHighlighting(Btn3_SensorLocation, "small");
             }
 
+            button_show.Visible = false;
+            DataTypesNow.Clear();
+            IDs_now.Clear();
+            clearHighlighting(Btn2_DataType, "small");
+            clearHighlighting(Btn3_SensorLocation, "small");
 
         }
 
@@ -2652,7 +2659,7 @@ namespace DataVisualizerApp
 
 
 
-            if (MyData.Tables.Count == 0 )//(DataRetrieved_RT.Count == 0)
+            if (MyData.Tables.Count == 0)//(DataRetrieved_RT.Count == 0)
             {
                 timer2.Stop();
                 timer3_render.Stop();
@@ -2712,8 +2719,8 @@ namespace DataVisualizerApp
                                 }
 
                                 // display current value next to chart title
-                                
-                                formsPlots[index_chart].plt.Title(chartTitle + $"                           {MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]).Insert(2,".")}", fontSize: 24);
+
+                                formsPlots[index_chart].plt.Title(chartTitle + $"                           {MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]).Insert(2, ".")}", fontSize: 24);
 
 
 
@@ -2757,8 +2764,8 @@ namespace DataVisualizerApp
                             string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
                             plottableAnnotationsMinVal[index_chart * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
-                            
-                            
+
+
                         }
 
                     }
