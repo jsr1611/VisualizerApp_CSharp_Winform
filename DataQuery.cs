@@ -343,7 +343,8 @@ namespace DataVisualizerApp
             else
             {
 
-               
+                /*DataSet ds = new DataSet();
+
                 for (int ind = 0; ind < tbName.Count; ind++)
                 {
                     DataArrRT.Add(new List<List<string[]>>());
@@ -365,7 +366,13 @@ namespace DataVisualizerApp
 
                     sqlStr += sql_tail;
                     sqlStr += " ORDER BY sensor_id ;";
-                }
+
+                    using(SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+                    {
+                        da.Fill(ds);
+                    }
+
+                }*/
 
 
                 for (int index = 0; index < tbName.Count; index++)
@@ -502,6 +509,48 @@ namespace DataVisualizerApp
 
             }
             return sqlStrNew;
+        }
+
+
+
+
+        public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName, List<string> sql_wtq)
+        {
+            DataSet ds = new DataSet();
+            if(IDs.Count == 0 || tbName.Count == 0 || sql_wtq.Count == 0)
+            {
+                return ds;
+            }
+            else
+            {
+                for (int ind = 0; ind < tbName.Count; ind++)
+                {
+                    string queryTbName = $"d_{tbName[ind].Substring(2)}";
+                    string sqlStr = "SELECT sensor_id, " + tbName[ind] + ", dateandtime FROM( ";
+                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ";
+
+                    for (int i = 0; i < IDs.Count; i++)
+                    {
+                        sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
+                                    $"FROM  {queryTbName} " +
+                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
+                                    " ORDER BY dateandtime DESC ";
+                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+
+                    }
+
+                    sqlStr += sql_tail;
+                    sqlStr += " ORDER BY sensor_id ;";
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+                    {
+                        da.Fill(ds, tbName[ind]);
+                    }
+
+                }
+            }
+            return ds;
         }
     }
 
