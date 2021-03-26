@@ -40,113 +40,6 @@ namespace DataVisualizerApp
             FourRangeColmn = fourRangeColmn;
         }
 
-        /// <summary>
-        /// 데이터 쿼리 함수
-        /// </summary>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <returns></returns>
-        public List<List<List<string[]>>> DBQuery(string startDate, string endDate, List<int> IDs, List<string> whatToQuery)
-        {
-
-            List<List<List<string[]>>> DataArr = new List<List<List<string[]>>>(); // new List<List<List<string[]>>>();
-            List<SortedDictionary<int, List<string>>> mapVals = new List<SortedDictionary<int, List<string>>>();
-            List<SortedDictionary<int, List<string>>> mapTime = new List<SortedDictionary<int, List<string>>>();
-
-            List<string> sql_names = new List<string>();
-
-            //temperature, humidity, particle03, particle05, particle10, particle25, particle50, particle100
-            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)
-            {
-                DataArr.Add(new List<List<string[]>>());
-                mapVals.Add(new SortedDictionary<int, List<string>>());
-                mapTime.Add(new SortedDictionary<int, List<string>>());
-                if (whatToQuery[i_DataType].Contains("temp")) { sql_names.Add("Temperature"); }
-                else if (whatToQuery[i_DataType].Contains("humid")) { sql_names.Add("Humidity"); }
-                else if (whatToQuery[i_DataType].Contains("part03")) { sql_names.Add("Particle03"); }
-                else { sql_names.Add("Particle05"); }
-            }
-            for (int i_DataType = 0; i_DataType < whatToQuery.Count; i_DataType++)
-            {
-                try
-                {
-                    string sql_head = "SELECT " +
-                                            "sensor_id" +
-                                            ", " + sql_names[i_DataType] +
-                                            ", dateandtime " +
-                                        "FROM( ";
-                    string sql_connector = " UNION ALL "; // 테이블 연결하는 것
-                    string sql_tail = " )a ORDER BY dateandtime";
-
-                    for (int i_ID = 0; i_ID < IDs.Count; i_ID++) // 1,2,3, ...
-                    {
-                        sql_head += "SELECT " +
-                                            IDs[i_ID].ToString() + " AS sensor_id" +
-                                            ", " + "AVG(CAST(" + sql_names[i_DataType] + " AS DECIMAL(18, 2))) AS " + sql_names[i_DataType] +
-                                            ", SUBSTRING(dateandtime, 1,16) AS dateandtime " +
-                                    "FROM dev_" + whatToQuery[i_DataType] + "_" + IDs[i_ID].ToString() +
-                                   " WHERE dateandtime BETWEEN '" + startDate + "' AND '" + endDate + "' " +
-                                   "GROUP BY SUBSTRING(dateandtime, 1, 16)";
-                        if (IDs.Count > 1 && i_ID != (IDs.Count - 1)) { sql_head += sql_connector; }
-
-                        DataArr[i_DataType].Add(new List<string[]>());
-                        List<string> mylist1;
-                        List<string> mylist2;
-                        if (!mapVals[i_DataType].TryGetValue(IDs[i_ID], out mylist1))
-                        {
-                            mylist1 = new List<string>();
-                            mapVals[i_DataType].Add(IDs[i_ID], mylist1);
-                        }
-                        if (!mapTime[i_DataType].TryGetValue(IDs[i_ID], out mylist2))
-                        {
-                            mylist2 = new List<string>();
-                            mapTime[i_DataType].Add(IDs[i_ID], mylist2);
-                        }
-                    }
-                    sql_head += sql_tail;
-
-                    Console.WriteLine("SQL 쿼리문: " + sql_head);
-                    //로컬 db접속 방식
-
-                    using (var cmd = new SqlCommand(sql_head, myConn))
-                    {
-                        cmd.CommandTimeout = 0;
-                        myConn.Open();
-                        Console.WriteLine("Connection opened");
-                        using (var myReader = cmd.ExecuteReader())
-                        {
-                            Console.WriteLine("Executing Reader() method...");
-                            int i_ID2 = 0;
-                            while (myReader.Read())
-                            {
-                                Console.WriteLine("Reading data...");
-                                if (i_ID2 == IDs.Count) { i_ID2 = 0; }
-                                string[] allDataRead = { myReader.GetValue(0).ToString(), myReader[sql_names[i_DataType]].ToString(), myReader["DateAndTime"].ToString() };
-                                // Known issue. Fix is under progress.
-
-                                mapVals[i_DataType][Convert.ToInt32(allDataRead[0])].Add(allDataRead[1]);
-                                mapTime[i_DataType][Convert.ToInt32(allDataRead[0])].Add(allDataRead[2]);
-
-                                DataArr[i_DataType][i_ID2].Add(new string[] { allDataRead[1], allDataRead[2], allDataRead[0] });
-                                Console.WriteLine(i_ID2 + " " + sql_names[i_DataType] + " : " + allDataRead[1] + " " + allDataRead[2] + " " + allDataRead[0]);
-                                i_ID2 += 1;
-                            }
-                        }
-                        myConn.Close();
-                    }
-                    Console.WriteLine("mapVals, mapTime, dataArr:", mapVals.Count, mapTime.Count, DataArr.Count);
-                }
-                catch (Exception ee)
-                {
-                    MessageBox.Show(ee.ToString(), "에러 매시지");
-                    //throw new Exception("에러 메시지:\n" + ee.ToString());
-                }
-            }
-            return DataArr;
-        }
-
-
-
 
         public System.Data.DataSet GetTempValues()
         {
@@ -159,51 +52,49 @@ namespace DataVisualizerApp
             return ds;
         }
 
-        public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, string whatToQuery, List<int> IDs)
+        public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, List<string> whatToQuery, List<int> IDs)
         {
             SqlDataAdapter da = new SqlDataAdapter();
-
-            string sql_head = $"SELECT sensor_id, {whatToQuery}, dateandtime FROM ( ";
-                
-            string sql_connector = " UNION ALL ";
-            string sql_tail = ")a ORDER BY dateandtime";
-
-
-            for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
-            {
-                sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery} AS int)) AS {whatToQuery}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
-                    $" FROM d_{whatToQuery.Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
-                    $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
-
-                if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
-            }
-           
-
-            sql_head += sql_tail;
             System.Data.DataSet ds = new System.Data.DataSet();
-            try
-            {
-                if(myConn.State != System.Data.ConnectionState.Open)
-                {
-                    myConn.Open();
-                }
-                da.SelectCommand = new SqlCommand(sql_head, myConn);
-                
-                ///conn.Open();
-                da.Fill(ds);
-            }
-            catch(System.Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                if(myConn.State == System.Data.ConnectionState.Open)
-                {
-                    myConn.Close();
-                }
-            }
 
+            for (int index = 0; index < whatToQuery.Count; index++)
+            {
+
+                string sql_head = $"SELECT sensor_id, {whatToQuery[index]}, dateandtime FROM ( ";
+
+                string sql_connector = " UNION ALL ";
+                string sql_tail = ")a ORDER BY dateandtime";
+
+
+                for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
+                {
+                    sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery[index]} AS int)) AS {whatToQuery[index]}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
+                        $" FROM d_{whatToQuery[index].Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
+                        $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
+
+                    if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+                }
+
+
+                sql_head += sql_tail;
+                
+                try
+                {
+                    if (myConn.State != System.Data.ConnectionState.Open)
+                    {
+                        myConn.Open();
+                    }
+                    da.SelectCommand = new SqlCommand(sql_head, myConn);
+
+                    ///conn.Open();
+                    da.Fill(ds, whatToQuery[index]);
+                }
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
+            }
             return ds;
         }
 
@@ -333,10 +224,10 @@ namespace DataVisualizerApp
         /// <param name="IDs"></param>
         /// <param name="tbName"></param>
         /// <returns="List<List<string[]>> DataArr "></returns>
-        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> tbName, List<string> sql_wtq)
+        public List<List<List<string[]>>> RealTimeDBQuery(List<int> IDs, List<string> tbName)
         {
             List<List<List<string[]>>> DataArrRT = new List<List<List<string[]>>>();
-            if (IDs.Count == 0 || tbName.Count == 0 || sql_wtq.Count == 0)
+            if (IDs.Count == 0 || tbName.Count == 0)
             {
                 return DataArrRT;
             }
@@ -412,7 +303,7 @@ namespace DataVisualizerApp
                             int i = 0;
                             while (myReader.Read())
                             {
-                                DataArrRT[index][i].Add(new string[] { myReader[sql_wtq[index]].ToString(), myReader.GetValue(myReader.FieldCount-1).ToString() });
+                                DataArrRT[index][i].Add(new string[] { myReader[tbName[index]].ToString(), myReader.GetValue(myReader.FieldCount-1).ToString() });
                                 i += 1;
                             }
                         }
@@ -514,10 +405,10 @@ namespace DataVisualizerApp
 
 
 
-        public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName, List<string> sql_wtq)
+        public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName)
         {
             DataSet ds = new DataSet();
-            if(IDs.Count == 0 || tbName.Count == 0 || sql_wtq.Count == 0)
+            if(IDs.Count == 0 || tbName.Count == 0)
             {
                 return ds;
             }
