@@ -2408,12 +2408,6 @@ namespace DataVisualizerApp
         }
 
 
-
-
-
-
-
-
         private void CreateButtonsForSensors(Button[] btn_list, int[] xywh, List<string> nameList, List<string> textList, Func<object, EventArgs> clickMethod)
         {
             Btn2_DataType = new Button[SensorUsageColumn.Count - 1];
@@ -2453,9 +2447,6 @@ namespace DataVisualizerApp
             }
 
         }
-
-
-
 
 
 
@@ -2637,28 +2628,6 @@ namespace DataVisualizerApp
             DataSet MyData = G_DataQuery.RealTimeDataQuery(IDs_next, DataTypesNext, Sql_NamesNow);
 
 
-            /*
-            RT_Max[index_chart][index_ID][1][0] = MyData.Tables[index_chart].Rows[0].Field<string>("DateAndTime").ToString();
-
-            dtime_min = DateTime.Parse(MyData.Tables[index_chart].Rows[0].Field<string>("DateAndTime").ToString());
-            RT_Min[index_chart][index_ID][1][0] = MyData.Tables[index_chart].Rows[0].Field<string>("DateAndTime").ToString();
-
-            if (MyDataTypes[index_chart].Contains(SensorUsageColumn[1]) || MyDataTypes[index_chart].Contains(SensorUsageColumn[2]))
-            {
-                RT_Max[index_chart][index_ID][1][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[0].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
-                //RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData[index_chart][index_ID][0][0]) / 100m).ToString();
-                RT_Min[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[0].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
-            }
-            else
-            {
-                RT_Max[index_chart][index_ID][0][0] = MyData.Tables[index_chart].Rows[0].Field<string>(MyDataTypes[index_chart]).ToString();
-                RT_Min[index_chart][index_ID][0][0] = MyData.Tables[index_chart].Rows[0].Field<string>(MyDataTypes[index_chart]).ToString();
-            }
-
-            */
-
-
-
             if (MyData.Tables.Count == 0)//(DataRetrieved_RT.Count == 0)
             {
                 timer2.Stop();
@@ -2700,7 +2669,6 @@ namespace DataVisualizerApp
 
                             DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[0].Field<string>("DateAndTime").ToString());
                             RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
-                            //Console.WriteLine($"\nnextDataIndex: {nextDataIndex}, Data: {RTDataArray[index_DataType][index_ID][0][nextDataIndex]} at {dtime.ToString("yyyy-MM-dd HH:mm:ss")}");
 
                             if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                             {
@@ -2712,17 +2680,13 @@ namespace DataVisualizerApp
 
                                 if ((Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d) < Convert.ToDouble(RT_Min[index_chart][index_ID][0][0]))
                                 {
-
                                     RT_Min[index_chart][index_ID][0][0] = (Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d).ToString();
                                     RT_Min[index_chart][index_ID][1][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
 
                                 }
 
                                 // display current value next to chart title
-
                                 formsPlots[index_chart].plt.Title(chartTitle + $"                           {MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]).Insert(2, ".")}", fontSize: 24);
-
-
 
                             }
                             else
@@ -2744,27 +2708,12 @@ namespace DataVisualizerApp
                             }
 
                             string numberStrMax = RT_Max[index_chart][index_ID][0][0];
-                            Console.WriteLine($"numberStrMax: {numberStrMax}");
-                            if (numberStrMax.Length == 2)
-                            {
-                                Console.WriteLine($"I am the troubleMaker:  {numberStrMax}");
-                            }
                             string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
-                            //Console.WriteLine($"New Max: {RT_Max[index_DataType][index_ID][0][0]} at {RT_Max[index_DataType][index_ID][1][0]} ");
                             plottableAnnotationsMaxVal[index_chart * IDs_next.Count + index_ID].label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
 
-
-                            //Console.WriteLine($"New Max: {RT_Min[index_DataType][index_ID][0][0]} at {RT_Min[index_DataType][index_ID][1][0]} ");
                             string numberStrMin = RT_Min[index_chart][index_ID][0][0];
-                            Console.WriteLine($"numberStrMin: {numberStrMin}");
-                            if (numberStrMin.Length == 2)
-                            {
-                                Console.WriteLine($"I am the troubleMaker:  {numberStrMin}");
-                            }
                             string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
                             plottableAnnotationsMinVal[index_chart * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
-
-
 
                         }
 
