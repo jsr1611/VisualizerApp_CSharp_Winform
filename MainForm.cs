@@ -20,6 +20,7 @@ namespace DataVisualizerApp
         public string dbUID = "";
         public string dbPWD = "";
         public SqlConnection myConn { get; set; }
+        public string sqlConStr { get; set; }
 
         public string S_DeviceTable { get; set; }
         public List<string> S_DeviceTableColumn { get; set; }
@@ -94,7 +95,8 @@ namespace DataVisualizerApp
             dbName = "SensorData2"; //"SensorDataNewDB";
             dbUID = "admin";
             dbPWD = "admin";
-            myConn = new SqlConnection($@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20"); // ; Integrated Security=True ");
+            sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
+            myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
             S_DeviceTable = "SENSOR_INFO";
             SensorUsage = "SensorUsage";
@@ -211,7 +213,7 @@ namespace DataVisualizerApp
 
 
 
-            G_DataQuery = new DataQuery(myConn, dbName, S_DeviceTable, SensorUsage, SensorUsageColumn, S_FourRangeColmn);
+            G_DataQuery = new DataQuery(myConn, dbName, S_DeviceTable, SensorUsage, SensorUsageColumn, S_FourRangeColmn, sqlConStr);
 
 
 
@@ -1153,8 +1155,9 @@ namespace DataVisualizerApp
                     RT_Min.Clear();
 
                     timer1.Stop();
-                    timer2.Start();
-                    timer3_render.Start();
+                    timer2.Stop();
+                    timer3_render.Stop();
+                    DataSet AvgData = G_DataQuery.GetAvgData(MyIDs, MyDataTypes, 5);
                     // working on here
                     try
                     {
@@ -1205,6 +1208,8 @@ namespace DataVisualizerApp
                                 // check data (row) count is same
                                 if (MyData.Tables[index_chart].Rows.Count == MyIDs.Count)
                                 {
+
+                                    
                                     RT_Max[index_chart][index_ID][1][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
 
                                     dtime_min = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
@@ -1215,12 +1220,26 @@ namespace DataVisualizerApp
                                     {
                                         RT_Max[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
                                         RT_Min[index_chart][index_ID][0][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
+                                        double dblVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D;
+                                        double dblAvg = Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart]) / 100.0D);
+
+
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (dblAvg!= 0) && ((dblVal - dblAvg) >= 1 || (dblVal - dblAvg) <= -1) ? dblAvg : dblVal;
+                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     }
                                     else
                                     {
                                         RT_Max[index_chart][index_ID][0][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
                                         RT_Min[index_chart][index_ID][0][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
+
+                                        Int64 intVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
+                                        double intAvg = Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart]));
+
+
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && ( (intVal - intAvg) >= 1 || (intVal - intAvg) <= -1 ) ? intAvg: intVal;
+                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     }
+                                    //nextDataIndex += -1;
                                 }
                                 else
                                 {
@@ -1237,9 +1256,11 @@ namespace DataVisualizerApp
                                 plts.Add(signalPlot);
 
                             }
-
+                            
                             pltStyler(MyDataTypes, index_chart, chartTitle);
+                            formsPlots[index_chart].Render();
                         }
+
 
 
                         AnnotationBackground(MyDataTypes, MyIDs);
@@ -1279,6 +1300,9 @@ namespace DataVisualizerApp
                                 annotY += 25;
                             }
                         }
+                        nextDataIndex += 1;
+                        timer2.Start();
+                        timer3_render.Start();
                         //Console.WriteLine("\n\n\n");
                     }
                     catch (Exception ex)
@@ -2382,6 +2406,7 @@ namespace DataVisualizerApp
             else
             {
                 string chartTitle = "";
+                double dblVal = 0.0D;
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 try
@@ -2412,11 +2437,28 @@ namespace DataVisualizerApp
 
                             if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                             {
-                                RTDataArray[index_chart][index_ID][0][nextDataIndex] = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
+                                dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
+                                if (nextDataIndex > 0)
+                                {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal >= (RTDataArray[index_chart][index_ID][0][nextDataIndex - 1] + 1) ? RTDataArray[index_chart][index_ID][0][nextDataIndex - 1] : dblVal;
+                                }
+                                else
+                                {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal;
+                                }
                             }
                             else
                             {
-                                RTDataArray[index_chart][index_ID][0][nextDataIndex] = Convert.ToDouble(MyData.Tables[index_chart].Rows[0].Field<string>(DataTypesNext[index_chart]));
+                                dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[0].Field<string>(DataTypesNext[index_chart]));
+                                if(nextDataIndex > 0)
+                                {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal >= RTDataArray[index_chart][index_ID][0][nextDataIndex - 1] * 2 ? Convert.ToDouble(MyData.Tables[index_chart].Rows[0].Field<string>(DataTypesNext[index_chart])) : dblVal;
+                                }
+                                else
+                                {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal;
+                                }
+                                
                             }
 
                             DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
@@ -2436,10 +2478,10 @@ namespace DataVisualizerApp
                                     RT_Min[index_chart][index_ID][1][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
 
                                 }
-
+                                string currData = MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]);
+                                string titleNdata = currData.Length > 2 ? currData.Insert(2, ".") : currData;
                                 // display current value next to chart title
-                                formsPlots[index_chart].plt.Title(chartTitle + $"                           {MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]).Insert(2, ".")}", fontSize: 24);
-
+                                formsPlots[index_chart].plt.Title(chartTitle + $"                           {titleNdata}", fontSize: 24);
                             }
                             else
                             {
@@ -2472,7 +2514,9 @@ namespace DataVisualizerApp
                     }
                     for (int pltIndex = 0; pltIndex < plts.Count; pltIndex++)
                     {
-                        plts[pltIndex].maxRenderIndex = nextDataIndex - 1;
+                        //plts[pltIndex].minRenderIndex = 0;
+                        plts[pltIndex].maxRenderIndex = nextDataIndex;
+                        
                     }
 
                     for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
@@ -2480,16 +2524,19 @@ namespace DataVisualizerApp
 
                         formsPlots[formPltIndex].plt.AxisAuto();
                         formsPlots[formPltIndex].Render();
+                        
                     }
+                    
                 }
                 catch (Exception ex)
                 {
                     //MessageBox.Show(ex.Message, "에러 메시지");
                     throw new Exception(ex.Message + "\n" + ex.StackTrace);
                 }
+
                 nextDataIndex += 1;
-                timer2.Interval = 1000;
             }
+            
         }
 
 

@@ -23,6 +23,8 @@ namespace DataVisualizerApp
 
         public SqlConnection myConn { get; set; }
 
+        public string sqlConStr { get; set; }
+
         public List<string> FourRangeColmn { get; }
 
         public DataQuery()
@@ -30,7 +32,7 @@ namespace DataVisualizerApp
 
         }
 
-        public DataQuery(SqlConnection myConn, string dbName, string deviceTable, string sensorUsage, List<string> sensorUsageColumn, List<string> fourRangeColmn)
+        public DataQuery(SqlConnection myConn, string dbName, string deviceTable, string sensorUsage, List<string> sensorUsageColumn, List<string> fourRangeColmn, string conStr)
         {
             this.myConn = myConn;
             this.dbName = dbName;
@@ -38,6 +40,7 @@ namespace DataVisualizerApp
             SensorUsage = sensorUsage;
             SensorUsageColumn = sensorUsageColumn;
             FourRangeColmn = fourRangeColmn;
+            sqlConStr = conStr;
         }
 
 
@@ -404,6 +407,51 @@ namespace DataVisualizerApp
 
 
 
+        public DataSet GetAvgData(List<int> IDs, List<string> tbNames, int sampleNumber)
+        {
+            DataSet ds = new DataSet();
+            if (IDs.Count == 0 || tbNames.Count == 0)
+            {
+                return ds;
+            }
+            else
+            {
+                for (int ind = 0; ind < tbNames.Count; ind++)
+                {
+                    string queryTbName = $"d_{tbNames[ind].Substring(2)}";
+                    string sqlStr = $"SELECT sensor_id, {tbNames[ind]} FROM( ";
+                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                    string sql_tail = " )a ";
+
+                    for (int i = 0; i < IDs.Count; i++)
+                    {
+                        sqlStr += $"SELECT {IDs[i]} as sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]} FROM(";
+                        sqlStr += $"SELECT TOP {sampleNumber}  {IDs[i]} AS sensor_id, {tbNames[ind]}, dateandtime " +
+                                    $"FROM  {queryTbName} " +
+                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
+                                    $" ORDER BY dateandtime DESC ) a_{IDs[i]} GROUP BY sensor_id";
+                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+
+                    }
+
+                    sqlStr += sql_tail;
+                    sqlStr += " ORDER BY sensor_id ;";
+                    using (SqlConnection myConn = new SqlConnection(sqlConStr))
+                    {
+                        if (myConn.State != ConnectionState.Open)
+                        {
+                            myConn.Open();
+                        }
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+                        {
+                            da.Fill(ds, tbNames[ind]);
+                        }
+                    }
+                }
+            }
+
+            return ds;
+        }
 
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName)
         {
