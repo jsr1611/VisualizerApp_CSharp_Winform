@@ -80,7 +80,7 @@ namespace DataVisualizerApp
 
 
                 sql_head += sql_tail;
-                
+
                 try
                 {
                     if (myConn.State != System.Data.ConnectionState.Open)
@@ -96,7 +96,7 @@ namespace DataVisualizerApp
                 {
                     Console.WriteLine(ex.Message);
                 }
-                
+
             }
             return ds;
         }
@@ -306,7 +306,7 @@ namespace DataVisualizerApp
                             int i = 0;
                             while (myReader.Read())
                             {
-                                DataArrRT[index][i].Add(new string[] { myReader[tbName[index]].ToString(), myReader.GetValue(myReader.FieldCount-1).ToString() });
+                                DataArrRT[index][i].Add(new string[] { myReader[tbName[index]].ToString(), myReader.GetValue(myReader.FieldCount - 1).ToString() });
                                 i += 1;
                             }
                         }
@@ -342,11 +342,11 @@ namespace DataVisualizerApp
 
             SqlDataAdapter da = new SqlDataAdapter();
             da.SelectCommand = new SqlCommand(newSqlStr, myConn);
-            if(myConn.State != ConnectionState.Open)
+            if (myConn.State != ConnectionState.Open)
             {
                 myConn.Open();
             }
-            
+
             da.Fill(ds);
 
             return ds;
@@ -406,57 +406,67 @@ namespace DataVisualizerApp
         }
 
 
-
-        public DataSet GetAvgData(List<int> IDs, List<string> tbNames, int sampleNumber)
+        /// <summary>
+        /// 0, 0, 0, 5, 0, 2, 0 => (Mode = 제일 자주 나오는 값) 0을 return해주는 함수
+        /// </summary>
+        /// <param name="IDs"></param>
+        /// <param name="tbNames"></param>
+        /// <param name="sampleNumber"></param>
+        /// <returns></returns>
+        public DataSet GetAvgData(List<int> IDs, List<string> tbNames)
         {
-            DataSet ds = new DataSet();
+            string currTime = DateTime.Now.AddSeconds(-5).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
-                return ds;
+                return new DataSet();
             }
             else
             {
-                for (int ind = 0; ind < tbNames.Count; ind++)
+                using (DataSet ds = new DataSet())
                 {
-                    string queryTbName = $"d_{tbNames[ind].Substring(2)}";
-                    string sqlStr = $"SELECT sensor_id, {tbNames[ind]} FROM( ";
-                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
-                    string sql_tail = " )a ";
-
-                    for (int i = 0; i < IDs.Count; i++)
+                    for (int ind = 0; ind < tbNames.Count; ind++)
                     {
-                        sqlStr += $"SELECT {IDs[i]} as sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]} FROM(";
-                        sqlStr += $"SELECT TOP {sampleNumber}  {IDs[i]} AS sensor_id, {tbNames[ind]}, dateandtime " +
-                                    $"FROM  {queryTbName} " +
-                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
-                                    $" ORDER BY dateandtime DESC ) a_{IDs[i]} GROUP BY sensor_id";
-                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+                        string queryTbName = $"d_{tbNames[ind].Substring(2)}";
+                        string sqlStr = $"SELECT sensor_id, {tbNames[ind]} FROM( ";
+                        string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                        string sql_tail = " )a ";
 
-                    }
+                        for (int i = 0; i < IDs.Count; i++)
+                        {
+                            sqlStr += $"SELECT sensor_id, {tbNames[ind]} FROM( ";
+                            sqlStr += $" SELECT TOP 1 {IDs[i]} AS sensor_id, {tbNames[ind]} " +
+                                        $" FROM  {queryTbName} " +
+                                        $" WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}'" +
+                                        $" GROUP BY {tbNames[ind]}, {SensorUsageColumn[0]} " +
+                                        $" ORDER BY COUNT(*) DESC ) a_{IDs[i]} GROUP BY sensor_id, {tbNames[ind]} ";
+                            if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
-                    sqlStr += sql_tail;
-                    sqlStr += " ORDER BY sensor_id ;";
-                    using (SqlConnection myConn = new SqlConnection(sqlConStr))
-                    {
-                        if (myConn.State != ConnectionState.Open)
-                        {
-                            myConn.Open();
                         }
-                        using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+
+                        sqlStr += sql_tail;
+                        sqlStr += " ORDER BY sensor_id ;";
+                        using (SqlConnection myConn = new SqlConnection(sqlConStr))
                         {
-                            da.Fill(ds, tbNames[ind]);
+                            if (myConn.State != ConnectionState.Open)
+                            {
+                                myConn.Open();
+                            }
+                            using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+                            {
+                                da.Fill(ds, tbNames[ind]);
+                            }
                         }
                     }
+                    return ds;
                 }
             }
-
-            return ds;
         }
 
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName)
         {
             DataSet ds = new DataSet();
-            if(IDs.Count == 0 || tbName.Count == 0)
+            string currTime = DateTime.Now.AddSeconds(-5).ToString("yyyy-MM-dd HH:mm:ss");
+            if (IDs.Count == 0 || tbName.Count == 0)
             {
                 return ds;
             }
@@ -473,7 +483,7 @@ namespace DataVisualizerApp
                     {
                         sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
                                     $"FROM  {queryTbName} " +
-                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} " +
+                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' " +
                                     " ORDER BY dateandtime DESC ";
                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
