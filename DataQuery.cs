@@ -424,6 +424,10 @@ namespace DataVisualizerApp
             {
                 using (DataSet ds = new DataSet())
                 {
+
+
+                    SqlTransaction transaction;
+
                     for (int ind = 0; ind < tbNames.Count; ind++)
                     {
                         string queryTbName = $"d_{tbNames[ind].Substring(2)}";
@@ -445,16 +449,25 @@ namespace DataVisualizerApp
 
                         sqlStr += sql_tail;
                         sqlStr += " ORDER BY sensor_id ;";
-                        using (SqlConnection myConn = new SqlConnection(sqlConStr))
+
+                        try
                         {
-                            if (myConn.State != ConnectionState.Open)
+                            using (SqlConnection myConn = new SqlConnection(sqlConStr))
                             {
                                 myConn.Open();
+                                transaction = myConn.BeginTransaction();
+                                using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
+                                {
+                                    da.SelectCommand.Transaction = transaction;
+                                    da.Fill(ds, tbNames[ind]);
+                                    transaction.Commit();
+                                }
                             }
-                            using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
-                            {
-                                da.Fill(ds, tbNames[ind]);
-                            }
+                        }
+                        catch (System.Data.SqlClient.SqlException ex)
+                        {
+                            Console.WriteLine("Exception occurred:\n" + ex.Message);
+
                         }
                     }
                     return ds;
@@ -464,42 +477,63 @@ namespace DataVisualizerApp
 
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName)
         {
-            DataSet ds = new DataSet();
+
             string currTime = DateTime.Now.AddSeconds(-5).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbName.Count == 0)
             {
-                return ds;
+                return new DataSet();
             }
             else
             {
-                for (int ind = 0; ind < tbName.Count; ind++)
+                using (DataSet ds = new DataSet())
                 {
-                    string queryTbName = $"d_{tbName[ind].Substring(2)}";
-                    string sqlStr = "SELECT sensor_id, " + tbName[ind] + ", dateandtime FROM( ";
-                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
-                    string sql_tail = " )a ";
-
-                    for (int i = 0; i < IDs.Count; i++)
+                    string sqlStr = "";
+                    using (SqlConnection conn = new SqlConnection(sqlConStr))
                     {
-                        sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
-                                    $"FROM  {queryTbName} " +
-                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' " +
-                                    " ORDER BY dateandtime DESC ";
-                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+                        conn.Open();
+                        
+                        for (int ind = 0; ind < tbName.Count; ind++)
+                        {
+                            try
+                            {
+                                SqlTransaction RTDQ_transaction = conn.BeginTransaction();
+                                string queryTbName = $"d_{tbName[ind].Substring(2)}";
+                                sqlStr = "SELECT sensor_id, " + tbName[ind] + ", dateandtime FROM( ";
+                                string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                                string sql_tail = " )a ";
 
+                                for (int i = 0; i < IDs.Count; i++)
+                                {
+                                    sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
+                                                $"FROM  {queryTbName} " +
+                                                $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' " +
+                                                " ORDER BY dateandtime DESC ";
+                                    if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+
+                                }
+
+                                sqlStr += sql_tail;
+                                sqlStr += " ORDER BY sensor_id ;";
+
+                                using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
+                                {
+                                    sda.SelectCommand.Transaction = RTDQ_transaction;
+                                    sda.Fill(ds, tbName[ind]);
+                                    RTDQ_transaction.Commit();
+                                }
+                                RTDQ_transaction.Dispose();
+                            }
+                            catch(System.Exception ex)
+                            {
+                                Console.WriteLine("Exception occurred:\n" + ex.Message);
+                                Console.WriteLine($"SqlQuery skipped:\n{sqlStr}\n");
+                            }
+                        }
+                        
                     }
-
-                    sqlStr += sql_tail;
-                    sqlStr += " ORDER BY sensor_id ;";
-
-                    using (SqlDataAdapter da = new SqlDataAdapter(sqlStr, myConn))
-                    {
-                        da.Fill(ds, tbName[ind]);
-                    }
-
+                    return ds;
                 }
             }
-            return ds;
         }
     }
 

@@ -574,26 +574,31 @@ namespace DataVisualizerApp
         private (int, double) minMaxIndex(double[] items, bool maxMin)
         {
             int index = 0;
-            double target = items[0];
-            if (maxMin)
+            double target = 0;
+            if (items.Length > 0)
             {
-                for (int i = 1; i < items.Length; i++)
+                target = items[0];
+                // max val
+                if (maxMin)
                 {
-                    if (target < items[i])
+                    for (int i = 1; i < items.Length; i++)
                     {
-                        target = items[i];
-                        index = i;
+                        if (target < items[i])
+                        {
+                            target = items[i];
+                            index = i;
+                        }
                     }
                 }
-            }
-            else
-            {
-                for (int i = 1; i < items.Length; i++)
+                else // min val
                 {
-                    if (target > items[i])
+                    for (int i = 1; i < items.Length; i++)
                     {
-                        target = items[i];
-                        index = i;
+                        if (target > items[i])
+                        {
+                            target = items[i];
+                            index = i;
+                        }
                     }
                 }
             }
@@ -602,10 +607,10 @@ namespace DataVisualizerApp
 
         private void AnnotateMinMax(int index_DataType, List<string> maxVals, List<string> minVals)
         {
-            int annotY = -10 - 25 * (plt_list.Count - 1);
+            int annotY = -10 - 25 * (maxVals.Count-1);
             string maxLabel = "";
             string minLabel = "";
-            for (int index_ID = 0; index_ID < plt_list.Count; index_ID++)
+            for (int index_ID = 0; index_ID < maxVals.Count; index_ID++)
             {
                 maxLabel = maxVals.Count > index_ID ? maxVals[index_ID] + " " : " ";
                 minLabel = minVals.Count > index_ID ? minVals[index_ID] + " " : " ";
@@ -841,6 +846,7 @@ namespace DataVisualizerApp
             RangeLimitData = new Dictionary<string, List<long>>();
             timer1.Enabled = false;
             timer2.Enabled = false;
+            IDs_now.Sort();
             timer3_render.Enabled = false;
 
 
@@ -862,31 +868,13 @@ namespace DataVisualizerApp
             // 실시간 버튼 눌렀을 때
             if (button1_realtime.Image == btnClicked_big)// BackColor != Color.Transparent
             {
-                Console.WriteLine("Now RealTime");
-                /*timer1.Enabled = true;
-                timer2.Enabled = true;
-                timer3_render.Enabled = true;*/
-
-                IDs_now.Sort();
                 startEndTime[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 startEndTime[1] = "RT";
-
-                //Dictionary<int, Dictionary<string, bool>> sIDTableNames = new Dictionary<int, Dictionary<string, bool>>();
-                //GetDataFromAsDictionary()
-
-                //System.Data.DataSet ds = G_DataQuery.GetValuesFromDB(IDs_now, tableNames);
-
 
                 MyData = G_DataQuery.RealTimeDataQuery(IDs_now, DataTypesNow);
                 //List<List<List<string[]>>> realTimeData = G_DataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
                 IDs_next = new List<int>(IDs_now);
                 DataTypesNext = new List<string>(DataTypesNow);
-
-
-
-                // 데이터를 DataSet형테로 쿼리하는 부분
-                //string newSqlStr = G_DataQuery.GetSqlQueryStrFor(DataTypesNext, IDs_next);
-                //DataSet ds = G_DataQuery.GetValuesFromDB(newSqlStr);
 
                 if (MyData.Tables.Count > 0) //(realTimeData.Count != 0)
                 {
@@ -899,38 +887,32 @@ namespace DataVisualizerApp
             //24시간 버튼 눌렀을 때
             else if (button1_24h.Image == btnClicked_big) //BackColor != Color.Transparent
             {
-                Console.WriteLine("Now 24H");
-                IDs_now.Sort();
                 startEndTime[0] = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
                 startEndTime[1] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
                 progressbarThread = new Thread(new ThreadStart(WaitForm));
                 progressbarThread.Start();
 
-                //Console.WriteLine("mapvals: ", mapVals.Count, mapTime.Count);
                 MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
-
                 ScotPlot(MyData, DataTypesNow, IDs_now, false);
-
-                //ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndTime, false);
 
             }
             // 기간 설정 버튼 눌렀을 때
             else
             {
-                timer1.Stop();
-                timer2.Stop();
-                timer3_render.Stop();
-                IDs_now.Sort();
                 if (datePicker1_start.Value < datePicker2_end.Value)
                 {
                     startEndTime[0] = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
                     startEndTime[1] = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
                     progressbarThread = new Thread(new ThreadStart(WaitForm));
                     progressbarThread.Start();
-
+/*
                     MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
-                    ScotPlot(MyData, DataTypesNext, IDs_next, false);
+
+                    ScotPlot(MyData, DataTypesNow, IDs_now, false);
+*/
+                    MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
+                    ScotPlot(MyData, DataTypesNow, IDs_now, false);
                     //ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndTime, false);
 
                 }
@@ -1099,12 +1081,14 @@ namespace DataVisualizerApp
                 if (!RT_flag)
                 {
                     List<List<PlottableSignalXYConst<double, double>>> MyPltList = new List<List<PlottableSignalXYConst<double, double>>>();
-                    PlottableSignalXYConst<double, double> plottableXYConst; // = new PlottableSignalXYConst<double, double>();
+                    PlottableSignalXYConst<double, double> plottableXYConst; 
                     for (int index_DataType = 0; index_DataType < MyDataTypes.Count; index_DataType++)
                     {
-                        plt_list.Add(new List<PlottableSignal>());
+                        //plt_list.Add(new List<PlottableSignal>());
                         plottableAnnotationsMaxVal2.Add(new List<PlottableAnnotation>());
                         plottableAnnotationsMinVal2.Add(new List<PlottableAnnotation>());
+                        MyPltList.Add(new List<PlottableSignalXYConst<double, double>>());
+
 
 
                         for (int i = 1; i < SensorUsageColumn.Count; i++)
@@ -1119,15 +1103,14 @@ namespace DataVisualizerApp
                         List<string> maxValues = new List<string>();
                         List<string> minValues = new List<string>();
 
-                        //System.Data.DataSet MyData = G_DataQuery.GetValuesFromDB(startEndDate[0], startEndDate[1], MySqlNames[index_DataType], MyIDs);
-                        //int emptyTableCounter = 0;
                         if (MyData.Tables.Count > 0 && MyData.Tables[index_DataType].Rows.Count > 0)
                         {
                             double[] xs_time;
                             double[] ys_data;
                             for (int i = 0; i < MyIDs.Count; i++)
                             {
-                                if (MyData.Tables[index_DataType].Rows.Count > i)
+                                bool sensor_idExists = MyData.Tables[index_DataType].AsEnumerable().Any(row => MyIDs[i] == row.Field<int>("sensor_id"));
+                                if (sensor_idExists)
                                 {
                                     List<double> myData = new List<double>();
                                     if (MyDataTypes[index_DataType].Equals(SensorUsageColumn[1]) || MyDataTypes[index_DataType].Equals(SensorUsageColumn[2]))
@@ -1155,23 +1138,23 @@ namespace DataVisualizerApp
                                         maxValues.Add(String.Format("{0:n0}", max));
                                         minValues.Add(String.Format("{0:n0}", min));
                                     }
+                                    plottableXYConst = formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
+                                    MyPltList[index_DataType].Add(plottableXYConst);
                                 }
                                 else
                                 {
                                     Console.WriteLine("1. Skipped this chart settings because there is no data to show.");
-                                    xs_time = new double[1];
-                                    ys_data = new double[1];
+                                    /*xs_time = new double[1];
+                                    ys_data = new double[1];*/
 
                                 }
-                                plottableXYConst = formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
-                                MyPltList[index_DataType].Add(plottableXYConst);
                             }
 
                             pltStyler(MyDataTypes, index_DataType, chartTitle);
 
-
                             DrawAnnotationBackground(index_DataType, MyPltList[index_DataType]);
                             AnnotateMinMax(index_DataType, maxValues, minValues);
+                            formsPlots[index_DataType].plt.Title(chartTitle + $"                           {maxValues[maxValues.Count-1]}");
                         }
                         else
                         {
@@ -1258,7 +1241,7 @@ namespace DataVisualizerApp
                                         RT_Min3[index_chart][index_ID][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
 
                                         double dblVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D;
-                                        double dblAvg = Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D;
+                                        double dblAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D : 0;
 
 
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = (dblAvg != 0) && ((dblVal - dblAvg) >= 1 || (dblVal - dblAvg) <= -1) ? dblAvg : dblVal;
@@ -1270,7 +1253,7 @@ namespace DataVisualizerApp
                                         RT_Min3[index_chart][index_ID][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
 
                                         Int64 intVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
-                                        double intAvg = Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
+                                        double intAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) : 0;
 
 
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && ((intVal - intAvg) >= 1 || (intVal - intAvg) <= -1) ? intAvg : intVal;
@@ -1440,7 +1423,8 @@ namespace DataVisualizerApp
             {
                 string chartTitle = "";
                 double dblVal = 0.0D;
-                Double avgVal = 0.0D;
+                double avgVal = 0.0D;
+                double oldVal = 0.0D;
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 try
@@ -1469,9 +1453,9 @@ namespace DataVisualizerApp
 
                                 if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
+                                    oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
-                                    
-                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? (Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d) : avgVal;
+                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? (Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d) : oldVal;
 
                                     if (nextDataIndex > 0)
                                     {
@@ -1484,8 +1468,9 @@ namespace DataVisualizerApp
                                 }
                                 else
                                 {
+                                    oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]));
-                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) : avgVal;
+                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) : oldVal;
                                     if (nextDataIndex > 0)
                                     {
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal >= avgVal * 2.0 ? avgVal : dblVal;
@@ -1610,7 +1595,7 @@ namespace DataVisualizerApp
             while (true)
             {
                 AvgData = G_DataQuery.GetAvgData(IDs_next, DataTypesNext);
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
             }
         }
 
