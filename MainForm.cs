@@ -656,25 +656,7 @@ namespace DataVisualizerApp
                         // do nothing
                         break;
                 }
-
-
-                /*
-                                if (MyIDs.Count == 4)
-                                {
-                                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 60, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
-                                }
-                                else if (MyIDs.Count == 3)
-                                {
-                                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANN", -10, -10, fontSize: 50, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
-                                }
-                                else if (MyIDs.Count == 2)
-                                {
-                                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTA", -10, -10, fontSize: 30, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
-                                }
-                                else
-                                {
-                                    formsPlots[index_DataType].plt.PlotAnnotation(label: "ANNOTATION BOX", -10, -10, fontSize: 13, fontColor: Color.White, fillColor: Color.White, fillAlpha: 1);
-                                }*/
+       
             }
         }
 
@@ -771,50 +753,6 @@ namespace DataVisualizerApp
             }
         }
 
-
-        /// <summary>
-        /// 시각화하려는 데이터 갯수를 계산하는 함수
-        /// </summary>
-        /// <param name="datalist"></param>
-        /// <param name="IDs"></param>
-        /// <param name="flag"></param>
-        /// <returns></returns>
-        public int CountNumOfElmnt(List<List<List<string[]>>> datalist, List<int> IDs, string flag)
-        {
-            if (flag.Contains("all"))
-            {
-                int cntr_tmp = 0; //임시 카운터변수
-                int numOfElmnt = datalist[0][0].Count; // 데이터 개수 : number of Elements(temp, humid, part03, part05)
-                                                       //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
-                for (int ind = 0; ind < datalist.Count; ind++)
-                {
-                    for (int ind2 = 0; ind2 < IDs.Count; ind2++)
-                    {
-                        if (numOfElmnt > datalist[ind][ind2].Count && datalist[ind][ind2].Count != 0)
-                        {
-                            numOfElmnt = datalist[ind][ind2].Count;
-                        }
-                        //Console.WriteLine("\n\n\nCOUNTERlength: "+graphDataAll[ind][ind2].Count.ToString());
-                        cntr_tmp += 1;
-                    }
-                }
-                return numOfElmnt;
-            }
-            else
-            {
-                int numOfElmnt = datalist[0][0].Count; // 데이터 개수 : number of Elements(temp, humid, part03, part05)
-                //시각화되는 데이터 개수를 동일하게 하기위해 최소 데이터 개수(Min num of elmnts) 계산하기
-                for (int ind = 0; ind < IDs.Count; ind++)
-                {
-                    if (numOfElmnt > datalist[0][ind].Count && datalist[0][ind].Count != 0)
-                    {
-                        numOfElmnt = datalist[0][ind].Count;
-                    }
-                    //Console.WriteLine("\n\n\nCOUNTERlength: "+graphDataAll[ind][ind2].Count.ToString());
-                }
-                return numOfElmnt;
-            }
-        }
 
 
         /// <summary>
@@ -1301,7 +1239,7 @@ namespace DataVisualizerApp
                         PlottableAnnotation pltAnnot_min;
                         string numberStrMax = "0";
                         string numberStrMin = "0";
-                        
+
 
                         // Plot Annotations separately to put them above the charts.
                         for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
@@ -1330,7 +1268,7 @@ namespace DataVisualizerApp
 
                                     pltAnnot.label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
                                     pltAnnot_min.label = minLabel + " " + char.ConvertFromUtf32(0x2193);
-                                    
+
                                 }
                                 else
                                 {
@@ -1421,7 +1359,6 @@ namespace DataVisualizerApp
                 timer1.Interval = 1000;
             }
         }
-
 
 
 
@@ -1747,197 +1684,6 @@ namespace DataVisualizerApp
 
             }
             return response;
-        }
-
-
-
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// 최대값과 인덱스를 반환해 주는 함수
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private Tuple<string, int> FindMax(string[] data, List<string> MyDT, int index_MyDT)
-        {
-            //var DATA = data[0][1];
-
-            if (data.Length == 0) { throw new InvalidOperationException("Empty list"); }
-            double max = Convert.ToDouble(data[0]);
-            int index = 0;
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (max <= Convert.ToDouble(data[i]))
-                {
-                    max = Convert.ToDouble(data[i]);
-                    index = i;
-                }
-            }
-            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
-            {
-                return new Tuple<string, int>(max.ToString("F", CultureInfo.InvariantCulture), index);
-            }
-            else
-            {
-                return new Tuple<string, int>(String.Format("{0:n0}", max), index);
-            }
-
-            //Console.WriteLine("\nMax: {0}", max);
-
-        }
-
-
-        private Tuple<string, int> FindMax2(List<string> data, List<string> MyDT, int index_MyDT)
-        {
-            //var DATA = data[0][1];
-
-            if (data.Count == 0) { throw new InvalidOperationException("Empty list"); }
-            double max = Convert.ToDouble(data[0]);
-            int index = 0;
-            for (int i = 0; i < data.Count; i++)
-            {
-                if (max <= Convert.ToDouble(data[i]))
-                {
-                    max = Convert.ToDouble(data[i]);
-                    index = i;
-                }
-            }
-            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
-            {
-                return new Tuple<string, int>(max.ToString("F", CultureInfo.InvariantCulture), index);
-            }
-            else
-            {
-                return new Tuple<string, int>(String.Format("{0:n0}", max), index);
-            }
-
-            //Console.WriteLine("\nMax: {0}", max);
-
-        }
-
-
-        /// <summary>
-        /// 최소값과 인덱스를 반환해 주는 함수
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private Tuple<string, int> FindMin(string[] data, List<string> MyDT, int index_MyDT)
-        {
-            if (data.Length == 0) { throw new InvalidOperationException("Empty list"); }
-            double min = Convert.ToDouble(data[0]);
-            int index = 0;
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (min >= Convert.ToDouble(data[i]))
-                {
-                    min = Convert.ToDouble(data[i]);
-                    index = i;
-                }
-            }
-            //Console.WriteLine("\nMax: {0}", max);
-            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
-            {
-                return new Tuple<string, int>(min.ToString("F", CultureInfo.InvariantCulture), index);
-            }
-            else
-            {
-
-                return new Tuple<string, int>(String.Format("{0:n0}", min), index);
-            }
-        }
-
-
-        private Tuple<string, int> FindMin2(List<string> data, List<string> MyDT, int index_MyDT)
-        {
-            if (data.Count == 0) { throw new InvalidOperationException("Empty list"); }
-            double min = Convert.ToDouble(data[0]);
-            int index = 0;
-            for (int i = 0; i < data.Count; i++)
-            {
-                if (min >= Convert.ToDouble(data[i]))
-                {
-                    min = Convert.ToDouble(data[i]);
-                    index = i;
-                }
-            }
-            //Console.WriteLine("\nMax: {0}", max);
-            if (MyDT[index_MyDT].Contains("temp") || MyDT[index_MyDT].Contains("humid"))
-            {
-                return new Tuple<string, int>(min.ToString("F", CultureInfo.InvariantCulture), index);
-            }
-            else
-            {
-
-                return new Tuple<string, int>(String.Format("{0:n0}", min), index);
-            }
-        }
-
-
-        private List<int> IDs_AvailCheck()
-        {
-            List<int> SensorIDs_available = new List<int>();
-            List<string> sLocations = new List<string>();
-            List<string> sZones = new List<string>();
-            string sql_getIDs = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[S_DeviceTableColumn.Count - 1]} = 'YES'";
-            var cmd = new SqlCommand(sql_getIDs, myConn);
-            try
-            {
-                if (myConn.State != ConnectionState.Open)
-                {
-                    myConn.Open();
-                }
-                using (var myReader = cmd.ExecuteReader())
-                {
-                    if (myReader.HasRows)
-                    {
-                        while (myReader.Read())
-                        {
-                            //string[] rowInfo = { myReader.GetValue(0).ToString(), myReader.GetValue(1).ToString(), myReader.GetValue(2).ToString(), myReader.GetValue(3).ToString() };
-                            SensorIDs_available.Add(Convert.ToInt32(myReader[S_DeviceTableColumn[0]]));
-                        }
-
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("조회할 데이터가 없습니다.");
-                    }
-                }
-
-                /*}
-                else
-                {
-                    if(CheckInternetConnection() == false)
-                    {
-                        MessageBox.Show("인터넷 연결에 실폐했습니다. 본 컴퓨터가 인터넷에 연결되어 있는지 확인하십시오.", "인터넷 연결 에러");
-                    }
-                    else
-                    {
-                        MessageBox.Show("SQL Server에 연결을 설정하는 중에 네트워크 관련 또는 인스턴스 관련 오류가 발생했습니다. " +
-                        "서버를 찾을 수 없거나 액세스할 수 없습니다. 인스턴스 이름이 올바르고 SQL Server가 원격 " +
-                        "연결을 허용하도록 구성되어 있는지 확인하십시오.\n(provider: Named Pipes Provider, error: " +
-                        "40 - SQL Server에 대한 연결을 열 수 없습니다.)", "SQL Server Connection Error");
-                    }
-
-                }*/
-                // 
-
-            }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "에러 매시지"); }
-            finally
-            {
-                if (myConn.State == ConnectionState.Open)
-                {
-                    myConn.Close();
-                }
-            }
-            return SensorIDs_available;
         }
 
 
@@ -2290,9 +2036,6 @@ namespace DataVisualizerApp
         }
 
 
-
-
-
         private void btn2_data_Click(object sender, EventArgs e)
         {
             //온도, 습도, 파티클 등 8개 버튼
@@ -2518,8 +2261,6 @@ namespace DataVisualizerApp
         }
 
 
-
-
         /// <summary>
         /// 사용여부에 맞게 버튼을 선텍할수 있게 해주는 함수
         /// </summary>
@@ -2549,7 +2290,6 @@ namespace DataVisualizerApp
 
             }
         }
-
 
 
         private string GetButtonText(string sqlStr, int button_index)
@@ -2617,9 +2357,6 @@ namespace DataVisualizerApp
 
 
 
-
-
-
         private void btn3_address_Click(object sender, EventArgs e)
         {
             Button button = (Button)sender; // receive clicked button properties
@@ -2638,16 +2375,6 @@ namespace DataVisualizerApp
             }
 
         }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2676,9 +2403,6 @@ namespace DataVisualizerApp
                 toolTip1.SetToolTip(button, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
             }
         }
-
-
-
 
 
 
@@ -2729,8 +2453,6 @@ namespace DataVisualizerApp
             //formsPlot.plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
             //throw new NotImplementedException();
         }
-
-
 
 
     }
