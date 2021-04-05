@@ -720,8 +720,8 @@ namespace DataVisualizerApp
                         string min = MyDataVals[0]; //tupleMin.Item1;
                         int indexOfMin = Convert.ToInt32(MyDataVals[1]); //tupleMin.Item2;
 
-                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
-                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(max + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
+                        formsPlots[index_DataType].plt.PlotAnnotation(min + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[index_ID], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
 
                         annotY += 25;
 
@@ -1206,7 +1206,7 @@ namespace DataVisualizerApp
                                         double intAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) : 0;
 
 
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && ((intVal - intAvg) >= 1 || (intVal - intAvg) <= -1) ? intAvg : intVal;
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && (intAvg*2 <= intVal || intVal <= intAvg/2) ? intAvg : intVal;
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     }
                                     //nextDataIndex += -1;
@@ -1387,6 +1387,7 @@ namespace DataVisualizerApp
                 double dblVal = 0.0D;
                 double avgVal = 0.0D;
                 double oldVal = 0.0D;
+                double finalVal = 0.0D;
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 try
@@ -1404,7 +1405,7 @@ namespace DataVisualizerApp
                     {
                         for (int i = 1; i < SensorUsageColumn.Count; i++)
                         {
-                            if (DataTypesNext[index_chart].Contains(SensorUsageColumn[i])) { chartTitle = SensorNames[i - 1]; }
+                            if (DataTypesNext[index_chart].Contains(SensorUsageColumn[i])) { chartTitle = SensorNames[i - 1]; break; }
                         }
 
                         for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
@@ -1419,28 +1420,35 @@ namespace DataVisualizerApp
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
                                     avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? (Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d) : oldVal;
 
-                                    if (nextDataIndex > 0)
+                                    /*if (nextDataIndex > 0)
                                     {
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal >= (avgVal + 1.0) ? avgVal : dblVal;
+                                        
                                     }
                                     else
                                     {
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal;
-                                    }
+                                    }*/
+
+                                    finalVal = (dblVal >= (avgVal + 1.0) || dblVal <= (avgVal - 1.0)) ? avgVal : dblVal;
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                 }
                                 else
                                 {
                                     oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]));
                                     avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) : oldVal;
-                                    if (nextDataIndex > 0)
+
+                                    /*if (nextDataIndex > 0)
                                     {
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal >= avgVal * 2.0 ? avgVal : dblVal;
+                                        
                                     }
                                     else
                                     {
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = dblVal;
-                                    }
+                                    }*/
+
+                                    finalVal = (dblVal >= avgVal * 2.0 || dblVal <= avgVal / 2.0) ? avgVal : dblVal;
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
                                 }
 
@@ -1449,35 +1457,35 @@ namespace DataVisualizerApp
 
                                 if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
-                                    if (dblVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                    if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
                                     {
-                                        RT_Max3[index_chart][index_ID][0] = dblVal.ToString();
+                                        RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
                                         RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
                                     }
 
-                                    if (dblVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                    if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
                                     {
-                                        RT_Min3[index_chart][index_ID][0] = dblVal.ToString();
+                                        RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
                                         RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
 
                                     }
                                     string currData = MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]);
                                     string titleNdata = currData.Length > 2 ? currData.Insert(2, ".") : currData;
                                     // display current value next to chart title
-                                    formsPlots[index_chart].plt.Title(chartTitle + $"                           {dblVal}", fontSize: 24);
-                                    Console.WriteLine($"1.  chartID:{index_chart}, sensor:{index_ID}: currVal: {dblVal}");
+                                    formsPlots[index_chart].plt.Title(chartTitle + $"                           {finalVal}", fontSize: 24);
+                                    Console.WriteLine($"1.  chartID:{index_chart}, sensor:{index_ID}: currVal: {finalVal}");
                                 }
                                 else
                                 {
-                                    if (dblVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                    if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
                                     {
-                                        RT_Max3[index_chart][index_ID][0] = dblVal.ToString();
+                                        RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
                                         RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
                                     }
 
-                                    if (dblVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                    if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
                                     {
-                                        RT_Min3[index_chart][index_ID][0] = dblVal.ToString();
+                                        RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
                                         RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
                                     }
                                     string currentVal = MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]);
