@@ -336,7 +336,7 @@
             // 
             // timer3_render
             // 
-            this.timer3_render.Interval = 1000;
+            this.timer3_render.Interval = 3000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
             // 
             // MainForm
