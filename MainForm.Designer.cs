@@ -56,6 +56,8 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
+            this.radioButton = new System.Windows.Forms.RadioButton();
+            this.radioButton_p = new System.Windows.Forms.RadioButton();
             this.panel1_menu.SuspendLayout();
             this.panel2_ChartArea.SuspendLayout();
             this.panel_logo.SuspendLayout();
@@ -103,6 +105,8 @@
             // 
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
             this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1_menu.Controls.Add(this.radioButton_p);
+            this.panel1_menu.Controls.Add(this.radioButton);
             this.panel1_menu.Controls.Add(this.listView1);
             this.panel1_menu.Controls.Add(this.button1_chartRT);
             this.panel1_menu.Controls.Add(this.button1_numRT);
@@ -331,13 +335,37 @@
             // 
             // timer2
             // 
-            this.timer2.Interval = 1000;
+            this.timer2.Interval = 30000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // timer3_render
             // 
-            this.timer3_render.Interval = 3000;
+            this.timer3_render.Interval = 10000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
+            // 
+            // radioButton
+            // 
+            this.radioButton.AutoSize = true;
+            this.radioButton.Location = new System.Drawing.Point(64, 147);
+            this.radioButton.Name = "radioButton";
+            this.radioButton.Size = new System.Drawing.Size(115, 16);
+            this.radioButton.TabIndex = 76;
+            this.radioButton.TabStop = true;
+            this.radioButton.Text = "온습도 및 파티클";
+            this.radioButton.UseVisualStyleBackColor = true;
+            this.radioButton.CheckedChanged += new System.EventHandler(this.radioButton_CheckedChanged);
+            // 
+            // radioButton_p
+            // 
+            this.radioButton_p.AutoSize = true;
+            this.radioButton_p.Location = new System.Drawing.Point(261, 147);
+            this.radioButton_p.Name = "radioButton_p";
+            this.radioButton_p.Size = new System.Drawing.Size(75, 16);
+            this.radioButton_p.TabIndex = 77;
+            this.radioButton_p.TabStop = true;
+            this.radioButton_p.Text = "차압 센서";
+            this.radioButton_p.UseVisualStyleBackColor = true;
+            this.radioButton_p.CheckedChanged += new System.EventHandler(this.radioButton_CheckedChanged);
             // 
             // MainForm
             // 
@@ -386,6 +414,8 @@
         private System.Windows.Forms.ColumnHeader column2_Zone;
         public System.Windows.Forms.Timer timer2;
         public System.Windows.Forms.Timer timer3_render;
+        private System.Windows.Forms.RadioButton radioButton_p;
+        private System.Windows.Forms.RadioButton radioButton;
     }
 }
 

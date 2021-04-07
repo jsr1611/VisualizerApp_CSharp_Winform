@@ -23,17 +23,23 @@ namespace DataVisualizerApp
         public string sqlConStr { get; set; }
 
         public string S_DeviceTable { get; set; }
+        public string S_DeviceTable_p { get; set; }
         public List<string> S_DeviceTableColumn { get; set; }
         public List<string> S_FourRangeColmn { get; }
 
         public string SensorUsage { get; set; }
+        public string SensorUsage_p { get; set; }
 
         public List<string> SensorUsageColumn { get; set; }
+        public List<string> SensorUsageColumn_p { get; set; }
 
         public List<string> SensorNames { get; set; }
+        public List<string> SensorNames_p { get; set; }
         public Button[] Btn1_time { get; set; }
         public Button[] Btn2_DataType { get; set; }
+        public Button[] Btn2_DataType_p { get; set; }
         public Button[] Btn3_SensorLocation { get; set; }
+        public Button[] Btn3_SensorLocation_p { get; set; }
         public Button button_show = new Button()
         {
             FlatAppearance = {
@@ -85,6 +91,8 @@ namespace DataVisualizerApp
         public int nextDataIndex = 1;
         public List<FormsPlot> formsPlots { get; set; }
         public List<PlottableSignal> plts = new List<PlottableSignal>();
+
+
         public List<List<PlottableSignal>> plt_list = new List<List<PlottableSignal>>();
 
         public PlottableSignal signalPlot;
@@ -116,13 +124,21 @@ namespace DataVisualizerApp
             myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
             S_DeviceTable = "SENSOR_INFO";
+            S_DeviceTable_p = S_DeviceTable + "_p";
+
             SensorUsage = "SensorUsage";
+            SensorUsage_p = SensorUsage + "_p";
             SensorUsageColumn = new List<string>();
-            SensorUsageColumn = GetTableColumnNames(SensorUsage);
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
+            
+            SensorUsageColumn = GetTableColumnNames(SensorUsage);
+            SensorUsageColumn_p = GetTableColumnNames(SensorUsage_p);
+
+            
             S_FourRangeColmn = new List<string>() { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
             RangeNames = new List<string>() { "상한2", "상한1", "하한1", "하한2" };
             SensorNames = new List<string>(); // "온도(°C)", "습도(%)", "파티클(0.3μm)", "파티클(0.5μm)", "파티클(1.0μm)", "파티클(2.5μm)", "파티클(5.0μm)", "파티클(10.0μm)" };
+            SensorNames_p = new List<string>();
             for (int i = 1; i < SensorUsageColumn.Count; i++)
             {
                 if (SensorUsageColumn[i].Contains("t"))
@@ -153,6 +169,14 @@ namespace DataVisualizerApp
 
             }
             //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
+
+            for(int i=1; i<SensorUsageColumn_p.Count; i++)
+            {
+                string name = SensorUsageColumn_p[i].Substring(2);
+                name = name.Substring(0, name.LastIndexOf("U"));
+                SensorNames_p.Add(name);
+            }
+
 
             DeviceZoneLocInfo = new Dictionary<string, List<string>>();
             string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]};";
@@ -187,41 +211,13 @@ namespace DataVisualizerApp
 
             //CreateButtonsForSensors();
             Btn2_DataType = new Button[SensorUsageColumn.Count - 1];
+            Btn2_DataType_p = new Button[SensorUsageColumn_p.Count - 1];
 
             int btn_X = Btn1_time[0].Bounds.X;
             int btn_Y = Btn1_time[0].Bounds.Y + Btn1_time[0].Bounds.Height * 2;
 
-            for (int btn2_index = 0; btn2_index < Btn2_DataType.Length; btn2_index++)
-            {
-                Button button = new Button()
-                {
-                    FlatAppearance = {
-                            BorderSize = 0,
-                            MouseDownBackColor = Color.Transparent,
-                            MouseOverBackColor=Color.Transparent,
-                            BorderColor=Color.White },
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.Transparent,
-                    Image = btnUnClicked_small
-                };
-
-                button.Name = $"{SensorUsageColumn[btn2_index + 1]}";
-                button.Text = SensorNames[btn2_index];
-                button.Font = new Font(button.Font.FontFamily, 12);
-                button.SetBounds(btn_X, btn_Y, Btn1_time[0].Bounds.Width * 3 / 4, Btn1_time[0].Bounds.Height);
-                btn_X += ((Btn1_time[2].Bounds.X + Btn1_time[2].Bounds.Width) / 4);
-                if (button.Right + (btn_X - button.Right) + button.Width >= panel1_menu.Right)
-                {
-                    btn_X = Btn1_time[0].Bounds.X;
-                    btn_Y += button.Height;
-                }
-                button.Click += new EventHandler(this.btn2_data_Click);
-                panel1_menu.Controls.Add(button);
-                button.Visible = false;
-                Btn2_DataType[btn2_index] = button;
-
-            }
-
+            
+            GenerateButtonsHere(Btn2_DataType, btn2_data_Click, btn_X, btn_Y);
 
 
 
@@ -289,6 +285,42 @@ namespace DataVisualizerApp
             }
             label_Title_main.Left = panel2_ChartArea.Bounds.Width / 2 - label_Title_main.Bounds.Width / 2;
             label_title_ver.Left = label_Title_main.Right + 15;
+        }
+
+        private Button[] GenerateButtonsHere(Button[] Btns, int btn_X, int btn_Y, int btn_Y1)
+        {
+            for (int btn2_index = 0; btn2_index < Btns.Length; btn2_index++)
+            {
+                Button button = new Button()
+                {
+                    FlatAppearance = {
+                            BorderSize = 0,
+                            MouseDownBackColor = Color.Transparent,
+                            MouseOverBackColor=Color.Transparent,
+                            BorderColor=Color.White },
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.Transparent,
+                    Image = btnUnClicked_small
+                };
+
+                button.Name = $"{SensorUsageColumn[btn2_index + 1]}";
+                button.Text = SensorNames[btn2_index];
+                button.Font = new Font(button.Font.FontFamily, 12);
+                button.SetBounds(btn_X, btn_Y, Btn1_time[0].Bounds.Width * 3 / 4, Btn1_time[0].Bounds.Height);
+                btn_X += ((Btn1_time[2].Bounds.X + Btn1_time[2].Bounds.Width) / 4);
+                if (button.Right + (btn_X - button.Right) + button.Width >= panel1_menu.Right)
+                {
+                    btn_X = Btn1_time[0].Bounds.X;
+                    btn_Y += button.Height;
+                }
+                button.Click += new EventHandler(this.btn2_data_Click);
+                panel1_menu.Controls.Add(button);
+                button.Visible = false;
+                Btns[btn2_index] = button;
+
+            }
+
+            return Btns;
         }
 
 
@@ -656,7 +688,7 @@ namespace DataVisualizerApp
                         // do nothing
                         break;
                 }
-       
+
             }
         }
 
@@ -867,14 +899,6 @@ namespace DataVisualizerApp
             }
 
         }
-
-
-
-
-
-
-
-
 
 
 
@@ -1191,8 +1215,7 @@ namespace DataVisualizerApp
                                         RT_Min3[index_chart][index_ID][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
 
                                         double dblVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D;
-                                        double dblAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D : 0;
-
+                                        double dblAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart])) / 100.0D : double.NaN;
 
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = (dblAvg != 0) && ((dblVal - dblAvg) >= 1 || (dblVal - dblAvg) <= -1) ? dblAvg : dblVal;
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
@@ -1203,10 +1226,10 @@ namespace DataVisualizerApp
                                         RT_Min3[index_chart][index_ID][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
 
                                         Int64 intVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
-                                        double intAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) : 0;
+                                        double intAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart])) : double.NaN;
 
 
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && (intAvg*2 <= intVal || intVal <= intAvg/2) ? intAvg : intVal;
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     }
                                     //nextDataIndex += -1;
@@ -1214,6 +1237,9 @@ namespace DataVisualizerApp
                                 }
                                 else
                                 {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
+                                    RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
+
                                     Console.WriteLine("1. Skipped this chart settings because there is no data to show.");
                                 }
 
@@ -1221,7 +1247,9 @@ namespace DataVisualizerApp
                                 double xs = dtime_min.ToOADate();
 
                                 double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerSecond);
+
                                 signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[MyIDs[index_ID] - 1].Text, color: colorset[index_ID]);
+
 
                                 plts.Add(signalPlot);
                                 plt_list[index_chart].Add(signalPlot);
@@ -1232,13 +1260,14 @@ namespace DataVisualizerApp
                             pltStyler(MyDataTypes, index_chart, chartTitle);
                             formsPlots[index_chart].Render();
                         }
+
                         AnnotationBackground(plt_list, MyDataTypes, MyIDs);
 
 
                         PlottableAnnotation pltAnnot;
                         PlottableAnnotation pltAnnot_min;
-                        string numberStrMax = "0";
-                        string numberStrMin = "0";
+                        string numberStrMax = " ";
+                        string numberStrMin = " ";
 
 
                         // Plot Annotations separately to put them above the charts.
@@ -1246,14 +1275,14 @@ namespace DataVisualizerApp
                         {
                             plottableAnnotationsMaxVal2.Add(new List<PlottableAnnotation>());
                             plottableAnnotationsMinVal2.Add(new List<PlottableAnnotation>());
-                            int annotY = -10 - 25 * (plt_list[index_chart].Count - 1);
+                            int annotY = -10 - 23 * (plt_list[index_chart].Count - 1);
                             for (int i = 0; i < MyIDs.Count; i++)
                             {
-                                string maxLabel = "0";
-                                string minLabel = "0";
+                                string maxLabel = " ";
+                                string minLabel = " ";
 
-                                pltAnnot = formsPlots[index_chart].plt.PlotAnnotation(label: maxLabel + " " + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
-                                pltAnnot_min = formsPlots[index_chart].plt.PlotAnnotation(label: minLabel + " " + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 1, lineWidth: 0, fillColor: Color.White);
+                                pltAnnot = formsPlots[index_chart].plt.PlotAnnotation(label: maxLabel + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
+                                pltAnnot_min = formsPlots[index_chart].plt.PlotAnnotation(label: minLabel + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
 
                                 if (MyData.Tables[index_chart].Rows.Count > i)
                                 {
@@ -1274,7 +1303,7 @@ namespace DataVisualizerApp
                                 {
                                     Console.WriteLine("2. Skipped this annotation settings because there is no data to show.");
                                 }
-                                annotY += 25;
+                                annotY += 23;
                                 plottableAnnotationsMaxVal2[index_chart].Add(pltAnnot);
                                 plottableAnnotationsMinVal2[index_chart].Add(pltAnnot_min);
                             }
@@ -1384,10 +1413,10 @@ namespace DataVisualizerApp
             else
             {
                 string chartTitle = "";
-                double dblVal = 0.0D;
-                double avgVal = 0.0D;
-                double oldVal = 0.0D;
-                double finalVal = 0.0D;
+                double dblVal = double.NaN;
+                double avgVal = double.NaN;
+                double oldVal = double.NaN;
+                double finalVal = double.NaN;
                 string now = DateTime.Now.ToString("HH:mm:ss");
                 DateTime resetTime = Convert.ToDateTime(now);
                 try
@@ -1418,7 +1447,7 @@ namespace DataVisualizerApp
                                 {
                                     oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
-                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? (Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d) : oldVal;
+                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? (Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<int>(DataTypesNext[index_chart])) / 100d) : oldVal;
 
                                     /*if (nextDataIndex > 0)
                                     {
@@ -1431,12 +1460,26 @@ namespace DataVisualizerApp
 
                                     finalVal = (dblVal >= (avgVal + 1.0) || dblVal <= (avgVal - 1.0)) ? avgVal : dblVal;
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
+
+                                    /*if (index_ID == 0)
+                                    {
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
+                                    } else
+                                    {
+                                        if(nextDataIndex > 10 && nextDataIndex < 20)
+                                        {
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
+                                        } else
+                                        {
+                                            RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
+                                        }
+                                    }*/
                                 }
                                 else
                                 {
                                     oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]));
-                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) : oldVal;
+                                    avgVal = averageData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToDouble(averageData.Tables[index_chart].Rows[index_ID].Field<int>(DataTypesNext[index_chart])) : oldVal;
 
                                     /*if (nextDataIndex > 0)
                                     {
@@ -1507,8 +1550,12 @@ namespace DataVisualizerApp
                             }
                             else
                             {
+
+
                                 //DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
-                                //RTDataArray[index_chart][index_ID][1][nextDataIndex] = index_ID > 0 ? RTDataArray[index_chart][index_ID][1][nextDataIndex - 1] : RTDataArray[index_chart][0][1][nextDataIndex - 1];
+                                RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
+                                RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
+                                // index_ID > 0 ? RTDataArray[index_chart][index_ID][1][nextDataIndex - 1] : RTDataArray[index_chart][0][1][nextDataIndex - 1];
                                 //Console.WriteLine("Skipped this chart ");
                             }
                         }
@@ -1813,11 +1860,28 @@ namespace DataVisualizerApp
                 }
             }
 
-            button1_numRT.Visible = true;
+            /*button1_numRT.Visible = true;
             button1_chartRT.Visible = true;
             button1_numRT.Image = btnUnClicked_small; // //BackColor = Color.Transparent;
-            button1_chartRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;
-                                                        //"실시간" button
+            button1_chartRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;*/
+
+            /*    if (radioButton.Checked)
+            {
+                radioButton_p.Checked = false;
+                button1_numRT.Visible = true;
+                button1_chartRT.Visible = true;
+                button1_numRT.Image = btnUnClicked_small; // //BackColor = Color.Transparent;
+                button1_chartRT.Image = btnUnClicked_small; // BackColor = Color.Transparent;
+
+            }
+            else if (radioButton_p.Checked)
+            {
+                radioButton.Checked = false;
+                button1_numRT.Visible = false;
+                button1_chartRT.Visible = false;
+            }*/
+
+            //"실시간" button
             highlightSelectedBtn(Btn1_time, 0, "big");
             datePicker1_start.Visible = false;
             datePicker2_end.Visible = false;
@@ -2462,7 +2526,34 @@ namespace DataVisualizerApp
             //throw new NotImplementedException();
         }
 
+        private void radioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton.Checked)
+            {
+                radioButton_p.Checked = false;
+                if (button1_realtime.Image == btnClicked_big)
+                {
+                    button1_numRT.Visible = true;
+                    button1_chartRT.Visible = true;
+                }
+                else
+                {
+                    button1_numRT.Visible = false;
+                    button1_chartRT.Visible = false;
+                }
+
+            }
+            else
+            {
+                radioButton.Checked = false;
+                radioButton_p.Checked = true;
+                if (button1_realtime.Image == btnClicked_big)
+                {
+                    button1_numRT.Visible = false;
+                    button1_chartRT.Visible = false;
+                }
+            }
+        }
 
     }
-
 }

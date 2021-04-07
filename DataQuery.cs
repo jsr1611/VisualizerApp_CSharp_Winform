@@ -415,7 +415,7 @@ namespace DataVisualizerApp
         /// <returns></returns>
         public DataSet GetAvgData(List<int> IDs, List<string> tbNames)
         {
-            string currTime = DateTime.Now.AddSeconds(-5).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddSeconds(-30).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
@@ -431,24 +431,21 @@ namespace DataVisualizerApp
                     for (int ind = 0; ind < tbNames.Count; ind++)
                     {
                         string queryTbName = $"d_{tbNames[ind].Substring(2)}";
-                        string sqlStr = $"SELECT sensor_id, {tbNames[ind]} FROM( ";
+                        string sqlStr = $"SELECT sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]}  FROM( ";
                         string unionStr = " UNION ALL "; // 테이블 연결하는 것
-                        string sql_tail = " )a ";
 
                         for (int i = 0; i < IDs.Count; i++)
                         {
-                            sqlStr += $"SELECT sensor_id, {tbNames[ind]} FROM( ";
-                            sqlStr += $" SELECT TOP 1 {IDs[i]} AS sensor_id, {tbNames[ind]} " +
-                                        $" FROM  {queryTbName} " +
-                                        $" WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}'" +
-                                        $" GROUP BY {tbNames[ind]}, {SensorUsageColumn[0]} " +
-                                        $" ORDER BY COUNT(*) DESC ) a_{IDs[i]} GROUP BY sensor_id, {tbNames[ind]} ";
+
+                            sqlStr += $" SELECT {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]} " +
+                                        $" FROM  {queryTbName} WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}'";
+                                        
                             if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
                         }
 
-                        sqlStr += sql_tail;
-                        sqlStr += " ORDER BY sensor_id ;";
+                        sqlStr += $" )a GROUP BY sensor_id " +
+                        " ORDER BY sensor_id ;";
 
                         try
                         {
@@ -478,7 +475,7 @@ namespace DataVisualizerApp
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbName)
         {
 
-            string currTime = DateTime.Now.AddSeconds(-5).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddSeconds(-30).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbName.Count == 0)
             {
                 return new DataSet();
@@ -504,7 +501,7 @@ namespace DataVisualizerApp
 
                                 for (int i = 0; i < IDs.Count; i++)
                                 {
-                                    sqlStr += $"SELECT TOP 1  {IDs[i]} AS sensor_id, {tbName[ind]}, dateandtime " +
+                                    sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbName[ind]}, dateandtime " +
                                                 $"FROM  {queryTbName} " +
                                                 $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' " +
                                                 " ORDER BY dateandtime DESC ";
