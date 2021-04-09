@@ -41,8 +41,10 @@
             this.Column3_Location = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column4_info = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column5_usage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button1_chartRT = new System.Windows.Forms.Button();
-            this.button1_numRT = new System.Windows.Forms.Button();
+            this.button_pressure = new System.Windows.Forms.Button();
+            this.button11_chartRT = new System.Windows.Forms.Button();
+            this.button_particle = new System.Windows.Forms.Button();
+            this.button11_numRT = new System.Windows.Forms.Button();
             this.label1_mainHeader = new System.Windows.Forms.Label();
             this.button1_datepicker = new System.Windows.Forms.Button();
             this.button1_24h = new System.Windows.Forms.Button();
@@ -56,8 +58,6 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3_render = new System.Windows.Forms.Timer(this.components);
-            this.radioButton = new System.Windows.Forms.RadioButton();
-            this.radioButton_p = new System.Windows.Forms.RadioButton();
             this.panel1_menu.SuspendLayout();
             this.panel2_ChartArea.SuspendLayout();
             this.panel_logo.SuspendLayout();
@@ -105,11 +105,11 @@
             // 
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
             this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1_menu.Controls.Add(this.radioButton_p);
-            this.panel1_menu.Controls.Add(this.radioButton);
             this.panel1_menu.Controls.Add(this.listView1);
-            this.panel1_menu.Controls.Add(this.button1_chartRT);
-            this.panel1_menu.Controls.Add(this.button1_numRT);
+            this.panel1_menu.Controls.Add(this.button_pressure);
+            this.panel1_menu.Controls.Add(this.button11_chartRT);
+            this.panel1_menu.Controls.Add(this.button_particle);
+            this.panel1_menu.Controls.Add(this.button11_numRT);
             this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button1_datepicker);
             this.panel1_menu.Controls.Add(this.button1_24h);
@@ -174,39 +174,73 @@
             this.Column5_usage.Text = "수집";
             this.Column5_usage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // button1_chartRT
+            // button_pressure
             // 
-            this.button1_chartRT.FlatAppearance.BorderSize = 0;
-            this.button1_chartRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
-            this.button1_chartRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.button1_chartRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.button1_chartRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1_chartRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_chartRT.Image")));
-            this.button1_chartRT.Location = new System.Drawing.Point(112, 157);
-            this.button1_chartRT.Name = "button1_chartRT";
-            this.button1_chartRT.Size = new System.Drawing.Size(90, 60);
-            this.button1_chartRT.TabIndex = 1;
-            this.button1_chartRT.Text = "차트형";
-            this.button1_chartRT.UseVisualStyleBackColor = true;
-            this.button1_chartRT.Visible = false;
-            this.button1_chartRT.Click += new System.EventHandler(this.button1_chartRT_Click);
+            this.button_pressure.FlatAppearance.BorderSize = 0;
+            this.button_pressure.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button_pressure.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button_pressure.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button_pressure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button_pressure.Image = ((System.Drawing.Image)(resources.GetObject("button_pressure.Image")));
+            this.button_pressure.Location = new System.Drawing.Point(207, 212);
+            this.button_pressure.Name = "button_pressure";
+            this.button_pressure.Size = new System.Drawing.Size(90, 60);
+            this.button_pressure.TabIndex = 1;
+            this.button_pressure.Text = "차압 센서";
+            this.button_pressure.UseVisualStyleBackColor = true;
+            this.button_pressure.Visible = false;
+            this.button_pressure.Click += new System.EventHandler(this.button_particleORpressure_Click);
             // 
-            // button1_numRT
+            // button11_chartRT
             // 
-            this.button1_numRT.FlatAppearance.BorderSize = 0;
-            this.button1_numRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
-            this.button1_numRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.button1_numRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.button1_numRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1_numRT.Image = ((System.Drawing.Image)(resources.GetObject("button1_numRT.Image")));
-            this.button1_numRT.Location = new System.Drawing.Point(17, 157);
-            this.button1_numRT.Name = "button1_numRT";
-            this.button1_numRT.Size = new System.Drawing.Size(90, 60);
-            this.button1_numRT.TabIndex = 0;
-            this.button1_numRT.Text = "숫자형";
-            this.button1_numRT.UseVisualStyleBackColor = true;
-            this.button1_numRT.Visible = false;
-            this.button1_numRT.Click += new System.EventHandler(this.button1_numRT_Click);
+            this.button11_chartRT.FlatAppearance.BorderSize = 0;
+            this.button11_chartRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button11_chartRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button11_chartRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button11_chartRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button11_chartRT.Image = ((System.Drawing.Image)(resources.GetObject("button11_chartRT.Image")));
+            this.button11_chartRT.Location = new System.Drawing.Point(112, 157);
+            this.button11_chartRT.Name = "button11_chartRT";
+            this.button11_chartRT.Size = new System.Drawing.Size(90, 60);
+            this.button11_chartRT.TabIndex = 1;
+            this.button11_chartRT.Text = "차트형";
+            this.button11_chartRT.UseVisualStyleBackColor = true;
+            this.button11_chartRT.Visible = false;
+            this.button11_chartRT.Click += new System.EventHandler(this.button11_Chart_Click);
+            // 
+            // button_particle
+            // 
+            this.button_particle.FlatAppearance.BorderSize = 0;
+            this.button_particle.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button_particle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button_particle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button_particle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button_particle.Image = ((System.Drawing.Image)(resources.GetObject("button_particle.Image")));
+            this.button_particle.Location = new System.Drawing.Point(112, 212);
+            this.button_particle.Name = "button_particle";
+            this.button_particle.Size = new System.Drawing.Size(90, 60);
+            this.button_particle.TabIndex = 0;
+            this.button_particle.Text = "파티클 센서";
+            this.button_particle.UseVisualStyleBackColor = true;
+            this.button_particle.Visible = false;
+            this.button_particle.Click += new System.EventHandler(this.button_particleORpressure_Click);
+            // 
+            // button11_numRT
+            // 
+            this.button11_numRT.FlatAppearance.BorderSize = 0;
+            this.button11_numRT.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
+            this.button11_numRT.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.button11_numRT.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.button11_numRT.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button11_numRT.Image = ((System.Drawing.Image)(resources.GetObject("button11_numRT.Image")));
+            this.button11_numRT.Location = new System.Drawing.Point(17, 157);
+            this.button11_numRT.Name = "button11_numRT";
+            this.button11_numRT.Size = new System.Drawing.Size(90, 60);
+            this.button11_numRT.TabIndex = 0;
+            this.button11_numRT.Text = "숫자형";
+            this.button11_numRT.UseVisualStyleBackColor = true;
+            this.button11_numRT.Visible = false;
+            this.button11_numRT.Click += new System.EventHandler(this.button11_Chart_Click);
             // 
             // label1_mainHeader
             // 
@@ -235,7 +269,7 @@
             this.button1_datepicker.TabIndex = 65;
             this.button1_datepicker.Text = "기간설정";
             this.button1_datepicker.UseVisualStyleBackColor = true;
-            this.button1_datepicker.Click += new System.EventHandler(this.button3_Click);
+            this.button1_datepicker.Click += new System.EventHandler(this.button1_Click);
             // 
             // button1_24h
             // 
@@ -252,7 +286,7 @@
             this.button1_24h.TabIndex = 64;
             this.button1_24h.Text = "24시간";
             this.button1_24h.UseVisualStyleBackColor = true;
-            this.button1_24h.Click += new System.EventHandler(this.button2_Click);
+            this.button1_24h.Click += new System.EventHandler(this.button1_Click);
             // 
             // button1_realtime
             // 
@@ -335,37 +369,13 @@
             // 
             // timer2
             // 
-            this.timer2.Interval = 30000;
+            this.timer2.Interval = 3000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // timer3_render
             // 
-            this.timer3_render.Interval = 10000;
+            this.timer3_render.Interval = 5000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
-            // 
-            // radioButton
-            // 
-            this.radioButton.AutoSize = true;
-            this.radioButton.Location = new System.Drawing.Point(64, 147);
-            this.radioButton.Name = "radioButton";
-            this.radioButton.Size = new System.Drawing.Size(115, 16);
-            this.radioButton.TabIndex = 76;
-            this.radioButton.TabStop = true;
-            this.radioButton.Text = "온습도 및 파티클";
-            this.radioButton.UseVisualStyleBackColor = true;
-            this.radioButton.CheckedChanged += new System.EventHandler(this.radioButton_CheckedChanged);
-            // 
-            // radioButton_p
-            // 
-            this.radioButton_p.AutoSize = true;
-            this.radioButton_p.Location = new System.Drawing.Point(261, 147);
-            this.radioButton_p.Name = "radioButton_p";
-            this.radioButton_p.Size = new System.Drawing.Size(75, 16);
-            this.radioButton_p.TabIndex = 77;
-            this.radioButton_p.TabStop = true;
-            this.radioButton_p.Text = "차압 센서";
-            this.radioButton_p.UseVisualStyleBackColor = true;
-            this.radioButton_p.CheckedChanged += new System.EventHandler(this.radioButton_CheckedChanged);
             // 
             // MainForm
             // 
@@ -399,8 +409,8 @@
         private System.Windows.Forms.Panel panel2_ChartArea;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.Button button1_chartRT;
-        private System.Windows.Forms.Button button1_numRT;
+        private System.Windows.Forms.Button button11_chartRT;
+        private System.Windows.Forms.Button button11_numRT;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader Column0_No;
         private System.Windows.Forms.ColumnHeader Column1_SensorName;
@@ -414,8 +424,8 @@
         private System.Windows.Forms.ColumnHeader column2_Zone;
         public System.Windows.Forms.Timer timer2;
         public System.Windows.Forms.Timer timer3_render;
-        private System.Windows.Forms.RadioButton radioButton_p;
-        private System.Windows.Forms.RadioButton radioButton;
+        private System.Windows.Forms.Button button_pressure;
+        private System.Windows.Forms.Button button_particle;
     }
 }
 
