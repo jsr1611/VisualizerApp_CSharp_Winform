@@ -23,22 +23,16 @@ namespace DataVisualizerApp
         public string sqlConStr { get; set; }
 
         public string S_DeviceTable { get; set; }
-        public string S_DeviceTable_p { get; set; }
         public List<string> S_DeviceTableColumn { get; set; }
         public List<string> S_FourRangeColmn { get; }
 
         public string SensorUsage { get; set; }
-        public string SensorUsage_p { get; set; }
 
         public List<string> SensorUsageColumn { get; set; }
-        public List<string> SensorUsageColumn_p { get; set; }
 
         public List<string> SensorNames { get; set; }
-        public List<string> SensorNames_p { get; set; }
         public Button[] Btn2_DataType { get; set; }
-        public Button[] Btn2_DataType_p { get; set; }
         public Button[] Btn3_SensorLocation { get; set; }
-        public Button[] Btn3_SensorLocation_p { get; set; }
         public Button button_show = new Button()
         {
             FlatAppearance = {
@@ -56,43 +50,28 @@ namespace DataVisualizerApp
         public List<int> IDs_now = new List<int>();
         public List<int> IDs_next = new List<int>();
         public List<int> allIDs = new List<int>();
-        public List<int> allIDs_p = new List<int>();
 
         public List<string> DataTypesNow = new List<string>();
         public List<string> DataTypesNext = new List<string>();
         public string titleName = "";
         public List<List<TextBox>> RT_textBoxes = new List<List<TextBox>>();
 
-        public List<Label> PeakValLabels = new List<Label>();
         public Color[] colorset { get; set; }
         public bool digital_flag { get; set; }
 
         public List<List<List<double[]>>> RTDataArray = new List<List<List<double[]>>>();
 
-        public Dictionary<string, Dictionary<int, double[]>> DisplayData = new Dictionary<string, Dictionary<int, double[]>>();
-        public Dictionary<string, Dictionary<int, double>> MaxVals1 = new Dictionary<string, Dictionary<int, double>>();
-
-
-
 
         public DataSet AvgData { get; set; }
         public Thread UpdAvgDataThread;
 
-        public List<List<List<string[]>>> RT_Max = new List<List<List<string[]>>>();
-        public List<List<List<string[]>>> RT_Min = new List<List<List<string[]>>>();
-
         public List<List<List<string>>> RT_Max3 = new List<List<List<string>>>();
         public List<List<List<string>>> RT_Min3 = new List<List<List<string>>>();
-
-        List<SortedDictionary<int, string[]>> RT_Max2 { get; set; }
-        List<SortedDictionary<int, string[]>> RT_Min2 { get; set; }
 
         public Dictionary<string, List<long>> RangeLimitData { get; set; }
         public List<string> RangeNames { get; set; }
         public int nextDataIndex = 1;
         public List<FormsPlot> formsPlots { get; set; }
-        public List<PlottableSignal> plts = new List<PlottableSignal>();
-
 
         public List<List<PlottableSignal>> plt_list = new List<List<PlottableSignal>>();
 
@@ -123,22 +102,18 @@ namespace DataVisualizerApp
             myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
             S_DeviceTable = "SENSOR_INFO";
-            S_DeviceTable_p = S_DeviceTable + "_p";
 
             SensorUsage = "SensorUsage";
-            SensorUsage_p = SensorUsage + "_p";
             SensorUsageColumn = new List<string>();
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
 
             SensorUsageColumn = GetTableColumnNames(SensorUsage);
-            SensorUsageColumn_p = GetTableColumnNames(SensorUsage_p);
 
 
             S_FourRangeColmn = new List<string>() { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
 
             RangeNames = new List<string>() { "상한2", "상한1", "하한1", "하한2" };
             SensorNames = new List<string>(); // "온도(°C)", "습도(%)", "파티클(0.3μm)", "파티클(0.5μm)", "파티클(1.0μm)", "파티클(2.5μm)", "파티클(5.0μm)", "파티클(10.0μm)" };
-            SensorNames_p = new List<string>();
             for (int i = 1; i < SensorUsageColumn.Count; i++)
             {
                 if (SensorUsageColumn[i].Contains("t"))
@@ -169,13 +144,6 @@ namespace DataVisualizerApp
 
             }
             //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
-
-            for (int i = 1; i < SensorUsageColumn_p.Count; i++)
-            {
-                string name = SensorUsageColumn_p[i].Substring(2);
-                name = name.Substring(0, name.LastIndexOf("U"));
-                SensorNames_p.Add(name);
-            }
 
 
             DeviceZoneLocInfo = new Dictionary<string, List<string>>();
@@ -210,14 +178,12 @@ namespace DataVisualizerApp
 
             //CreateButtonsForSensors();
             Btn2_DataType = new Button[SensorUsageColumn.Count - 1];
-            Btn2_DataType_p = new Button[SensorUsageColumn_p.Count - 1];
 
             int btn_X = button1_realtime.Bounds.X;
-            int btn_Y = button1_realtime.Bounds.Y + button1_realtime.Bounds.Height * 3;
+            int btn_Y = button1_realtime.Bounds.Y + button1_realtime.Bounds.Height * 2;
 
 
             Btn2_DataType = GenerateButtonsHere(Btn2_DataType, btn2_data_Click, SensorUsageColumn, SensorNames, btn_X, btn_Y);
-            Btn2_DataType_p = GenerateButtonsHere(Btn2_DataType_p, btn2_data_Click, SensorUsageColumn_p, SensorNames_p, btn_X, btn_Y);
 
 
 
@@ -802,18 +768,11 @@ namespace DataVisualizerApp
         private void ScotPlot(DataSet MyData, List<string> MyDataTypes, List<int> MyIDs, bool RT_flag)
         {
             panel2_ChartArea.Controls.Clear();
-            plts.Clear();
             plt_list.Clear();
             nextDataIndex = 0;
             RTDataArray.Clear();
             RT_textBoxes.Clear();
-            DisplayData.Clear();
-            MaxVals1.Clear();
 
-
-            Button[] btn3 = button_particle.Image == btnClicked_small ? Btn3_SensorLocation : Btn3_SensorLocation_p;
-            List<string> chartTitles = button_particle.Image == btnClicked_small ? SensorNames: SensorNames_p;
-            List<string> SensorUsageColumns = button_particle.Image == btnClicked_small ? SensorUsageColumn : SensorUsageColumn_p;
 
 
             //int numOfElmnt = 1;
@@ -880,7 +839,7 @@ namespace DataVisualizerApp
                                 label.TextAlign = ContentAlignment.MiddleCenter;
 
 
-                                label.Text = btn3[MyIDs[index_column * tableLayoutPanel.RowCount + index_row] - 1].Text;
+                                label.Text = Btn3_SensorLocation[MyIDs[index_column * tableLayoutPanel.RowCount + index_row] - 1].Text;
 
                                 panel.Controls.Add(label);
                                 //Application.DoEvents();
@@ -999,14 +958,12 @@ namespace DataVisualizerApp
                                         maxValues.Add(String.Format("{0:n0}", max));
                                         minValues.Add(String.Format("{0:n0}", min));
                                     }
-                                    plottableXYConst = formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: btn3[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
+                                    plottableXYConst = formsPlots[index_DataType].plt.PlotSignalXYConst(xs_time, ys_data, label: Btn3_SensorLocation[MyIDs[i] - 1].Text, color: colorset[i]); //              // Signal Chart
                                     MyPltList[index_DataType].Add(plottableXYConst);
                                 }
                                 else
                                 {
                                     Console.WriteLine("1. Skipped this chart settings because there is no data to show.");
-                                    /*xs_time = new double[1];
-                                    ys_data = new double[1];*/
 
                                 }
                             }
@@ -1065,9 +1022,9 @@ namespace DataVisualizerApp
                             //
 
 
-                            for (int i = 1; i < SensorUsageColumns.Count; i++)
+                            for (int i = 1; i < SensorUsageColumn.Count; i++)
                             {
-                                if (MyDataTypes[index_chart].Contains(SensorUsageColumns[i])) { chartTitle = chartTitles[i - 1]; }
+                                if (MyDataTypes[index_chart].Contains(SensorUsageColumn[i])) { chartTitle = SensorNames[i - 1]; }
                             }
 
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
@@ -1140,10 +1097,9 @@ namespace DataVisualizerApp
                                 double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerSecond);
 
                                 //MyIDs[index_ID] - 51
-                                signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: btn3[index_ID].Text, color: colorset[index_ID]);
+                                signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
 
 
-                                plts.Add(signalPlot);
                                 plt_list[index_chart].Add(signalPlot);
 
 
@@ -1290,9 +1246,9 @@ namespace DataVisualizerApp
             //DataRetrieved_RT = new List<List<List<string[]>>>(); //G_DataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
             DataSet MyData = G_DataQuery.RealTimeDataQuery(IDs_next, DataTypesNext);
 
-            List<string> chartTitles = button_particle.Image == btnClicked_small ? SensorNames : SensorNames_p;
-            List<string> SensorUsageColumns = button_particle.Image == btnClicked_small ? SensorUsageColumn : SensorUsageColumn_p;
-            
+            /*List<string> chartTitles = button_particle.Image == btnClicked_small ? SensorNames : SensorNames_p;
+            List<string> SensorUsageColumns = button_particle.Image == btnClicked_small ? SensorUsageColumn : SensorUsageColumn_p;*/
+
             DataSet averageData = AvgData.Copy();
             if (nextDataIndex == 1)
             {
@@ -1327,9 +1283,9 @@ namespace DataVisualizerApp
                     }
                     for (int index_chart = 0; index_chart < DataTypesNext.Count; index_chart++)
                     {
-                        for (int i = 1; i < SensorUsageColumns.Count; i++)
+                        for (int i = 1; i < SensorUsageColumn.Count; i++)
                         {
-                            if (DataTypesNext[index_chart].Contains(SensorUsageColumns[i])) { chartTitle = chartTitles[i - 1]; break; }
+                            if (DataTypesNext[index_chart].Contains(SensorUsageColumn[i])) { chartTitle = SensorNames[i - 1]; break; }
                         }
 
                         for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
@@ -1338,7 +1294,7 @@ namespace DataVisualizerApp
                             if (MyData.Tables[index_chart].Rows.Count > index_ID)
                             {
 
-                                if (button_particle.Image == btnClicked_small  && (DataTypesNext[index_chart].Contains(SensorUsageColumns[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumns[2])))
+                                if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
                                     oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                     dblVal = Convert.ToDouble(MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart])) / 100d;
@@ -1393,7 +1349,7 @@ namespace DataVisualizerApp
                                 DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
                                 RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
-                                if (button_particle.Image == btnClicked_small && (DataTypesNext[index_chart].Contains(SensorUsageColumns[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumns[2])))
+                                if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
                                     if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
                                     {
@@ -1728,15 +1684,11 @@ namespace DataVisualizerApp
             {
                 if (thisBtn == button1_realtime)
                 {
-
                     button1_24h.Image = btnUnClicked_big;
                     button1_datepicker.Image = btnUnClicked_big;
 
                     button11_numRT.Visible = true;
                     button11_chartRT.Visible = true;
-                    button_particle.Visible = false;
-                    button_pressure.Visible = false;
-
                     datePicker1_start.Visible = false;
                     datePicker2_end.Visible = false;
                     label_between.Visible = false;
@@ -1745,9 +1697,6 @@ namespace DataVisualizerApp
                 {
                     button1_realtime.Image = btnUnClicked_big;
                     button1_datepicker.Image = btnUnClicked_big;
-
-                    button_particle.Visible = true;
-                    button_pressure.Visible = true;
 
                     button11_numRT.Visible = false;
                     button11_chartRT.Visible = false;
@@ -1764,14 +1713,8 @@ namespace DataVisualizerApp
                     button1_realtime.Image = btnUnClicked_big;
                     button1_24h.Image = btnUnClicked_big;
 
-                    button_particle.Visible = true;
-                    button_pressure.Visible = true;
-
                     button11_numRT.Visible = false;
                     button11_chartRT.Visible = false;
-
-                    button_particle.Visible = true;
-                    button_pressure.Visible = true;
 
                     label_between.Visible = true;
                     datePicker1_start.Visible = true;
@@ -1785,21 +1728,18 @@ namespace DataVisualizerApp
             }
             else
             {
-                button_particle.Visible = false;
-                button_pressure.Visible = false;
 
                 button11_numRT.Visible = false;
                 button11_chartRT.Visible = false;
             }
 
             clearHighlighting(new Button[] { button11_chartRT, button11_numRT }, "small");
-            HandleBtn2nBtn3(new Button());
+            HandleBtn2nBtn3(thisBtn);
             button_show.Visible = false;
             DataTypesNow.Clear();
             IDs_now.Clear();
 
         }
-
 
 
         private void button11_Chart_Click(object sender, EventArgs e)
@@ -1821,17 +1761,11 @@ namespace DataVisualizerApp
                     button11_chartRT.Image = btnUnClicked_small;
 
                 }
-                button_particle.Visible = true;
-                button_pressure.Visible = true;
             }
             else
             {
-                button_particle.Visible = false;
-                button_pressure.Visible = false;
             }
 
-
-            clearHighlighting(new Button[] { button_particle, button_pressure }, "small");
             HandleBtn2nBtn3(new Button());
             button_show.Visible = false;
             DataTypesNow.Clear();
@@ -1841,34 +1775,10 @@ namespace DataVisualizerApp
 
         private void btn2_data_Click(object sender, EventArgs e)
         {
-            
+
 
             Button button = (Button)sender; // receive clicked button properties
             button.Image = button.Image == btnUnClicked_small ? btnClicked_small : btnUnClicked_small;
-
-
-            Button[] btn2_datatype = null;
-            Button[] btn3_sensorlocate = null;
-            string sensorUsageTable = "";
-            if (button_pressure.Image == btnClicked_small)
-            {
-                btn2_datatype = Btn2_DataType_p;
-                btn3_sensorlocate = Btn3_SensorLocation_p;
-                sensorUsageTable = SensorUsage_p;
-            }
-            else if (button_particle.Image == btnClicked_small)
-            {
-                btn2_datatype = Btn2_DataType;
-                btn3_sensorlocate = Btn3_SensorLocation;
-                sensorUsageTable = SensorUsage;
-            }
-
-
-            //온도, 습도, 파티클 등 8개 버튼
-
-
-
-
 
             if (button.Image == btnUnClicked_small) //BackColor == Color.Transparent
             {
@@ -1880,9 +1790,9 @@ namespace DataVisualizerApp
 
                 if (DataTypesNow.Count < 1)
                 {
-                    if (btn3_sensorlocate != null)
+                    if (Btn3_SensorLocation != null)
                     {
-                        foreach (var btn in btn3_sensorlocate)
+                        foreach (var btn in Btn3_SensorLocation)
                         {
                             btn.Visible = false;
                         }
@@ -1891,16 +1801,16 @@ namespace DataVisualizerApp
                     button_show.Visible = false;
                     IDs_now.Clear();
 
-                    clearHighlighting(btn3_sensorlocate, "small");
+                    clearHighlighting(Btn3_SensorLocation, "small");
                 }
                 if (DataTypesNow.Count != 4)
                 {
 
-                    for (int i = 0; i < btn2_datatype.Length; i++)
+                    for (int i = 0; i < Btn2_DataType.Length; i++)
                     {
-                        if (btn2_datatype[i].Image != btnClicked_small)
+                        if (Btn2_DataType[i].Image != btnClicked_small)
                         {
-                            btn2_datatype[i].Enabled = true;
+                            Btn2_DataType[i].Enabled = true;
                         }
                     }
                 }
@@ -1912,22 +1822,11 @@ namespace DataVisualizerApp
             //check if other buttons are clickable
             else
             {
-                // clicking the button
-                if (button_pressure.Image == btnClicked_small)
+
+                if (allIDs.Count == 0)
                 {
-                    if (allIDs_p.Count == 0)
-                    {
-                        string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable_p} ORDER BY {S_DeviceTableColumn[0]};";
-                        allIDs_p = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
-                    }
-                }
-                else if (button_particle.Image == btnClicked_small)
-                {
-                    if (allIDs.Count == 0)
-                    {
-                        string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]};";
-                        allIDs = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
-                    }
+                    string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]};";
+                    allIDs = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
                 }
 
                 //4개 이상의 센서를 선택 못하게 If문으로 확인함.
@@ -1939,37 +1838,26 @@ namespace DataVisualizerApp
 
                     if (DataTypesNow.Count == 4)
                     {
-                        for (int i = 0; i < btn2_datatype.Length; i++)
+                        for (int i = 0; i < Btn2_DataType.Length; i++)
                         {
-                            if (btn2_datatype[i].Image != btnClicked_small)
+                            if (Btn2_DataType[i].Image != btnClicked_small)
                             {
-                                btn2_datatype[i].Enabled = false;
+                                Btn2_DataType[i].Enabled = false;
                             }
                         }
 
                     }
 
-                    if (btn3_sensorlocate == null || btn3_sensorlocate.Length == 0)
+                    if (Btn3_SensorLocation == null || Btn3_SensorLocation.Length == 0)
                     {
 
-                        if (button_pressure.Image == btnClicked_small)
-                        {
-                            
-                            btn3_sensorlocate =  CreateButtonsForSensorIds(allIDs_p, btn3_address_Click, btn2_datatype, true);
-                            Btn3_SensorLocation_p = btn3_sensorlocate;
 
+                        Btn3_SensorLocation = CreateButtonsForSensorIds(allIDs, btn3_address_Click, Btn2_DataType, false);
 
-                        }
-                        else //if (button_particle.Image == btnClicked_small)
-                        {
-
-                            btn3_sensorlocate = CreateButtonsForSensorIds(allIDs, btn3_address_Click, btn2_datatype, false);
-                            Btn3_SensorLocation = btn3_sensorlocate;
-                        }
 
                         button_show.Image = btnUnClicked_big;
                         button_show.SetBounds(panel1_menu.Bounds.Width / 2 - button1_realtime.Bounds.Width / 2,
-                                              btn3_sensorlocate[btn3_sensorlocate.Length - 1].Bounds.Y + btn3_sensorlocate[btn3_sensorlocate.Length - 1].Bounds.Height * 3 / 2,
+                                              Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2,
                                               button1_realtime.Bounds.Width,
                                               button1_realtime.Bounds.Height
                                               );
@@ -1981,10 +1869,10 @@ namespace DataVisualizerApp
                     }
 
 
-                    if (btn3_sensorlocate.Length != 0 && btn3_sensorlocate[0].Visible == false)
+                    if (Btn3_SensorLocation.Length != 0 && Btn3_SensorLocation[0].Visible == false)
                     {
 
-                        foreach (var btn in btn3_sensorlocate)
+                        foreach (var btn in Btn3_SensorLocation)
                         {
                             Console.WriteLine($"btn.Visible: {btn.Visible}");
                             btn.Visible = true;
@@ -2002,8 +1890,8 @@ namespace DataVisualizerApp
 
             button_show.Visible = false;
 
-            ShowClickableSensorDeviceButtons(DataTypesNow, sensorUsageTable, btn3_sensorlocate);
-            clearHighlighting(btn3_sensorlocate, "small");
+            ShowClickableSensorDeviceButtons(DataTypesNow, SensorUsage, Btn3_SensorLocation);
+            clearHighlighting(Btn3_SensorLocation, "small");
 
             // Unclick the Sensor Device buttons
             IDs_now.Clear(); // 선텍되어 있는 센서 장비 버튼 리스트 지우기 
@@ -2052,15 +1940,7 @@ namespace DataVisualizerApp
 
 
 
-                string sqlStr = "";
-                if (flag_p)
-                {
-                    sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable_p} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
-                }
-                else
-                {
-                    sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
-                }
+                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
 
                 button1.Text = GetButtonText(sqlStr, btn_addresses[index_btn3]); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
                 button1.Font = new Font(button1.Font.FontFamily, 8);
@@ -2280,134 +2160,77 @@ namespace DataVisualizerApp
             //throw new NotImplementedException();
         }
 
+        /*
+                private void button_particleORpressure_Click(object sender, EventArgs e)
+                {
+                    Button thisBtn = (Button)sender;
 
-        private void button_particleORpressure_Click(object sender, EventArgs e)
-        {
-            Button thisBtn = (Button)sender;
+                    if (thisBtn == button_particle)
+                    {
+                        button_pressure.Image = btnUnClicked_small;
+                        thisBtn.Image = thisBtn.Image == btnClicked_small ? btnUnClicked_small : btnClicked_small;
+                        clearHighlighting(Btn2_DataType_p, "small");
+                        clearHighlighting(Btn3_SensorLocation_p, "small");
 
-            if (thisBtn == button_particle)
-            {
-                button_pressure.Image = btnUnClicked_small;
-                thisBtn.Image = thisBtn.Image == btnClicked_small ? btnUnClicked_small : btnClicked_small;
-                clearHighlighting(Btn2_DataType_p, "small");
-                clearHighlighting(Btn3_SensorLocation_p, "small");
+                    }
+                    else // if(thisBtn == button_particle)
+                    {
+                        button_particle.Image = btnUnClicked_small;
+                        thisBtn.Image = thisBtn.Image == btnClicked_small ? btnUnClicked_small : btnClicked_small;
+                        clearHighlighting(Btn2_DataType, "small");
+                        clearHighlighting(Btn3_SensorLocation, "small");
+                    }
 
-            }
-            else // if(thisBtn == button_particle)
-            {
-                button_particle.Image = btnUnClicked_small;
-                thisBtn.Image = thisBtn.Image == btnClicked_small ? btnUnClicked_small : btnClicked_small;
-                clearHighlighting(Btn2_DataType, "small");
-                clearHighlighting(Btn3_SensorLocation, "small");
-            }
+                    if (thisBtn.Image == btnClicked_small)
+                        HandleBtn2nBtn3(thisBtn);
+                    else
+                        HandleBtn2nBtn3(new Button());
 
-            if (thisBtn.Image == btnClicked_small)
-                HandleBtn2nBtn3(thisBtn);
-            else
-                HandleBtn2nBtn3(new Button());
+                    button_show.Visible = false;
+                    DataTypesNow.Clear();
+                    IDs_now.Clear();
 
-            button_show.Visible = false;
-            DataTypesNow.Clear();
-            IDs_now.Clear();
-
-        }
+                }
+        */
 
 
+        
 
-        /// <summary>
-        /// Hide the Btn2_datatype or Btn3_SensorLocation, or all of them.
-        /// </summary>
-        /// <param name="thisBtn">particle or pressure, if randomButton hide all of Btn2 and Btn3 </param>
         private void HandleBtn2nBtn3(Button thisBtn)
         {
-            if (thisBtn == button_particle)
+
+            if (Btn2_DataType != null)
             {
-                if (Btn2_DataType != null)
+                if (thisBtn != button1_realtime)
                 {
                     foreach (var btn in Btn2_DataType)
                     {
                         btn.Visible = true;
-                    }
-                    if (Btn3_SensorLocation != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation)
-                        {
-                            btn.Visible = false;
-                        }
-                    }
-
-                    foreach (var btn in Btn2_DataType_p)
-                    {
-                        btn.Visible = false;
-                    }
-                    if (Btn3_SensorLocation_p != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation_p)
-                        {
-                            btn.Visible = false;
-                        }
+                        btn.Image = btnUnClicked_small;
+                        btn.Enabled = true;
                     }
                 }
-            }
-            else if (thisBtn == button_pressure)
-            {
-                if (Btn2_DataType != null)
+                else
                 {
                     foreach (var btn in Btn2_DataType)
                     {
                         btn.Visible = false;
-                    }
-                    if (Btn3_SensorLocation != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation)
-                        {
-                            btn.Visible = false;
-                        }
-                    }
-
-                    foreach (var btn in Btn2_DataType_p)
-                    {
-                        btn.Visible = true;
-                    }
-                    if (Btn3_SensorLocation_p != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation_p)
-                        {
-                            btn.Visible = false;
-                        }
+                        btn.Image = btnUnClicked_small;
+                        btn.Enabled = true;
                     }
                 }
-            }
-            else
-            {
-                if (Btn2_DataType != null)
+
+
+                if (Btn3_SensorLocation != null)
                 {
-                    foreach (var btn in Btn2_DataType)
+                    foreach (var btn in Btn3_SensorLocation)
                     {
                         btn.Visible = false;
-                    }
-                    if (Btn3_SensorLocation != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation)
-                        {
-                            btn.Visible = false;
-                        }
-                    }
-
-                    foreach (var btn in Btn2_DataType_p)
-                    {
-                        btn.Visible = false;
-                    }
-                    if (Btn3_SensorLocation_p != null)
-                    {
-                        foreach (var btn in Btn3_SensorLocation_p)
-                        {
-                            btn.Visible = false;
-                        }
+                        btn.Image = btnUnClicked_small;
+                        btn.Enabled = true;
                     }
                 }
             }
-
 
         }
     }

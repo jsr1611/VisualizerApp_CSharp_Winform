@@ -41,9 +41,7 @@
             this.Column3_Location = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column4_info = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Column5_usage = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button_pressure = new System.Windows.Forms.Button();
             this.button11_chartRT = new System.Windows.Forms.Button();
-            this.button_particle = new System.Windows.Forms.Button();
             this.button11_numRT = new System.Windows.Forms.Button();
             this.label1_mainHeader = new System.Windows.Forms.Label();
             this.button1_datepicker = new System.Windows.Forms.Button();
@@ -106,9 +104,7 @@
             this.panel1_menu.BackColor = System.Drawing.Color.Transparent;
             this.panel1_menu.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1_menu.Controls.Add(this.listView1);
-            this.panel1_menu.Controls.Add(this.button_pressure);
             this.panel1_menu.Controls.Add(this.button11_chartRT);
-            this.panel1_menu.Controls.Add(this.button_particle);
             this.panel1_menu.Controls.Add(this.button11_numRT);
             this.panel1_menu.Controls.Add(this.label1_mainHeader);
             this.panel1_menu.Controls.Add(this.button1_datepicker);
@@ -174,23 +170,6 @@
             this.Column5_usage.Text = "수집";
             this.Column5_usage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // button_pressure
-            // 
-            this.button_pressure.FlatAppearance.BorderSize = 0;
-            this.button_pressure.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
-            this.button_pressure.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.button_pressure.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.button_pressure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button_pressure.Image = ((System.Drawing.Image)(resources.GetObject("button_pressure.Image")));
-            this.button_pressure.Location = new System.Drawing.Point(207, 212);
-            this.button_pressure.Name = "button_pressure";
-            this.button_pressure.Size = new System.Drawing.Size(90, 60);
-            this.button_pressure.TabIndex = 1;
-            this.button_pressure.Text = "차압 센서";
-            this.button_pressure.UseVisualStyleBackColor = true;
-            this.button_pressure.Visible = false;
-            this.button_pressure.Click += new System.EventHandler(this.button_particleORpressure_Click);
-            // 
             // button11_chartRT
             // 
             this.button11_chartRT.FlatAppearance.BorderSize = 0;
@@ -207,23 +186,6 @@
             this.button11_chartRT.UseVisualStyleBackColor = true;
             this.button11_chartRT.Visible = false;
             this.button11_chartRT.Click += new System.EventHandler(this.button11_Chart_Click);
-            // 
-            // button_particle
-            // 
-            this.button_particle.FlatAppearance.BorderSize = 0;
-            this.button_particle.FlatAppearance.CheckedBackColor = System.Drawing.Color.Transparent;
-            this.button_particle.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.button_particle.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.button_particle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button_particle.Image = ((System.Drawing.Image)(resources.GetObject("button_particle.Image")));
-            this.button_particle.Location = new System.Drawing.Point(112, 212);
-            this.button_particle.Name = "button_particle";
-            this.button_particle.Size = new System.Drawing.Size(90, 60);
-            this.button_particle.TabIndex = 0;
-            this.button_particle.Text = "파티클 센서";
-            this.button_particle.UseVisualStyleBackColor = true;
-            this.button_particle.Visible = false;
-            this.button_particle.Click += new System.EventHandler(this.button_particleORpressure_Click);
             // 
             // button11_numRT
             // 
@@ -358,9 +320,9 @@
             this.label_Title_main.Font = new System.Drawing.Font("Gulim", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.label_Title_main.Location = new System.Drawing.Point(209, 187);
             this.label_Title_main.Name = "label_Title_main";
-            this.label_Title_main.Size = new System.Drawing.Size(769, 40);
+            this.label_Title_main.Size = new System.Drawing.Size(741, 40);
             this.label_Title_main.TabIndex = 2;
-            this.label_Title_main.Text = "Clean Room T.H.P. Monitoring System";
+            this.label_Title_main.Text = "Cleanroom T.H.P. Monitoring System";
             this.label_Title_main.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // timer1
@@ -386,7 +348,7 @@
             this.Controls.Add(this.panel1_menu);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "모니터링";
+            this.Text = "온습도 및 파티클 데이터 모니터링";
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
             this.panel2_ChartArea.ResumeLayout(false);
@@ -424,8 +386,6 @@
         private System.Windows.Forms.ColumnHeader column2_Zone;
         public System.Windows.Forms.Timer timer2;
         public System.Windows.Forms.Timer timer3_render;
-        private System.Windows.Forms.Button button_pressure;
-        private System.Windows.Forms.Button button_particle;
     }
 }
 
