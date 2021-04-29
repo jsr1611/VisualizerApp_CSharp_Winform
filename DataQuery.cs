@@ -27,10 +27,9 @@ namespace DataVisualizerApp
 
         public List<string> FourRangeColmn { get; }
 
-        public DataQuery()
-        {
+        public int RTLimitTime { get; set; }
+        public int AvgLimitTime { get; set; }
 
-        }
 
         public DataQuery(SqlConnection myConn, string dbName, string deviceTable, string sensorUsage, List<string> sensorUsageColumn, List<string> fourRangeColmn, string conStr)
         {
@@ -42,7 +41,6 @@ namespace DataVisualizerApp
             FourRangeColmn = fourRangeColmn;
             sqlConStr = conStr;
         }
-
 
         public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, List<string> whatToQuery, List<int> IDs)
         {
@@ -91,12 +89,6 @@ namespace DataVisualizerApp
         }
 
 
-        /*
-                private Device GetDeviceByDeviceId(Device[] devices, int deviceId)
-                {
-                    return devices.Where(r => r.ID == deviceId).FirstOrDefault();
-                }*/
-
         /// <summary>
         /// 0, 0, 0, 5, 0, 2, 0 => (Mode = 제일 자주 나오는 값) 0을 return해주는 함수
         /// </summary>
@@ -106,7 +98,7 @@ namespace DataVisualizerApp
         /// <returns></returns>
         public DataSet GetAvgData(List<int> IDs, List<string> tbNames)
         {
-            string currTime = DateTime.Now.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddMinutes(-AvgLimitTime).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
@@ -169,7 +161,7 @@ namespace DataVisualizerApp
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbNames)
         {
 
-            string currTime = DateTime.Now.AddSeconds(-65).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddSeconds(-RTLimitTime).ToString("yyyy-MM-dd HH:mm:ss");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();

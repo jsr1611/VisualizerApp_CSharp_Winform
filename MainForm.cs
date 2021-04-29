@@ -5,8 +5,11 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using DataSet = System.Data.DataSet;
@@ -96,24 +99,79 @@ namespace DataVisualizerApp
         {
             InitializeComponent();
 
+
+
+            ////////////////////////////////////////////////////////
+
+
+            // ini 읽기 //////
+            IniFile ini = new IniFile();
+
+            ini.Load(AppInfo.StartupPath + "\\" + "Setting.ini");
+
+            string D_IP = ini["DBSetting"]["IP"].ToString();
+            string D_SERVERNAME = ini["DBSetting"]["SERVERNAME"].ToString();
+            string D_NAME = ini["DBSetting"]["DBNAME"].ToString();
+            string D_TABLENAME = ini["DBSetting"]["DEVICETABLE"].ToString();
+            string D_USAGETABLENAME= ini["DBSetting"]["USAGETABLE"].ToString();
+            string D_ID = ini["DBSetting"]["ID"].ToString();
+            string D_PW = ini["DBSetting"]["PW"].ToString();
+            string D_RTLimitTime = ini["DBSetting"]["RTLIMITTIME"].ToString();
+            string D_AVGLimitTime = ini["DBSetting"]["AVGLIMITTIME"].ToString();
+
+
+            string R_RangeHigh2 = ini["RangeLimitTable"]["RangeHigh2"].ToString();
+            string R_RangeHigh1 = ini["RangeLimitTable"]["RangeHigh1"].ToString();
+            string R_RangeLow1 = ini["RangeLimitTable"]["RangeLow1"].ToString();
+            string R_RangeLow2 = ini["RangeLimitTable"]["RangeLow2"].ToString();
+
+
+            
+            ////////////////////////////////////////////////////////
+
+
+
+
+
             // Initialize DB access variables
-            dbServerAddress = "localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
-            dbName = "SensorData2"; //"SensorDataNewDB";
-            dbUID = "admin";
-            dbPWD = "admin";
+            dbServerAddress = D_SERVERNAME; //"localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
+            dbName = D_NAME; // "SensorData2"; //"SensorDataNewDB";
+            dbUID = D_ID; // "admin";
+            dbPWD = D_PW; // "admin";
             sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
             myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
-            S_DeviceTable = "SENSOR_INFO";
+            try
+            {
+                myConn.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while SQL connection: {ex.Message}. {ex.StackTrace}");
+                dbServerAddress = D_ID;
+                sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
+                myConn = new SqlConnection(sqlConStr);
+                try
+                {
+                    myConn.Open();
+                    Console.WriteLine("Connection Successful!");
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine($"Error while SQL connection 2: {ex2.Message}. {ex2.StackTrace}");
+                }
+            }
 
-            SensorUsage = "SensorUsage";
+            S_DeviceTable = D_TABLENAME; // "SENSOR_INFO";
+
+            SensorUsage = D_USAGETABLENAME; // "SensorUsage";
             SensorUsageColumn = new List<string>();
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
 
             SensorUsageColumn = GetTableColumnNames(SensorUsage);
 
 
-            S_FourRangeColmn = new List<string>() { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
+            S_FourRangeColmn = new List<string>() {R_RangeHigh2, R_RangeHigh1, R_RangeLow1, R_RangeLow2 };// { "higherLimit2", "higherLimit1", "lowerLimit1", "lowerLimit2" };
 
             RangeNames = new List<string>() { "상한2", "상한1", "하한1", "하한2" };
             SensorNames = new List<string>(); // "온도(°C)", "습도(%)", "파티클(0.3μm)", "파티클(0.5μm)", "파티클(1.0μm)", "파티클(2.5μm)", "파티클(5.0μm)", "파티클(10.0μm)" };
@@ -196,6 +254,8 @@ namespace DataVisualizerApp
 
 
             G_DataQuery = new DataQuery(myConn, dbName, S_DeviceTable, SensorUsage, SensorUsageColumn, S_FourRangeColmn, sqlConStr);
+            G_DataQuery.RTLimitTime = Convert.ToInt32(D_RTLimitTime);
+            G_DataQuery.AvgLimitTime = Convert.ToInt32(D_AVGLimitTime);
 
 
 
@@ -2218,5 +2278,23 @@ namespace DataVisualizerApp
             }
 
         }
+
+        public class AppInfo
+        {
+            [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = false)]
+            private static extern int GetModuleFileName(HandleRef hModule, StringBuilder buffer, int length);
+            private static HandleRef NullHandleRef = new HandleRef(null, IntPtr.Zero);
+            public static string StartupPath
+            {
+                get
+                {
+                    StringBuilder stringBuilder = new StringBuilder(260);
+                    GetModuleFileName(NullHandleRef, stringBuilder, stringBuilder.Capacity);
+                    return Path.GetDirectoryName(stringBuilder.ToString());
+                }
+            }
+        }
+
+
     }
 }
