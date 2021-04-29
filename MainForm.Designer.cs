@@ -331,12 +331,12 @@
             // 
             // timer2
             // 
-            this.timer2.Interval = 3000;
+            this.timer2.Interval = 60000;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // timer3_render
             // 
-            this.timer3_render.Interval = 5000;
+            this.timer3_render.Interval = 60000;
             this.timer3_render.Tick += new System.EventHandler(this.timer3_render_Tick);
             // 
             // MainForm

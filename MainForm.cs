@@ -62,6 +62,7 @@ namespace DataVisualizerApp
         public List<List<List<double[]>>> RTDataArray = new List<List<List<double[]>>>();
 
 
+
         public DataSet AvgData { get; set; }
         public Thread UpdAvgDataThread;
 
@@ -74,6 +75,8 @@ namespace DataVisualizerApp
         public List<FormsPlot> formsPlots { get; set; }
 
         public List<List<PlottableSignal>> plt_list = new List<List<PlottableSignal>>();
+        public List<List<int>> newNextDataIndex = new List<List<int>>();
+        public bool data_ok = false;
 
         public PlottableSignal signalPlot;
         public List<List<PlottableAnnotation>> plottableAnnotationsMaxVal2 = new List<List<PlottableAnnotation>>();
@@ -770,6 +773,7 @@ namespace DataVisualizerApp
             panel2_ChartArea.Controls.Clear();
             plt_list.Clear();
             nextDataIndex = 0;
+            //newNextDataIndex = new List<List<int>>();
             RTDataArray.Clear();
             RT_textBoxes.Clear();
 
@@ -1009,10 +1013,11 @@ namespace DataVisualizerApp
                     try
                     {
 
-                        DateTime dtime_min;
+                        DateTime dtime_min = DateTime.Now;
                         for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
                         {
                             plt_list.Add(new List<PlottableSignal>());
+                            //newNextDataIndex.Add(new List<int>());
 
                             RTDataArray.Add(new List<List<double[]>>());
 
@@ -1029,8 +1034,7 @@ namespace DataVisualizerApp
 
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
-
-                                dtime_min = DateTime.Now;
+                                //newNextDataIndex[index_chart].Add(0);
                                 RTDataArray[index_chart].Add(new List<double[]>());
 
                                 RTDataArray[index_chart][index_ID].Add(new double[100_000]);
@@ -1049,9 +1053,12 @@ namespace DataVisualizerApp
                                 if (MyData.Tables[index_chart].Rows.Count > index_ID)
                                 {
 
+                                    ////////////////////////////////////////////////////////////
+
+                                    //nextDataIndex = newNextDataIndex[index_chart][index_ID];
                                     // check data (row) index exists
 
-                                    dtime_min = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
+                                    //dtime_min = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
 
                                     RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
                                     RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
@@ -1085,10 +1092,13 @@ namespace DataVisualizerApp
                                 }
                                 else
                                 {
-                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
-                                    RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
+                                    if (nextDataIndex > 0)
+                                    {
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
+                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = RTDataArray[index_chart][index_ID][1][nextDataIndex - 1];
+                                    }
 
-                                    Console.WriteLine("1. Skipped this chart settings because there is no data to show.");
+                                    Console.WriteLine("1. Old data was re-used because there is no data to show.");
                                 }
 
 
@@ -1101,12 +1111,11 @@ namespace DataVisualizerApp
 
 
                                 plt_list[index_chart].Add(signalPlot);
-
-
+                                plt_list[index_chart][index_ID].maxRenderIndex = nextDataIndex;
                             }
 
                             pltStyler(MyDataTypes, index_chart, chartTitle);
-                            formsPlots[index_chart].Render();
+                           
                         }
 
                         AnnotationBackground(plt_list, MyDataTypes, MyIDs);
@@ -1154,9 +1163,13 @@ namespace DataVisualizerApp
                                 annotY += 23;
                                 plottableAnnotationsMaxVal2[index_chart].Add(pltAnnot);
                                 plottableAnnotationsMinVal2[index_chart].Add(pltAnnot_min);
+
+                                //newNextDataIndex[index_chart][i] += 1;
                             }
+                            formsPlots[index_chart].Render();
                         }
                         nextDataIndex += 1;
+
                         timer2.Start();
                         timer3_render.Start();
 
@@ -1242,6 +1255,7 @@ namespace DataVisualizerApp
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //nextDataIndex = newNextDataIndex[0][0];
             //List<List<List<string[]>>> DataRetrieved_RT = new List<List<List<string[]>>>();
             //DataRetrieved_RT = new List<List<List<string[]>>>(); //G_DataQuery.RealTimeDBQuery(IDs_next, DataTypesNext, Sql_NamesNow);
             DataSet MyData = G_DataQuery.RealTimeDataQuery(IDs_next, DataTypesNext);
@@ -1290,6 +1304,7 @@ namespace DataVisualizerApp
 
                         for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
                         {
+                            //nextDataIndex = newNextDataIndex[index_chart][index_ID];
 
                             if (MyData.Tables[index_chart].Rows.Count > index_ID)
                             {
@@ -1397,40 +1412,42 @@ namespace DataVisualizerApp
                                 //plottableAnnotationsMinVal[index_chart * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
                                 plottableAnnotationsMinVal2[index_chart][index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
-
                             }
                             else
                             {
+                                
+                                if (nextDataIndex > 0)
+                                {
+                                    RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
+                                    RTDataArray[index_chart][index_ID][1][nextDataIndex] = RTDataArray[index_chart][index_ID][1][nextDataIndex - 1];
+                                }
 
-
-                                //DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
-                                RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
-                                RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
-                                // index_ID > 0 ? RTDataArray[index_chart][index_ID][1][nextDataIndex - 1] : RTDataArray[index_chart][0][1][nextDataIndex - 1];
-                                //Console.WriteLine("Skipped this chart ");
                             }
+                            /////////////////////////////////////////////////
+
+                            //plt_list[index_chart][index_ID].maxRenderIndex = nextDataIndex; 
                         }
                         for (int pltIndex = 0; pltIndex < plt_list[index_chart].Count; pltIndex++)
                         {
-                            //plts[pltIndex].minRenderIndex = 0;
                             plt_list[index_chart][pltIndex].maxRenderIndex = nextDataIndex;
                         }
                     }
-
-                    for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
+                    /*for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
                     {
                         formsPlots[formPltIndex].plt.AxisAuto();
                         formsPlots[formPltIndex].Render();
-                    }
+                    }*/
+
 
                 }
                 catch (Exception ex)
                 {
                     //MessageBox.Show(ex.Message, "에러 메시지");
-                    throw new Exception(ex.Message + "\n" + ex.StackTrace);
+                    throw new Exception("Error: " + ex.Message + "\n" + ex.StackTrace);
                 }
 
                 //timer3_render.Interval = 500;
+                //////////////////////////////////////////////////////////
                 nextDataIndex += 1;
             }
 
@@ -1446,6 +1463,11 @@ namespace DataVisualizerApp
                     double[] autoAxisLimits = formsPlots[formPltIndex].plt.AxisAuto(verticalMargin: .5);
                     double oldX2 = autoAxisLimits[1];
                     formsPlots[formPltIndex].plt.Axis(x2: oldX2 + 1000);
+                }
+                for (int formPltIndex = 0; formPltIndex < formsPlots.Count; formPltIndex++)
+                {
+                    formsPlots[formPltIndex].plt.AxisAuto();
+                    formsPlots[formPltIndex].Render();
                 }
             }
             catch (Exception ex)
@@ -1592,43 +1614,6 @@ namespace DataVisualizerApp
             return response;
         }
 
-
-
-        //간편한 시간 간격 선택 시 button.BackColor를 다른색으로 표시해 주는 함수
-        private void highlightSelectedBtn(Button[] btnNames, int index, string btnSize)
-        {
-            if (btnNames != null)
-            {
-                for (int i = 0; i < btnNames.Length; i++)
-                {
-                    if (index == i)
-                    {
-                        //btnNames[i].BackColor = color;
-                        if (btnSize == "big")
-                        {
-                            btnNames[i].Image = btnClicked_big;
-                        }
-                        else
-                        {
-                            btnNames[i].Image = btnClicked_small;
-                        }
-
-                    }
-                    else
-                    {
-                        if (btnSize == "big")
-                        {
-                            btnNames[i].Image = btnUnClicked_big; //.BackColor = Color.Transparent;
-                        }
-                        else
-                        {
-                            btnNames[i].Image = btnUnClicked_small; //.BackColor = Color.Transparent;
-                        }
-                    }
-                }
-            }
-
-        }
 
 
         /// <summary>
@@ -2194,7 +2179,7 @@ namespace DataVisualizerApp
         */
 
 
-        
+
 
         private void HandleBtn2nBtn3(Button thisBtn)
         {

@@ -99,8 +99,8 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ini.cs" />
     <Compile Include="DataQuery.cs" />
-    <Compile Include="Device.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
