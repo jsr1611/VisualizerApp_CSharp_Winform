@@ -148,7 +148,7 @@ namespace DataVisualizerApp
             catch (Exception ex)
             {
                 Console.WriteLine($"Error while SQL connection: {ex.Message}. {ex.StackTrace}");
-                dbServerAddress = D_ID;
+                dbServerAddress = D_IP;
                 sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
                 myConn = new SqlConnection(sqlConStr);
                 try
@@ -1164,7 +1164,7 @@ namespace DataVisualizerApp
 
                                 double xs = dtime_min.ToOADate();
 
-                                double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerSecond);
+                                double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerMinute);
 
                                 //MyIDs[index_ID] - 51
                                 signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
@@ -1224,7 +1224,6 @@ namespace DataVisualizerApp
                                 plottableAnnotationsMaxVal2[index_chart].Add(pltAnnot);
                                 plottableAnnotationsMinVal2[index_chart].Add(pltAnnot_min);
 
-                                //newNextDataIndex[index_chart][i] += 1;
                             }
                             formsPlots[index_chart].Render();
                         }
