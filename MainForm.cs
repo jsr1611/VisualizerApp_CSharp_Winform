@@ -1344,7 +1344,6 @@ namespace ParticleDataVisualizerApp
                         nextDataIndex = 0;
                         timer2.Stop();
                         timer3_render.Stop();
-                        //ScotPlot(DataRetrieved_RT, DataTypesNext, IDs_next, true);
                         ScotPlot(MyData, DataTypesNext, IDs_next, true);
                     }
                     for (int index_chart = 0; index_chart < DataTypesNext.Count; index_chart++)
@@ -1356,8 +1355,6 @@ namespace ParticleDataVisualizerApp
 
                         for (int index_ID = 0; index_ID < IDs_next.Count; index_ID++)
                         {
-                            //nextDataIndex = newNextDataIndex[index_chart][index_ID];
-
                             if (MyData.Tables[index_chart].Rows.Count > index_ID)
                             {
 
@@ -1413,7 +1410,6 @@ namespace ParticleDataVisualizerApp
 
                                 string numberStrMin = RT_Min3[index_chart][index_ID][0];
                                 string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
-                                //plottableAnnotationsMinVal[index_chart * IDs_next.Count + index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
                                 plottableAnnotationsMinVal2[index_chart][index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
                             }
@@ -1452,11 +1448,9 @@ namespace ParticleDataVisualizerApp
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show(ex.Message, "에러 메시지");
                     throw new Exception("Error: " + ex.Message + "\n" + ex.StackTrace);
                 }
 
-                //timer3_render.Interval = 500;
                 //////////////////////////////////////////////////////////
                 nextDataIndex += 1;
             }
@@ -1482,10 +1476,8 @@ namespace ParticleDataVisualizerApp
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message, "에러 메시지");
                 throw new Exception(ex.Message + "\n" + ex.StackTrace);
             }
-            //timer3_render.Interval = 1000;
         }
 
 
