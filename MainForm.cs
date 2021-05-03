@@ -1385,30 +1385,6 @@ namespace ParticleDataVisualizerApp
                                 RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
 
-
-                                /*
-                                                                if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
-                                                                {
-                                                                    if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
-                                                                    {
-                                                                        RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
-                                                                        RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
-                                                                    }
-
-                                                                    if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
-                                                                    {
-                                                                        RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
-                                                                        RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString();
-
-                                                                    }
-                                                                    string currData = MyData.Tables[index_chart].Rows[index_ID].Field<string>(DataTypesNext[index_chart]);
-                                                                    string titleNdata = currData.Length > 2 ? currData.Insert(2, ".") : currData;
-                                                                    // display current value next to chart title
-                                                                    formsPlots[index_chart].plt.Title(chartTitle + $"                           {finalVal}", fontSize: 24);
-                                                                    Console.WriteLine($"1.  chartID:{index_chart}, sensor:{index_ID}: currVal: {finalVal}");
-                                                                }
-                                                                else
-                                                                {*/
                                 if (RTDataArray[index_chart][index_ID][0][nextDataIndex] > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
                                 {
                                     RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
@@ -1430,7 +1406,6 @@ namespace ParticleDataVisualizerApp
 
                                 formsPlots[index_chart].plt.Title(chartTitle + $"                           {displayCurrVal}", fontSize: 24);
                                 Console.WriteLine($"2.  chartID:{index_chart}, sensor:{index_ID}: currVal: {displayCurrVal}");
-                                //}
 
                                 string numberStrMax = RT_Max3[index_chart][index_ID][0];
                                 string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
