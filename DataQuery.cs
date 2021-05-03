@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DataVisualizerApp
+namespace ParticleDataVisualizerApp
 {
 
     public class DataQuery

@@ -1,4 +1,4 @@
-﻿namespace DataVisualizerApp
+﻿namespace ParticleDataVisualizerApp
 {
     partial class MainForm
     {
@@ -304,7 +304,7 @@
             // pictureBox_logo
             // 
             this.pictureBox_logo.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.pictureBox_logo.Image = global::DataVisualizerApp.Properties.Resources.logo;
+            this.pictureBox_logo.Image = global::ParticleDataVisualizerApp.Properties.Resources.logo;
             this.pictureBox_logo.Location = new System.Drawing.Point(885, 34);
             this.pictureBox_logo.Name = "pictureBox_logo";
             this.pictureBox_logo.Size = new System.Drawing.Size(219, 44);
@@ -327,6 +327,7 @@
             // 
             // timer1
             // 
+            this.timer1.Interval = 60000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
             // timer2
