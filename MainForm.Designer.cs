@@ -350,6 +350,7 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "온습도 및 파티클 데이터 모니터링";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.panel1_menu.ResumeLayout(false);
             this.panel1_menu.PerformLayout();
             this.panel2_ChartArea.ResumeLayout(false);

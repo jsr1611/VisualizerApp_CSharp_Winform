@@ -1394,11 +1394,15 @@ namespace ParticleDataVisualizerApp
                                     RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
                                 }
                                 string currentVal = RTDataArray[index_chart][index_ID][0][nextDataIndex].ToString();
-                                string displayCurrVal = (currentVal.Length > 3) ? currentVal.Insert(currentVal.Length - 3, ",") : currentVal;
+                                string displayCurrVal = ""; //
 
                                 if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
                                     displayCurrVal = currentVal.Length > 2 ? currentVal.Insert(2, ".") : currentVal;
+                                }
+                                else
+                                {
+                                    displayCurrVal = (currentVal.Length > 3) ? currentVal.Insert(currentVal.Length - 3, ",") : currentVal;
                                 }
 
                                 formsPlots[index_chart].plt.Title(chartTitle + $"                           {displayCurrVal}", fontSize: 24);
@@ -2237,6 +2241,11 @@ namespace ParticleDataVisualizerApp
             }
         }
 
-
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Application.Exit();
+            System.Windows.Forms.Application.ExitThread(); // .Exit();
+                
+        }
     }
 }
