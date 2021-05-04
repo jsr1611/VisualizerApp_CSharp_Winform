@@ -159,6 +159,17 @@ namespace ParticleDataVisualizerApp
                 catch (Exception ex2)
                 {
                     Console.WriteLine($"Error while SQL connection 2: {ex2.Message}. {ex2.StackTrace}");
+                    dbServerAddress = "192.168.11.209";
+                    dbName = dbServerAddress + @"\SQLEXPRESS";
+                    sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
+                    myConn = new SqlConnection(sqlConStr);
+                    try
+                    {
+                        myConn.Open();
+                        Console.WriteLine("Connection Successful!");
+                    }
+                    catch (Exception ex3) { Console.WriteLine($"Error while SQL connection 2: {ex3.Message}. {ex3.StackTrace}"); }
+                        
                 }
             }
 
@@ -1398,7 +1409,7 @@ namespace ParticleDataVisualizerApp
 
                                 if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
                                 {
-                                    displayCurrVal = currentVal.Length > 2 ? currentVal.Insert(2, ".") : currentVal;
+                                    displayCurrVal = currentVal.Length > 2 && !currentVal.Contains(".") ? currentVal.Insert(2, ".") : currentVal;
                                 }
                                 else
                                 {
