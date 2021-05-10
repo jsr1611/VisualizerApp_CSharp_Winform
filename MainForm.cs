@@ -138,7 +138,7 @@ namespace ParticleDataVisualizerApp
             dbName = D_NAME; // "SensorData2"; //"SensorDataNewDB";
             dbUID = D_ID; // "admin";
             dbPWD = D_PW; // "admin";
-            sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
+            sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName}; Integrated Security=True";
             myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
             try
@@ -1327,16 +1327,15 @@ namespace ParticleDataVisualizerApp
         {
             DataSet MyData = G_DataQuery.RealTimeDataQuery(IDs_next, DataTypesNext);
             DataSet averageData = AvgData.Copy();
-            if (nextDataIndex == 1)
+            if (nextDataIndex <= 1)
             {
                 UpdAvgDataThread = new Thread(UpdAvgData);
                 UpdAvgDataThread.Start();
             }
 
+
             if (MyData.Tables.Count == 0)//(DataRetrieved_RT.Count == 0)
             {
-                //timer2.Stop();
-                //timer3_render.Stop();
             }
             else
             {
@@ -1393,18 +1392,18 @@ namespace ParticleDataVisualizerApp
                                 RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
 
-                                if (RTDataArray[index_chart][index_ID][0][nextDataIndex] > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
                                 {
                                     RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
                                     RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
                                 }
 
-                                if (RTDataArray[index_chart][index_ID][0][nextDataIndex] < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
                                 {
                                     RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
                                     RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
                                 }
-                                string currentVal = RTDataArray[index_chart][index_ID][0][nextDataIndex].ToString();
+                                string currentVal = finalVal.ToString();
                                 string displayCurrVal = ""; //
 
                                 if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))

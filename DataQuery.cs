@@ -190,10 +190,10 @@ namespace ParticleDataVisualizerApp
                                     sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]}, dateandtime " +
                                                 $"FROM  {queryTbName} " +
                                                 $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' ";
-                                    if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
+                                    /*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
                                     {
                                         sqlStr += $" AND {tbNames[ind]} > 0 ";
-                                    }
+                                    }*/
 
                                     if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
