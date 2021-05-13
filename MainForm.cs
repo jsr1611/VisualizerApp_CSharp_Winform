@@ -99,7 +99,8 @@ namespace ParticleDataVisualizerApp
         {
             InitializeComponent();
 
-
+            progressbarThread = new Thread(new ThreadStart(WaitForm));
+            progressbarThread.Start();
 
             ////////////////////////////////////////////////////////
 
@@ -169,7 +170,7 @@ namespace ParticleDataVisualizerApp
                         Console.WriteLine("Connection Successful!");
                     }
                     catch (Exception ex3) { Console.WriteLine($"Error while SQL connection 2: {ex3.Message}. {ex3.StackTrace}"); }
-                        
+
                 }
             }
 
@@ -216,22 +217,6 @@ namespace ParticleDataVisualizerApp
 
             }
             //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
-
-
-            DeviceZoneLocInfo = new Dictionary<string, List<string>>();
-            string getZoneLocation = $"SELECT {S_DeviceTableColumn[2]}, COUNT(*) FROM {S_DeviceTable} GROUP BY {S_DeviceTableColumn[2]};";
-            List<string> sZones = GetColumnDataAsList("string", getZoneLocation, S_DeviceTableColumn[2]);
-            for (int i = 0; i < sZones.Count; i++)
-            {
-                string getLocations = $"SELECT {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[2]} = '{sZones[i]}';";
-                List<string> sLocations = GetColumnDataAsList("string", getLocations, S_DeviceTableColumn[3]);
-                DeviceZoneLocInfo.Add(sZones[i], sLocations);
-            }
-
-
-
-
-
 
 
 
@@ -325,6 +310,15 @@ namespace ParticleDataVisualizerApp
             }
             label_Title_main.Left = panel2_ChartArea.Bounds.Width / 2 - label_Title_main.Bounds.Width / 2;
             label_title_ver.Left = label_Title_main.Right + 15;
+
+            try
+            {
+                progressbarThread.Abort();
+            }
+            catch (Exception)
+            {
+            }
+
         }
 
         private Button[] GenerateButtonsHere(Button[] Btns, EventHandler btn_data_Click, List<string> buttonNames, List<string> buttonTxt, int btn_X, int btn_Y)
@@ -743,6 +737,9 @@ namespace ParticleDataVisualizerApp
         private void button_show_Click(object sender, EventArgs e)
         {
             //List<List<List<string[]>>> DataRetrieved_general = new List<List<List<string[]>>>();
+            progressbarThread = new Thread(new ThreadStart(WaitForm));
+            progressbarThread.Start();
+
             DataSet MyData;
 
             RangeLimitData = new Dictionary<string, List<long>>();
@@ -792,9 +789,9 @@ namespace ParticleDataVisualizerApp
                 startEndTime[0] = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
                 startEndTime[1] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
-                progressbarThread = new Thread(new ThreadStart(WaitForm));
+                /*progressbarThread = new Thread(new ThreadStart(WaitForm));
                 progressbarThread.Start();
-
+*/
                 MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
                 ScotPlot(MyData, DataTypesNow, IDs_now, false);
 
@@ -806,9 +803,9 @@ namespace ParticleDataVisualizerApp
                 {
                     startEndTime[0] = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
                     startEndTime[1] = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
-                    progressbarThread = new Thread(new ThreadStart(WaitForm));
+                    /*progressbarThread = new Thread(new ThreadStart(WaitForm));
                     progressbarThread.Start();
-                    /*
+                    
                                         MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
 
                                         ScotPlot(MyData, DataTypesNow, IDs_now, false);
@@ -822,6 +819,15 @@ namespace ParticleDataVisualizerApp
                 {
                     MessageBox.Show("잘못된 날짜가 선택되었습니다. 확인해 보세요!", "에러 메시지");
                 }
+            }
+
+
+            try
+            {
+                progressbarThread.Abort();
+            }
+            catch (Exception)
+            {
             }
 
         }
@@ -1068,8 +1074,15 @@ namespace ParticleDataVisualizerApp
                     {
                         formsPlots[index_DataType].Render();
                     }
-                    progressbarThread.Abort();
-                    progressbarThread = null;
+                    try
+                    {
+                        progressbarThread.Abort();
+                        progressbarThread = null;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
                 }
                 else
                 {
@@ -1085,6 +1098,7 @@ namespace ParticleDataVisualizerApp
                     {
 
                         DateTime dtime_min = DateTime.Now;
+                        double finalVal = 0.0;
                         for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
                         {
                             plt_list.Add(new List<PlottableSignal>());
@@ -1137,27 +1151,32 @@ namespace ParticleDataVisualizerApp
 
                                     if (MyDataTypes[index_chart].Contains(SensorUsageColumn[1]) || MyDataTypes[index_chart].Contains(SensorUsageColumn[2]))
                                     {
-                                        RT_Max3[index_chart][index_ID][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
-                                        RT_Min3[index_chart][index_ID][0] = (Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100m).ToString();
+
 
                                         double dblVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart])) / 100.0D;
                                         double dblAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart])) / 100.0D : double.NaN;
+                                        finalVal = (dblAvg != 0) && ((dblVal - dblAvg) >= 1 || (dblVal - dblAvg) <= -1) ? dblAvg : dblVal;
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (dblAvg != 0) && ((dblVal - dblAvg) >= 1 || (dblVal - dblAvg) <= -1) ? dblAvg : dblVal;
-                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
+
+                                        RT_Max3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                        RT_Min3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
                                     }
                                     else
                                     {
-                                        RT_Max3[index_chart][index_ID][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
-                                        RT_Min3[index_chart][index_ID][0] = MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]).ToString();
 
                                         Int64 intVal = Convert.ToInt64(MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
                                         double intAvg = AvgData.Tables[index_chart].Rows.Count > index_ID ? Convert.ToInt64(AvgData.Tables[index_chart].Rows[index_ID].Field<int>(MyDataTypes[index_chart])) : double.NaN;
+                                        finalVal = (intAvg != 0) && (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
+
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
+                                        RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
+                                        RT_Min3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
 
 
-                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = (intAvg != 0) && (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
-                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     }
+
+                                    RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     //nextDataIndex += -1;
 
                                 }
@@ -1167,6 +1186,11 @@ namespace ParticleDataVisualizerApp
                                     {
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = RTDataArray[index_chart][index_ID][1][nextDataIndex - 1];
+                                    }
+                                    else
+                                    {
+                                        RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
+                                        RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
                                     }
 
                                     Console.WriteLine("1. Old data was re-used because there is no data to show.");
@@ -1219,8 +1243,8 @@ namespace ParticleDataVisualizerApp
                                     numberStrMin = RT_Min3[index_chart][i][0];
 
 
-                                    maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
-                                    minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                                    maxLabel = RT_Max3[index_chart][i][0];  //(numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                                    minLabel = RT_Min3[index_chart][i][0];  //(numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
 
 
                                     pltAnnot.label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
@@ -1334,7 +1358,7 @@ namespace ParticleDataVisualizerApp
             }
 
 
-            if (MyData.Tables.Count == 0)//(DataRetrieved_RT.Count == 0)
+            if (MyData.Tables.Count == 0)
             {
             }
             else
@@ -1345,6 +1369,7 @@ namespace ParticleDataVisualizerApp
                 double oldVal = double.NaN;
                 double finalVal = double.NaN;
                 string now = DateTime.Now.ToString("HH:mm:ss");
+                string displayCurrVal = ""; //
                 DateTime resetTime = Convert.ToDateTime(now);
                 try
                 {
@@ -1377,6 +1402,19 @@ namespace ParticleDataVisualizerApp
                                     finalVal = (dblVal >= (avgVal + 1.0) || dblVal <= (avgVal - 1.0)) ? avgVal : dblVal;
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
+                                    if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                    {
+                                        RT_Max3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                        RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
+                                    }
+
+                                    if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                    {
+                                        RT_Min3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                        RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
+                                    }
+                                    displayCurrVal = String.Format("{0:0.00}", finalVal);
+
                                 }
                                 else
                                 {
@@ -1386,50 +1424,38 @@ namespace ParticleDataVisualizerApp
                                     finalVal = (dblVal >= avgVal * 2.0 || dblVal <= avgVal / 2.0) ? avgVal : dblVal;
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
+                                    if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                    {
+                                        RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
+                                        RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
+                                    }
+
+                                    if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                    {
+                                        RT_Min3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
+                                        RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
+                                    }
+                                    displayCurrVal = String.Format("{0:n0}", finalVal);
                                 }
 
                                 DateTime dtime = DateTime.Parse(MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime").ToString());
                                 RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
 
-                                if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
-                                {
-                                    RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
-                                    RT_Max3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
-                                }
 
-                                if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
-                                {
-                                    RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
-                                    RT_Min3[index_chart][index_ID][1] = MyData.Tables[index_chart].Rows[index_ID].Field<string>("DateAndTime");
-                                }
-                                string currentVal = finalVal.ToString();
-                                string displayCurrVal = ""; //
-
-                                if (DataTypesNext[index_chart].Contains(SensorUsageColumn[1]) || DataTypesNext[index_chart].Contains(SensorUsageColumn[2]))
-                                {
-                                    displayCurrVal = currentVal.Length > 2 && !currentVal.Contains(".") ? currentVal.Insert(2, ".") : currentVal;
-                                }
-                                else
-                                {
-                                    displayCurrVal = (currentVal.Length > 3) ? currentVal.Insert(currentVal.Length - 3, ",") : currentVal;
-                                }
 
                                 formsPlots[index_chart].plt.Title(chartTitle + $"                           {displayCurrVal}", fontSize: 24);
                                 Console.WriteLine($"2.  chartID:{index_chart}, sensor:{index_ID}: currVal: {displayCurrVal}");
 
-                                string numberStrMax = RT_Max3[index_chart][index_ID][0];
-                                string maxLabel = (numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
+                                string maxLabel = RT_Max3[index_chart][index_ID][0];
                                 plottableAnnotationsMaxVal2[index_chart][index_ID].label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
 
-                                string numberStrMin = RT_Min3[index_chart][index_ID][0];
-                                string minLabel = (numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                                string minLabel = RT_Min3[index_chart][index_ID][0];
 
                                 plottableAnnotationsMinVal2[index_chart][index_ID].label = minLabel + " " + char.ConvertFromUtf32(0x2193);
                             }
                             else
                             {
-
                                 if (nextDataIndex > 0)
                                 {
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
@@ -2255,7 +2281,7 @@ namespace ParticleDataVisualizerApp
         {
             //Application.Exit();
             System.Windows.Forms.Application.ExitThread(); // .Exit();
-                
+
         }
     }
 }
