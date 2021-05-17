@@ -173,50 +173,59 @@ namespace ParticleDataVisualizerApp
                     string sqlStr = "";
                     using (SqlConnection conn = new SqlConnection(sqlConStr))
                     {
-                        conn.Open();
-                        
-                        for (int ind = 0; ind < tbNames.Count; ind++)
+                        try
                         {
-                            try
-                            {
-                                SqlTransaction RTDQ_transaction = conn.BeginTransaction();
-                                string queryTbName = $"d_{tbNames[ind].Substring(2)}";
-                                sqlStr = "SELECT sensor_id, " + tbNames[ind] + ", dateandtime FROM( ";
-                                string unionStr = " UNION ALL "; // 테이블 연결하는 것
-                                string sql_tail = " )a ";
+                            conn.Open();
 
-                                for (int i = 0; i < IDs.Count; i++)
+                            for (int ind = 0; ind < tbNames.Count; ind++)
+                            {
+                                try
                                 {
-                                    sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]}, dateandtime " +
-                                                $"FROM  {queryTbName} " +
-                                                $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' ";
-                                    /*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
+                                    SqlTransaction RTDQ_transaction = conn.BeginTransaction();
+                                    string queryTbName = $"d_{tbNames[ind].Substring(2)}";
+                                    sqlStr = "SELECT sensor_id, " + tbNames[ind] + ", dateandtime FROM( ";
+                                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                                    string sql_tail = " )a ";
+
+                                    for (int i = 0; i < IDs.Count; i++)
                                     {
-                                        sqlStr += $" AND {tbNames[ind]} > 0 ";
-                                    }*/
+                                        sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]}, dateandtime " +
+                                                    $"FROM  {queryTbName} " +
+                                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' ";
+                                        /*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
+                                        {
+                                            sqlStr += $" AND {tbNames[ind]} > 0 ";
+                                        }*/
 
-                                    if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
+                                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
+                                    }
+
+                                    sqlStr += sql_tail;
+                                    sqlStr += " ORDER BY sensor_id ;";
+
+                                    using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
+                                    {
+                                        sda.SelectCommand.Transaction = RTDQ_transaction;
+                                        sda.Fill(ds, tbNames[ind]);
+                                        RTDQ_transaction.Commit();
+                                    }
+                                    RTDQ_transaction.Dispose();
                                 }
-
-                                sqlStr += sql_tail;
-                                sqlStr += " ORDER BY sensor_id ;";
-
-                                using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
+                                catch (System.Exception ex)
                                 {
-                                    sda.SelectCommand.Transaction = RTDQ_transaction;
-                                    sda.Fill(ds, tbNames[ind]);
-                                    RTDQ_transaction.Commit();
+                                    Console.WriteLine("Exception occurred:\n" + ex.Message + " " + ex.StackTrace);
+                                    Console.WriteLine($"SqlQuery skipped:\n{sqlStr}\n");
                                 }
-                                RTDQ_transaction.Dispose();
                             }
-                            catch(System.Exception ex)
-                            {
-                                Console.WriteLine("Exception occurred:\n" + ex.Message);
-                                Console.WriteLine($"SqlQuery skipped:\n{sqlStr}\n");
-                            }
+
                         }
-                        
+                        catch (Exception ex2)
+                        {
+                            Console.WriteLine($"DB Connection Error: {ex2.Message}. {ex2.StackTrace}");
+                         
+                        }
+
                     }
                     return ds;
                 }
