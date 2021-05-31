@@ -374,18 +374,13 @@ namespace ParticleDataVisualizerApp
                         int.TryParse(str_val, out index_val);
                         str_val = string.Empty;
                     }
-                    if (!IDs_now.Contains(index_val))
+                    if (!IDs_now.Contains(index_val+1))
                     {
-                        IDs_now.Add(index_val);
-                        //Btn3_SensorLocation[index_val].Image = btnClicked_small;
+                        IDs_now.Add(index_val+1);
+                        Btn3_SensorLocation[index_val].Image = btnClicked_small;
                     }
                 }
-
-
-                for (int i = 0; i < IDs_now.Count; i++)
-                {
-                    Btn3_SensorLocation[IDs_now[i]].Image = btnClicked_small;
-                }
+                
 
             }
             catch (Exception ex)
@@ -967,10 +962,7 @@ namespace ParticleDataVisualizerApp
                 ProgressBarForm progressBarForm = new ProgressBarForm();
                 progressBarForm.ShowDialog();
             }
-            catch (Exception)
-            {
-
-            }
+            catch (Exception) { }
 
 
         }
@@ -1015,18 +1007,26 @@ namespace ParticleDataVisualizerApp
             string S_Sensors = string.Empty;
 
 
-            for (int num = 0; num < DataTypesNow.Count; num++)
+            for (int i = 0; i < DataTypesNow.Count; i++)
             {
-                S_ChartType += num;
-                if (num + 1 < DataTypesNow.Count)
+                for(int j=0; j < Btn2_DataType.Length; j++)
+                {
+                    if (Btn2_DataType[j].Name.Equals(DataTypesNow[i]))
+                    {
+                        S_ChartType += j;
+                    }
+                }
+                
+
+                if (i + 1 < DataTypesNow.Count)
                 {
                     S_ChartType += ",";
                 }
             }
-            for (int num = 0; num < IDs_now.Count; num++)
+            for (int i = 0; i < IDs_now.Count; i++)
             {
-                S_Sensors += num;
-                if (num + 1 < IDs_now.Count)
+                S_Sensors += IDs_now[i]-1;
+                if (i + 1 < IDs_now.Count)
                 {
                     S_Sensors += ",";
                 }
