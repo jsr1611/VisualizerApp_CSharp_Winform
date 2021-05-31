@@ -90,7 +90,7 @@ namespace ParticleDataVisualizerApp
         public Bitmap btnUnClicked_big = ParticleDataVisualizerApp.Properties.Resources._04;
         public Bitmap btnClicked_small = ParticleDataVisualizerApp.Properties.Resources.btn_sm7;
         public Bitmap btnUnClicked_small = ParticleDataVisualizerApp.Properties.Resources.btn_sm6;
-
+        public int S_INTERVAL { get; set; }
         public DataQuery G_DataQuery { get; set; }
 
 
@@ -119,6 +119,7 @@ namespace ParticleDataVisualizerApp
             string D_PW = ini["DBSetting"]["PW"].ToString();
             string D_RTLimitTime = ini["DBSetting"]["RTLIMITTIME"].ToString();
             string D_AVGLimitTime = ini["DBSetting"]["AVGLIMITTIME"].ToString();
+            string S_IntervalTime = ini["DBSetting"]["INTERVAL"].ToString();
 
 
             string R_RangeHigh2 = ini["RangeLimitTable"]["RangeHigh2"].ToString();
@@ -134,6 +135,7 @@ namespace ParticleDataVisualizerApp
 
 
 
+
             // Initialize DB access variables
             dbServerAddress = D_SERVERNAME; //"localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
             dbName = D_NAME; // "SensorData2"; //"SensorDataNewDB";
@@ -142,6 +144,8 @@ namespace ParticleDataVisualizerApp
             sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName}; Integrated Security=True";
             myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
 
+            S_INTERVAL = Convert.ToInt32(S_IntervalTime);
+
             try
             {
                 myConn.Open();
@@ -149,7 +153,7 @@ namespace ParticleDataVisualizerApp
             catch (Exception ex)
             {
                 Console.WriteLine($"Error while SQL connection: {ex.Message}. {ex.StackTrace}");
-                dbServerAddress = D_IP;
+                //dbServerAddress = D_IP;
                 sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
                 myConn = new SqlConnection(sqlConStr);
                 try
@@ -229,22 +233,187 @@ namespace ParticleDataVisualizerApp
             datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
 
             colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green, Color.Brown, Color.Yellow, Color.Purple, Color.Red, Color.Azure, Color.Chocolate, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
-            //Console.WriteLine(colorset.Length);
+
+            ///////////////////////////////////////////////////
+            // ini 읽기 //////
+            ini = new IniFile();
+
+            ini.Load(AppInfo.StartupPath + "\\" + "Setting2.ini");
+
+            // Selection Preferences
+            string T_TimeType = ini["TimeSettings"]["TimeType"].ToString();
+            string T_ChartType = ini["TimeSettings"]["ChartType"].ToString();
+            string T_SelectTime = ini["TimeSettings"]["SelectTime"].ToString();
+
+            string CS_ChartType = ini["ChartsAndSensors"]["ChartTypes"].ToString();
+            string CS_Sensors = ini["ChartsAndSensors"]["Sensors"].ToString();
+
+            //////////////////////////////////
+            Button[] btns_time = { button1_realtime, button1_24h, button1_datepicker };
+            int index_val;
+            if (T_TimeType.Length > 0)
+            {
+                index_val = Convert.ToInt32(T_TimeType);
+                if (index_val >= 0 && index_val <= btns_time.Length - 1)
+                    btns_time[index_val].Image = btnClicked_big;
+                if (index_val == 0)
+                {
+                    button11_chartRT.Visible = true;
+                    button11_numRT.Visible = true;
+                    btns_time = new Button[] { button11_numRT, button11_chartRT };
+                    if (T_ChartType.Length > 0)
+                    {
+                        index_val = Convert.ToInt32(T_ChartType);
+                        if (index_val >= 0 && index_val <= btns_time.Length - 1)
+                            btns_time[index_val].Image = btnClicked_small;
+                    }
+                }
+                else
+                {
+                    if (index_val == 1)
+                    {
+                        datePicker1_start.Value = DateTime.Now.AddDays(-1);
+                        datePicker2_end.Value = DateTime.Now;
+                    }
+                    else
+                    {
+                        if (T_SelectTime.Length > 0)
+                        {
+                            string startTime = T_SelectTime.Substring(0, T_SelectTime.IndexOf(","));
+                            string endTime = T_SelectTime.Substring(T_SelectTime.IndexOf(",") + 1);
+                            datePicker1_start.Value = Convert.ToDateTime(startTime);
+                            datePicker2_end.Value = Convert.ToDateTime(endTime);
+                        }
+                    }
+                    datePicker1_start.Visible = true;
+                    datePicker2_end.Visible = true;
+                }
+            }
 
 
+            if (IDs_now == null || IDs_now.Count == 0)
+            {
+                IDs_now = GetAllIDs();
+            }
 
             //CreateButtonsForSensors();
             Btn2_DataType = new Button[SensorUsageColumn.Count - 1];
 
-            int btn_X = button1_realtime.Bounds.X;
-            int btn_Y = button1_realtime.Bounds.Y + button1_realtime.Bounds.Height * 2;
+            int btn_X = button1_realtime.Bounds.X,
+                btn_Y = button1_realtime.Bounds.Y + button1_realtime.Bounds.Height * 2,
+                width = button1_realtime.Bounds.Width * 3 / 4,
+                height = button1_realtime.Bounds.Height,
+                margin = (button1_datepicker.Bounds.X + button1_datepicker.Bounds.Width) / 4;
+            List<string> btnNames = SensorUsageColumn.Where(x => !x.Equals(S_DeviceTableColumn[0])).ToList();
+            ValueTuple<int, int, int, int, int> Coord = (btn_X, btn_Y, width, height, margin);
+            Btn2_DataType = CreateBtns(Btn2_DataType.Length,
+                                        btn2_data_Click,
+                                        btnNames,
+                                        SensorNames,
+                                        Coord, 12);
 
 
-            Btn2_DataType = GenerateButtonsHere(Btn2_DataType, btn2_data_Click, SensorUsageColumn, SensorNames, btn_X, btn_Y);
 
 
 
 
+            // 온도, 습도 파티클 종류 배열
+            string str_val = CS_ChartType;
+            string btn_name = string.Empty;
+            try
+            {
+                while (str_val.Length > 0)
+                {
+                    if (str_val.Length > 1)
+                    {
+                        int.TryParse(str_val.Substring(0, str_val.IndexOf(",")), out index_val);
+                        str_val = str_val.Substring(str_val.IndexOf(",") + 1);
+                    }
+                    else
+                    {
+                        int.TryParse(str_val, out index_val);
+                        str_val = string.Empty;
+                    }
+                    btn_name = btnNames[index_val];
+                    if (!DataTypesNow.Contains(btn_name))
+                    {
+                        DataTypesNow.Add(btn_name);
+                        Btn2_DataType[index_val].Image = btnClicked_small;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + " " + ex.StackTrace, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable}";
+            btnNames = IDs_now.AsEnumerable().Select(x => x.ToString()).ToList();
+            List<string> btnTxt = GetButtonText(sqlStr);
+
+            Coord.Item2 = Btn2_DataType[Btn2_DataType.Length - 1].Bounds.Y + Btn2_DataType[Btn2_DataType.Length - 1].Height * 3 / 2;
+            Btn3_SensorLocation = CreateBtns(IDs_now.Count,
+                                            btn3_address_Click,
+                                            btnNames, btnTxt, Coord, 8);
+
+
+            /// 센서 아이디 번호 배열
+            IDs_now = new List<int>();
+            str_val = CS_Sensors;
+            try
+            {
+                while (str_val.Length > 0)
+                {
+                    if (str_val.Length > 1)
+                    {
+                        int.TryParse(str_val.Substring(0, str_val.IndexOf(",")), out index_val);
+                        str_val = str_val.Substring(str_val.IndexOf(",") + 1);
+                    }
+                    else
+                    {
+                        int.TryParse(str_val, out index_val);
+                        str_val = string.Empty;
+                    }
+                    if (!IDs_now.Contains(index_val))
+                    {
+                        IDs_now.Add(index_val);
+                        //Btn3_SensorLocation[index_val].Image = btnClicked_small;
+                    }
+                }
+
+
+                for (int i = 0; i < IDs_now.Count; i++)
+                {
+                    Btn3_SensorLocation[IDs_now[i]].Image = btnClicked_small;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + " " + ex.StackTrace, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            Coord.Item1 = panel1_menu.Bounds.Width / 2 - button1_realtime.Bounds.Width / 2;
+            Coord.Item2 = Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2;
+            Coord.Item3 = button1_realtime.Bounds.Width;
+            Coord.Item4 = button1_realtime.Bounds.Height;
+
+            button_show = CreateBtns(1, button_show_Click,
+                new List<string>() { "Confirm" },
+                new List<string>() { "확인" }, Coord, 15)[0];
+
+            /*button_show.Text = "확인";
+            button_show.Font = new Font(button_show.Font.FontFamily, 15);
+            button_show.Click += new EventHandler(this.button_show_Click);
+            panel1_menu.Controls.Add(button_show);
+            button_show.Visible = true;*/
+
+            button_show.Image = btnUnClicked_big;
+            /*button_show.SetBounds(panel1_menu.Bounds.Width / 2 - button1_realtime.Bounds.Width / 2,
+                                  Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2,
+                                  button1_realtime.Bounds.Width,
+                                  button1_realtime.Bounds.Height
+                                  );*/
 
 
 
@@ -252,8 +421,6 @@ namespace ParticleDataVisualizerApp
             G_DataQuery = new DataQuery(myConn, dbName, S_DeviceTable, SensorUsage, SensorUsageColumn, S_FourRangeColmn, sqlConStr);
             G_DataQuery.RTLimitTime = Convert.ToInt32(D_RTLimitTime);
             G_DataQuery.AvgLimitTime = Convert.ToInt32(D_AVGLimitTime);
-
-
 
 
 
@@ -321,13 +488,29 @@ namespace ParticleDataVisualizerApp
 
         }
 
-        private Button[] GenerateButtonsHere(Button[] Btns, EventHandler btn_data_Click, List<string> buttonNames, List<string> buttonTxt, int btn_X, int btn_Y)
+        /// <summary>
+        /// 버튼들의 배열을 생성해주는 함수
+        /// </summary>
+        /// <param name="size">배열의 크기</param>
+        /// <param name="btn_Click">버튼 클릭 이벤트</param>
+        /// <param name="btnNames">버튼명 배열 예: button[i].Name</param>
+        /// <param name="btnTxt">버튼에 표시 명 배열 예: button[i].Text </param>
+        /// <param name="Coord">버튼 생성 시 필요하는 (X,Y,W,H) point 및 버튼 간 거리(margin)</param>
+        /// <param name="fontSize">버튼에 표시되는 문자의 FontSize</param>
+        /// <returns>버튼들의 배열 Button[] Btns</returns>
+        private Button[] CreateBtns(int size, EventHandler btn_Click, List<string> btnNames, List<string> btnTxt, ValueTuple<int, int, int, int, int> Coord, int fontSize)
         {
-            for (int btn2_index = 0; btn2_index < Btns.Length; btn2_index++)
+            Button[] Btns = new Button[size];
+            int X = Coord.Item1,
+                Y = Coord.Item2,
+                width = Coord.Item3, //button1_realtime.Bounds.Width * 3 / 4,
+                height = Coord.Item4, //button1_realtime.Bounds.Height,
+                margin = Coord.Item5; //((button1_datepicker.Bounds.X + button1_datepicker.Bounds.Width) / 4);
+            Button button;
+            for (int btn_index = 0; btn_index < size; btn_index++)
             {
-                Button button = new Button()
+                button = new Button()
                 {
-
                     FlatAppearance = {
                             BorderSize = 0,
                             MouseDownBackColor = Color.Transparent,
@@ -338,25 +521,91 @@ namespace ParticleDataVisualizerApp
                     Image = btnUnClicked_small
                 };
 
-                button.Name = $"{buttonNames[btn2_index + 1]}";
-                button.Text = buttonTxt[btn2_index];
-                button.Font = new Font(button.Font.FontFamily, 12);
-                button.SetBounds(btn_X, btn_Y, button1_realtime.Bounds.Width * 3 / 4, button1_realtime.Bounds.Height);
-                btn_X += ((button1_datepicker.Bounds.X + button1_datepicker.Bounds.Width) / 4);
-                if (button.Right + (btn_X - button.Right) + button.Width >= panel1_menu.Right)
+                button.Name = $"{btnNames[btn_index]}";
+                button.Text = btnTxt[btn_index];
+                button.Font = new Font(button.Font.FontFamily, fontSize);
+                button.SetBounds(X, Y, width, height);
+                X += margin;
+                if (button.Right + (X - button.Right) + button.Width >= panel1_menu.Right)
                 {
-                    btn_X = button1_realtime.Bounds.X;
-                    btn_Y += button.Height;
+                    X = Coord.Item1; //button1_realtime.Bounds.X;
+                    Y += button.Height;
                 }
-                button.Click += new EventHandler(btn_data_Click);
+                button.Visible = true;
+                button.Click += new EventHandler(btn_Click);
                 panel1_menu.Controls.Add(button);
-                button.Visible = false;
-                Btns[btn2_index] = button;
+                Btns[btn_index] = button;
 
             }
 
             return Btns;
         }
+
+
+
+
+        /// <summary>
+        /// 센서장비를 카리기는 버튼 생성
+        /// </summary>
+        private Button[] CreateButtonsForSensorIds(List<int> btn_addresses, EventHandler btn_Click, Button[] btn2)
+        {
+
+            int x_btn = btn2[0].Left;
+            int y_btn = btn2[btn2.Length - 1].Bounds.Y + btn2[btn2.Length - 1].Height * 3 / 2;
+
+            Button[] btns = new Button[btn_addresses.Count]; // Btn3_SensorLocation
+            for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
+            {
+                Button button1 = new Button()
+                {
+                    FlatAppearance = {
+                            BorderSize = 0,
+                            MouseDownBackColor = Color.Transparent,
+                            MouseOverBackColor=Color.Transparent,
+                            BorderColor=Color.White },
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.Transparent,
+                    Image = btnUnClicked_small
+                };
+                button1.SetBounds(x_btn,
+                                    y_btn,
+                                    btn2[0].Bounds.Width,
+                                    btn2[0].Bounds.Height);
+                if (button1_datepicker.Bounds.X <= x_btn)
+                {
+                    x_btn = btn2[0].Bounds.X;
+                    y_btn += btn2[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
+                }
+                else
+                {
+                    x_btn += btn2[1].Bounds.X - btn2[0].Bounds.X;
+                }
+
+
+
+                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
+
+                //button1.Text = GetButtonText(sqlStr, btn_addresses[index_btn3]); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
+                button1.Font = new Font(button1.Font.FontFamily, 8);
+                button1.Name = btn_addresses[index_btn3].ToString();
+                //button1.FlatStyle = FlatStyle.Flat;
+                button1.Click += new EventHandler(btn_Click);
+                panel1_menu.Controls.Add(button1);
+                button1.Visible = false;
+                btns[index_btn3] = button1;
+
+            }
+
+
+            button_show.Text = "확인";
+            button_show.Font = new Font(button_show.Font.FontFamily, 15);
+            button_show.Click += new EventHandler(this.button_show_Click);
+            panel1_menu.Controls.Add(button_show);
+            button_show.Visible = false;
+
+            return btns;
+        }
+
 
 
 
@@ -712,9 +961,18 @@ namespace ParticleDataVisualizerApp
         /// </summary>
         private static void WaitForm()
         {
-            //Application.Run(new ProgressBarForm());
-            ProgressBarForm progressBarForm = new ProgressBarForm();
-            progressBarForm.ShowDialog();
+            try
+            {
+                //Application.Run(new ProgressBarForm());
+                ProgressBarForm progressBarForm = new ProgressBarForm();
+                progressBarForm.ShowDialog();
+            }
+            catch (Exception)
+            {
+
+            }
+
+
         }
 
 
@@ -748,6 +1006,33 @@ namespace ParticleDataVisualizerApp
             IDs_now.Sort();
             timer3_render.Enabled = false;
 
+            // Selection Preferences
+            int TimeType = 0;
+            int ChartType = 1;
+            string SelectTime = $"{datePicker1_start.Value},{datePicker2_end.Value}";
+
+            string S_ChartType = string.Empty;
+            string S_Sensors = string.Empty;
+
+
+            for (int num = 0; num < DataTypesNow.Count; num++)
+            {
+                S_ChartType += num;
+                if (num + 1 < DataTypesNow.Count)
+                {
+                    S_ChartType += ",";
+                }
+            }
+            for (int num = 0; num < IDs_now.Count; num++)
+            {
+                S_Sensors += num;
+                if (num + 1 < IDs_now.Count)
+                {
+                    S_Sensors += ",";
+                }
+            }
+
+
 
             Dictionary<string, bool> RangeLimitChecker = IfRangeLimitsSame(DataTypesNow);
 
@@ -761,19 +1046,17 @@ namespace ParticleDataVisualizerApp
             }
 
 
-
             string[] startEndTime = { "", "" };
+            IDs_next = new List<int>(IDs_now);
+            DataTypesNext = new List<string>(DataTypesNow);
 
             // 실시간 버튼 눌렀을 때
             if (button1_realtime.Image == btnClicked_big)// BackColor != Color.Transparent
             {
-                startEndTime[0] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
                 startEndTime[1] = "RT";
 
                 MyData = G_DataQuery.RealTimeDataQuery(IDs_now, DataTypesNow);
-                //List<List<List<string[]>>> realTimeData = G_DataQuery.RealTimeDBQuery(IDs_now, DataTypesNow, Sql_NamesNow);
-                IDs_next = new List<int>(IDs_now);
-                DataTypesNext = new List<string>(DataTypesNow);
+                
 
                 if (MyData.Tables.Count > 0) //(realTimeData.Count != 0)
                 {
@@ -781,39 +1064,38 @@ namespace ParticleDataVisualizerApp
                     ScotPlot(MyData, DataTypesNext, IDs_next, true);
                 }
 
+                // Selection Preferences
+                TimeType = 0;
+                ChartType = 1;
+
             }
 
             //24시간 버튼 눌렀을 때
             else if (button1_24h.Image == btnClicked_big) //BackColor != Color.Transparent
             {
-                startEndTime[0] = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm");
-                startEndTime[1] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                startEndTime[0] = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss.fff");
+                startEndTime[1] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
-                /*progressbarThread = new Thread(new ThreadStart(WaitForm));
-                progressbarThread.Start();
-*/
                 MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
                 ScotPlot(MyData, DataTypesNow, IDs_now, false);
 
+                // Selection Preferences
+                TimeType = 1;
             }
             // 기간 설정 버튼 눌렀을 때
             else
             {
                 if (datePicker1_start.Value < datePicker2_end.Value)
                 {
-                    startEndTime[0] = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm");
-                    startEndTime[1] = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm");
-                    /*progressbarThread = new Thread(new ThreadStart(WaitForm));
-                    progressbarThread.Start();
-                    
-                                        MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
-
-                                        ScotPlot(MyData, DataTypesNow, IDs_now, false);
-                    */
+                    startEndTime[0] = datePicker1_start.Value.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    startEndTime[1] = datePicker2_end.Value.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                
                     MyData = G_DataQuery.GetValuesFromDB(startEndTime[0], startEndTime[1], DataTypesNow, IDs_now);
                     ScotPlot(MyData, DataTypesNow, IDs_now, false);
-                    //ScotPlot3(DataTypesNow, Sql_NamesNow, IDs_now, startEndTime, false);
 
+
+                    // Selection Preferences
+                    TimeType = 2;
                 }
                 else
                 {
@@ -821,14 +1103,22 @@ namespace ParticleDataVisualizerApp
                 }
             }
 
+            SelectTime = $"{startEndTime[0]},{startEndTime[1]}";
 
-            try
-            {
-                progressbarThread.Abort();
-            }
-            catch (Exception)
-            {
-            }
+
+
+
+
+            // ini 쓰기
+            IniFile ini = new IniFile();
+            ini["TimeSettings"]["TimeType"] = TimeType;
+            ini["TimeSettings"]["ChartType"] = ChartType;
+            ini["TimeSettings"]["SelectTime"] = $"{startEndTime[0]},{startEndTime[1]}";
+
+            ini["ChartsAndSensors"]["ChartTypes"] = S_ChartType;
+            ini["ChartsAndSensors"]["Sensors"] = S_Sensors;
+            ini.Save(@Application.StartupPath + "\\" + "Setting2.ini");
+
 
         }
 
@@ -867,7 +1157,8 @@ namespace ParticleDataVisualizerApp
             {
                 try
                 {
-                    timer1.Start();
+
+                    //timer1.Start();
 
                     if (IDs_now.Count < 2)
                     {
@@ -932,7 +1223,7 @@ namespace ParticleDataVisualizerApp
                                     TextBox textBox1 = new TextBox();
                                     textBox1.SetBounds(panel.Bounds.Width / 2 - 350, 100 + yBound, 700, 70);
                                     textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-                                    textBox1.Font = new Font(textBox1.Font.FontFamily, 50);
+                                    textBox1.Font = new Font(textBox1.Font.FontFamily, 40);
                                     textBox1.BackColor = this.BackColor;
                                     textBox1.BorderStyle = BorderStyle.None;
 
@@ -956,6 +1247,8 @@ namespace ParticleDataVisualizerApp
                             }
                         }
                     }
+                    timer1.Interval = S_INTERVAL * 1000;
+                    timer1.Start();
                     timer1.Tick += timer1_Tick_1;
                 }
                 catch (Exception ex)
@@ -1074,14 +1367,7 @@ namespace ParticleDataVisualizerApp
                     {
                         formsPlots[index_DataType].Render();
                     }
-                    try
-                    {
-                        progressbarThread.Abort();
-                        progressbarThread = null;
-                    }
-                    catch (Exception)
-                    {
-                    }
+
 
                 }
                 else
@@ -1263,7 +1549,8 @@ namespace ParticleDataVisualizerApp
                             formsPlots[index_chart].Render();
                         }
                         nextDataIndex += 1;
-
+                        timer2.Interval = S_INTERVAL * 1000;
+                        timer3_render.Interval = S_INTERVAL * 1000;
                         timer2.Start();
                         timer3_render.Start();
 
@@ -1284,6 +1571,13 @@ namespace ParticleDataVisualizerApp
                 }
             }
 
+            try
+            {
+                progressbarThread.Abort();
+            }
+            catch (Exception)
+            {
+            }
 
         }
 
@@ -1340,7 +1634,7 @@ namespace ParticleDataVisualizerApp
                 {
                     Console.WriteLine("Error: " + ex.Message + " " + ex.StackTrace);
                 }
-                timer1.Interval = 1000;
+                //timer1.Interval = 1000;
             }
         }
 
@@ -1490,7 +1784,7 @@ namespace ParticleDataVisualizerApp
                     }
 
 
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -1533,7 +1827,7 @@ namespace ParticleDataVisualizerApp
             while (true)
             {
                 AvgData = G_DataQuery.GetAvgData(IDs_next, DataTypesNext);
-                Thread.Sleep(1000);
+                Thread.Sleep((int)(S_INTERVAL * 0.95));
             }
         }
 
@@ -1809,7 +2103,6 @@ namespace ParticleDataVisualizerApp
         private void btn2_data_Click(object sender, EventArgs e)
         {
 
-
             Button button = (Button)sender; // receive clicked button properties
             button.Image = button.Image == btnUnClicked_small ? btnClicked_small : btnUnClicked_small;
 
@@ -1858,8 +2151,7 @@ namespace ParticleDataVisualizerApp
 
                 if (allIDs.Count == 0)
                 {
-                    string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]};";
-                    allIDs = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
+                    allIDs = GetAllIDs();
                 }
 
                 //4개 이상의 센서를 선택 못하게 If문으로 확인함.
@@ -1885,7 +2177,8 @@ namespace ParticleDataVisualizerApp
                     {
 
 
-                        Btn3_SensorLocation = CreateButtonsForSensorIds(allIDs, btn3_address_Click, Btn2_DataType, false);
+                        //Btn3_SensorLocation = CreateButtonsForSensorIds(allIDs, btn3_address_Click, Btn2_DataType);
+
 
 
                         button_show.Image = btnUnClicked_big;
@@ -1932,70 +2225,12 @@ namespace ParticleDataVisualizerApp
 
         }
 
-
-
-        /// <summary>
-        /// 센서장비를 카리기는 버튼 생성
-        /// </summary>
-        private Button[] CreateButtonsForSensorIds(List<int> btn_addresses, EventHandler btn_address_Click, Button[] btn2, bool flag_p)
+        private List<int> GetAllIDs()
         {
-
-            int x_btn = btn2[0].Left;
-            int y_btn = btn2[btn2.Length - 1].Bounds.Y + btn2[btn2.Length - 1].Height * 3 / 2;
-
-            Button[] btns = new Button[btn_addresses.Count]; // Btn3_SensorLocation
-            for (int index_btn3 = 0; index_btn3 < btn_addresses.Count; index_btn3++)
-            {
-                Button button1 = new Button()
-                {
-                    FlatAppearance = {
-                            BorderSize = 0,
-                            MouseDownBackColor = Color.Transparent,
-                            MouseOverBackColor=Color.Transparent,
-                            BorderColor=Color.White },
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.Transparent,
-                    Image = btnUnClicked_small
-                };
-                button1.SetBounds(x_btn,
-                                    y_btn,
-                                    btn2[0].Bounds.Width,
-                                    btn2[0].Bounds.Height);
-                if (button1_datepicker.Bounds.X <= x_btn)
-                {
-                    x_btn = btn2[0].Bounds.X;
-                    y_btn += btn2[0].Bounds.Y - (button1_24h.Bounds.Y + button1_24h.Bounds.Height);
-                }
-                else
-                {
-                    x_btn += btn2[1].Bounds.X - btn2[0].Bounds.X;
-                }
-
-
-
-                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
-
-                button1.Text = GetButtonText(sqlStr, btn_addresses[index_btn3]); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
-                button1.Font = new Font(button1.Font.FontFamily, 8);
-                button1.Name = btn_addresses[index_btn3].ToString();
-                //button1.FlatStyle = FlatStyle.Flat;
-                button1.Click += new EventHandler(btn_address_Click);
-                panel1_menu.Controls.Add(button1);
-                button1.Visible = false;
-                btns[index_btn3] = button1;
-
-            }
-
-
-            button_show.Text = "확인";
-            button_show.Font = new Font(button_show.Font.FontFamily, 15);
-            button_show.Click += new EventHandler(this.button_show_Click);
-            panel1_menu.Controls.Add(button_show);
-            button_show.Visible = false;
-
-            return btns;
+            string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]} ASC;";
+            List<int> all_ids = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
+            return all_ids;
         }
-
 
 
         /// <summary>
@@ -2031,67 +2266,48 @@ namespace ParticleDataVisualizerApp
         }
 
 
-        private string GetButtonText(string sqlStr, int button_index)
+        private List<string> GetButtonText(string sqlStr)
         {
+            List<string> btnTxts = new List<string>();
 
-            /*List<string> sLocations = GetColumnDataAsList(sLocSql, S_DeviceTableColumn[3]);
-            var devZoneLoc = DeviceZoneLocInfo.Values;*/
-            string btnTxt = "";
-
-            /*for (int i = 0; i < DeviceZoneLocInfo.Count; i++)
-            {
-                List<string> devZoneN_loc = DeviceZoneLocInfo.ElementAt(i).Value;
-                for (int i2 = 0; i2 < devZoneN_loc.Count; i2++)
-                {
-                    if (sLocations[button_index].Equals(devZoneN_loc[i2]))
-                    {
-                        btnTxt = DeviceZoneLocInfo.ElementAt(i).Key + $" ({sLocations[button_index]})";
-                        return btnTxt;
-                    }
-                }
-            }*/
-            SqlCommand cmd = new SqlCommand(sqlStr, myConn);
             try
             {
-                if (myConn.State != ConnectionState.Open)
+                using (SqlConnection con = new SqlConnection(sqlConStr))
                 {
-                    myConn.Open();
-                }
-                using (SqlDataReader r = cmd.ExecuteReader())
-                {
-                    while (r.Read())
+                    SqlCommand cmd = new SqlCommand(sqlStr, con);
+                    con.Open();
+                    using (SqlDataReader r = cmd.ExecuteReader())
                     {
-                        for (int i = 0; i < r.FieldCount; i++)
+                        while (r.Read())
                         {
-                            if (i == 0 && r.FieldCount > 1)
+                            string btnTxt = string.Empty;
+                            for (int i = 0; i < r.FieldCount; i++)
                             {
-                                btnTxt += r.GetValue(i).ToString() + " (";
+
+                                if (i == 0 && r.FieldCount > 1)
+                                {
+                                    btnTxt += r.GetValue(i).ToString() + " (";
+                                }
+                                else if (i != 0 && i == r.FieldCount - 1)
+                                {
+                                    btnTxt += r.GetValue(i).ToString() + ")";
+                                }
+                                else
+                                {
+                                    btnTxt += r.GetValue(i).ToString();
+                                }
                             }
-                            else if (i != 0 && i == r.FieldCount - 1)
-                            {
-                                btnTxt += r.GetValue(i).ToString() + ")";
-                            }
-                            else
-                            {
-                                btnTxt += r.GetValue(i).ToString();
-                            }
+                            btnTxts.Add(btnTxt);
                         }
                     }
                 }
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                if (myConn.State == ConnectionState.Open)
-                {
-                    myConn.Close();
-                }
+                Console.WriteLine(ex.Message + " " + ex.StackTrace);
             }
 
-            return btnTxt;
+            return btnTxts;
         }
 
 

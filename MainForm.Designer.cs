@@ -65,9 +65,9 @@
             // datePicker2_end
             // 
             this.datePicker2_end.CalendarFont = new System.Drawing.Font("Gulim", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.datePicker2_end.CustomFormat = "";
+            this.datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm:ss.fff";
             this.datePicker2_end.Font = new System.Drawing.Font("Gulim", 12F);
-            this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.datePicker2_end.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.datePicker2_end.Location = new System.Drawing.Point(212, 181);
             this.datePicker2_end.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker2_end.Name = "datePicker2_end";
@@ -78,9 +78,9 @@
             // datePicker1_start
             // 
             this.datePicker1_start.CalendarFont = new System.Drawing.Font("Gulim", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.datePicker1_start.CustomFormat = "";
+            this.datePicker1_start.CustomFormat = "yyyy-MM-dd HH:mm:ss.fff";
             this.datePicker1_start.Font = new System.Drawing.Font("Gulim", 12F);
-            this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.datePicker1_start.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.datePicker1_start.Location = new System.Drawing.Point(15, 181);
             this.datePicker1_start.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.datePicker1_start.Name = "datePicker1_start";

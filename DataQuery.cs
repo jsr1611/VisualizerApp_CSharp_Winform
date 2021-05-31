@@ -98,7 +98,7 @@ namespace ParticleDataVisualizerApp
         /// <returns></returns>
         public DataSet GetAvgData(List<int> IDs, List<string> tbNames)
         {
-            string currTime = DateTime.Now.AddMinutes(-AvgLimitTime).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddMinutes(-AvgLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
@@ -161,7 +161,7 @@ namespace ParticleDataVisualizerApp
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbNames)
         {
 
-            string currTime = DateTime.Now.AddSeconds(-RTLimitTime).ToString("yyyy-MM-dd HH:mm:ss");
+            string currTime = DateTime.Now.AddSeconds(-RTLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
