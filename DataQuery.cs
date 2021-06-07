@@ -29,6 +29,8 @@ namespace ParticleDataVisualizerApp
 
         public int RTLimitTime { get; set; }
         public int AvgLimitTime { get; set; }
+        public List<string> dataTableColumns { get; set; }
+        public string dataTable { get; set; }
 
 
         public DataQuery(SqlConnection myConn, string dbName, string deviceTable, string sensorUsage, List<string> sensorUsageColumn, List<string> fourRangeColmn, string conStr)
@@ -47,26 +49,41 @@ namespace ParticleDataVisualizerApp
             SqlDataAdapter da = new SqlDataAdapter();
             System.Data.DataSet ds = new System.Data.DataSet();
 
+            string ids = "";
+            for (int id = 0; id < IDs.Count; id++)
+            {
+                ids += $"{IDs[id]}";
+                if (id + 1 < IDs.Count)
+                {
+                    ids += ",";
+                }
+            }
+
+
             for (int index = 0; index < whatToQuery.Count; index++)
             {
 
-                string sql_head = $"SELECT sensor_id, {whatToQuery[index]}, dateandtime FROM ( ";
-
-                string sql_connector = " UNION ALL ";
-                string sql_tail = ")a ORDER BY dateandtime";
+                string sql_head = $"SELECT * FROM {dataTable} WHERE {dataTableColumns[3]} = '{whatToQuery[index]}' AND {dataTableColumns[0]} BETWEEN '{startTime}' AND '{endTime}' AND {dataTableColumns[2]} IN ({ids}) ORDER BY {dataTableColumns[0]} ASC";
 
 
-                for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
-                {
-                    sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery[index]} AS int)) AS {whatToQuery[index]}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
-                        $" FROM d_{whatToQuery[index].Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
-                        $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
 
-                    if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
-                }
+                /* string sql_head = $"SELECT sensor_id, {whatToQuery[index]}, dateandtime FROM ( ";
+
+                 string sql_connector = " UNION ALL ";
+                 string sql_tail = ")a ORDER BY dateandtime";
 
 
-                sql_head += sql_tail;
+                 for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
+                 {
+                     sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery[index]} AS int)) AS {whatToQuery[index]}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
+                         $" FROM d_{whatToQuery[index].Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
+                         $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
+
+                     if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
+                 }*/
+
+
+                // sql_head += "";//sql_tail;
 
                 try
                 {
@@ -98,7 +115,7 @@ namespace ParticleDataVisualizerApp
         /// <returns></returns>
         public DataSet GetAvgData(List<int> IDs, List<string> tbNames)
         {
-            string currTime = DateTime.Now.AddMinutes(-AvgLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string currTime = DateTime.Now.AddMinutes(AvgLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
@@ -110,11 +127,14 @@ namespace ParticleDataVisualizerApp
 
 
                     SqlTransaction transaction;
-
+                    string queryTbName = $"{dbName[0]}_DATATABLE";
                     for (int ind = 0; ind < tbNames.Count; ind++)
                     {
-                        string queryTbName = $"d_{tbNames[ind].Substring(2)}";
-                        string sqlStr = $"SELECT sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]}  FROM( ";
+                        //string queryTbName = $"{dbName[0]}_DATATABLE";
+                        string sqlStr = $"SELECT AVG(CONVERT(int, sDataValue)) as sDataValue, sID FROM {queryTbName} " +
+                            $"WHERE DateAndTime > DATEADD(MI, {AvgLimitTime}, GETDATE()) and sCode = '{tbNames[ind]}' GROUP BY sID;";
+
+                        /*string sqlStr = $"SELECT sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]}  FROM( ";
                         string unionStr = " UNION ALL "; // 테이블 연결하는 것
 
                         for (int i = 0; i < IDs.Count; i++)
@@ -131,7 +151,7 @@ namespace ParticleDataVisualizerApp
                         }
 
                         sqlStr += $" )a GROUP BY sensor_id " +
-                        " ORDER BY sensor_id ;";
+                        " ORDER BY sensor_id ;";*/
 
                         try
                         {
@@ -161,7 +181,7 @@ namespace ParticleDataVisualizerApp
         public DataSet RealTimeDataQuery(List<int> IDs, List<string> tbNames)
         {
 
-            string currTime = DateTime.Now.AddSeconds(-RTLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string currTime = DateTime.Now.AddSeconds(RTLimitTime).ToString("yyyy-MM-dd HH:mm:ss.fff");
             if (IDs.Count == 0 || tbNames.Count == 0)
             {
                 return new DataSet();
@@ -182,9 +202,13 @@ namespace ParticleDataVisualizerApp
                                 try
                                 {
                                     SqlTransaction RTDQ_transaction = conn.BeginTransaction();
-                                    string queryTbName = $"d_{tbNames[ind].Substring(2)}";
-                                    sqlStr = "SELECT sensor_id, " + tbNames[ind] + ", dateandtime FROM( ";
-                                    string unionStr = " UNION ALL "; // 테이블 연결하는 것
+                                    string queryTbName = $"{dbName[0]}_DATATABLE";
+                                    //string queryTbName = $"{dbName[0]}_DATATABLE";
+                                    //sqlStr = "SELECT sensor_id, " + tbNames[ind] + ", dateandtime FROM( ";
+
+                                    sqlStr = $"SELECT * FROM(SELECT TOP {IDs.Count} DateAndTime,sID, sDataValue FROM {queryTbName} WHERE sCode = '{tbNames[ind]}' and DateAndTime > DATEADD(SS, {RTLimitTime}, GETDATE()) ORDER BY DateAndTime DESC) a ORDER BY a.sID;";
+                                    //                                    SELECT* FROM(SELECT TOP 4 * FROM D_DATATABLE WHERE sCode = 'particle05' and DateAndTime > DATEADD(SS, -120, GETDATE()) ORDER BY DateAndTime DESC) a ORDER BY a.sID
+                                    /*string unionStr = " UNION ALL "; // 테이블 연결하는 것
                                     string sql_tail = " )a ";
 
                                     for (int i = 0; i < IDs.Count; i++)
@@ -192,10 +216,10 @@ namespace ParticleDataVisualizerApp
                                         sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]}, dateandtime " +
                                                     $"FROM  {queryTbName} " +
                                                     $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' ";
-                                        /*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
+                                        *//*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
                                         {
                                             sqlStr += $" AND {tbNames[ind]} > 0 ";
-                                        }*/
+                                        }*//*
 
                                         if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
 
@@ -203,7 +227,7 @@ namespace ParticleDataVisualizerApp
 
                                     sqlStr += sql_tail;
                                     sqlStr += " ORDER BY sensor_id ;";
-
+                                    */
                                     using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
                                     {
                                         sda.SelectCommand.Transaction = RTDQ_transaction;
@@ -223,7 +247,7 @@ namespace ParticleDataVisualizerApp
                         catch (Exception ex2)
                         {
                             Console.WriteLine($"DB Connection Error: {ex2.Message}. {ex2.StackTrace}");
-                         
+
                         }
 
                     }

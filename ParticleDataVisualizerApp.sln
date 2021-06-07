@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticleDataVisualizerApp", "ParticleDataVisualizerApp.csproj", "{F9C60897-6671-4BD0-9360-7950D51E7219}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Data Visualizer App Setup", "..\Data Visualizer App Setup\Data Visualizer App Setup.vdproj", "{7D0D943F-B644-4F14-96C1-CD7525452F40}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,8 +15,6 @@ Global
 		{F9C60897-6671-4BD0-9360-7950D51E7219}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9C60897-6671-4BD0-9360-7950D51E7219}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9C60897-6671-4BD0-9360-7950D51E7219}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D0D943F-B644-4F14-96C1-CD7525452F40}.Debug|Any CPU.ActiveCfg = Debug
-		{7D0D943F-B644-4F14-96C1-CD7525452F40}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
