@@ -103,6 +103,7 @@ namespace ParticleDataVisualizerApp
         public ValueTuple<int, int, int> TimeSettings { get; set; }
         public DataQuery G_DataQuery { get; set; }
         public Data[] G_Data { get; set; }
+        public ValueTuple<string, List<string>> S_SanghanHahan { get; set; }
 
 
 
@@ -174,12 +175,15 @@ namespace ParticleDataVisualizerApp
                 }
             }
 
-            S_DeviceTable = dbName + "_DEVICES"; //D_TABLENAME; // "SENSOR_INFO";
+            S_DeviceTable = dbName[0] + "_DEVICES"; //D_TABLENAME; // "SENSOR_INFO";
 
-            SensorUsage = dbName + "_Usage"; //D_USAGETABLENAME; // "SensorUsage";
+            SensorUsage = dbName[0] + "_Usage"; //D_USAGETABLENAME; // "SensorUsage";
             SensorUsageColumn = new List<string>();
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
             SensorUsageColumn = GetTableColumnNames(SensorUsage);
+            string sanghanHahantable = "D_SanghanHahan";
+            List<string> sH_Columnnames = GetTableColumnNames(sanghanHahantable);
+            S_SanghanHahan = new ValueTuple<string, List<string>> (sanghanHahantable, sH_Columnnames);
 
             dataTableName = dbName[0] + "_DATATABLE";
             dataTableColumns = GetTableColumnNames(dataTableName);
@@ -413,7 +417,8 @@ namespace ParticleDataVisualizerApp
                                       button1_realtime.Bounds.Width,
                                       button1_realtime.Bounds.Height
                                       );*/
-
+                button_show.Visible = true;
+                listView1.SetBounds(listView1.Left, button_show.Bottom + button_show.Height , listView1.Width, listView1.Height);
 
 
 
@@ -523,9 +528,10 @@ namespace ParticleDataVisualizerApp
                 if (ds.Tables.Count > 0 && ds.Tables[0].Columns.Contains("settingName") && ds.Tables[0].Columns.Contains("settingValue"))
                 {
                     //Console.WriteLine("DataRetrieved " + ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("realtime")).Select(x => x.Field<int>("settingValue")));
-                    data[0] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_RTQueryLimitTime")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0];
-                    data[1] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_AvgQueryLimitTime")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0];
-                    data[2] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_chartRefreshInterval")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0];
+                    
+                    data[0] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_RTQueryLimitTime")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0]; // 
+                    data[1] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_AvgQueryLimitTime")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0]; //
+                    data[2] = ds.Tables[0].AsEnumerable().Where(x => x.Field<string>("settingName").Contains("c_chartRefreshInterval")).Select(x => Convert.ToInt32(x.Field<string>("settingValue"))).ToArray()[0]; //
                     res = (data[0], data[1], data[2]);
                     ds.Dispose();
                 }
@@ -1314,7 +1320,7 @@ namespace ParticleDataVisualizerApp
                                 panel.Controls.Add(label);
                                 //Application.DoEvents();
                                 // 시각화 하려는 센서 갯수에 따라 textbox 생성 
-                                for (int boxIndex = 0; boxIndex < MyDataTypes.Count; boxIndex++)
+                                for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
                                 {
                                     int counter = 0;
                                     if (MyDataTypes.Count > 1) { counter = MyDataTypes.Count; }
@@ -1327,7 +1333,7 @@ namespace ParticleDataVisualizerApp
 
                                     for (int k = 1; k < SensorUsageColumn.Count; k++)
                                     {
-                                        if (MyDataTypes[boxIndex].Equals(SensorUsageColumn[k]))
+                                        if (MyDataTypes[index_chart].Equals(SensorUsageColumn[k]))
                                         {
                                             textBox1.Name = SensorNames[k - 1];
                                             break;
@@ -1340,11 +1346,58 @@ namespace ParticleDataVisualizerApp
                                     //textBox1.Text = "textBox" + bbox_count + "_" + boxIndex;
                                     //Application.DoEvents();
 
+
+
+
+
+
                                 }
                                 txtBoxCount += 1;
                             }
                         }
                     }
+                    string printedData = string.Empty;
+                    for (int index_ID = 0; index_ID < RT_textBoxes.Count; index_ID++)
+                    {
+                        for (int index_chart = 0; index_chart < RT_textBoxes[index_ID].Count; index_chart++) //whatToShow2
+                        {
+                            for (int k = 0; k < SensorUsageColumn.Count; k++)
+                            {
+                                if (DataTypesNext[index_chart].Equals(SensorUsageColumn[k]))
+                                {
+                                    printedData = "_";
+                                    bool trueFalseCheck = MyData.Tables.Contains(DataTypesNext[index_chart]);
+                                    if (trueFalseCheck)
+                                        trueFalseCheck = MyData.Tables[DataTypesNext[index_chart]].Columns.Contains(dataTableColumns[2]); //;
+                                    if (trueFalseCheck)
+                                        trueFalseCheck = MyData.Tables[DataTypesNext[index_chart]].Rows.Count > 0;
+                                    if (trueFalseCheck)
+                                        trueFalseCheck = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Any(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]);
+
+                                    if (trueFalseCheck) //MyData.Tables[index_chart].Rows.Count == RT_textBoxes.Count)
+                                    {
+
+                                        if (DataTypesNext[index_chart].Equals(SensorUsageColumn[1]) || DataTypesNext[index_chart].Equals(SensorUsageColumn[2]))
+                                        {
+                                            printedData = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0].ToString();
+                                        }
+                                        else
+                                        {
+                                            printedData = MyData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0].ToString();
+                                        } // String.Concat( .Where(c => !Char.IsWhiteSpace(c)))
+                                    }
+                                    else { Console.WriteLine("Skipped number chart data settings = No Data"); }
+                                    RT_textBoxes[index_ID][index_chart].Text = printedData + " " + RT_textBoxes[index_ID][index_chart].Name;
+
+                                }
+                            }
+
+                        }
+                    }
+
+
+
+
                     timer1.Interval = TimeSettings.Item3 * 1000; // S_INTERVAL * 1000;
                     timer1.Start();
                     timer1.Tick += timer1_Tick_1;
@@ -1421,11 +1474,11 @@ namespace ParticleDataVisualizerApp
                                 List<double> myData = new List<double>();
                                 if (MyDataTypes[index_chart].Equals(SensorUsageColumn[1]) || MyDataTypes[index_chart].Equals(SensorUsageColumn[2]))
                                 {
-                                    myData = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<string>(dataTableColumns[4])) / 100d).ToList();
+                                    myData = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<decimal>(dataTableColumns[4]))).ToList();
                                 }
                                 else
                                 {
-                                    myData = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<string>(dataTableColumns[4]))).ToList();
+                                    myData = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(dataTableColumns[4]))).ToList();
                                 }
                                 xs_time = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>(dataTableColumns[0])).ToOADate()).ToArray();
                                 ys_data = myData.ToArray();
@@ -1436,8 +1489,8 @@ namespace ParticleDataVisualizerApp
 
                                 if (MyDataTypes[index_chart].Equals(SensorUsageColumn[1]) || MyDataTypes[index_chart].Equals(SensorUsageColumn[2]))
                                 {
-                                    maxValues.Add(max.ToString("F", CultureInfo.InvariantCulture));
-                                    minValues.Add(min.ToString("F", CultureInfo.InvariantCulture));
+                                    maxValues.Add(max.ToString()); //"F", CultureInfo.InvariantCulture));
+                                    minValues.Add(min.ToString());//"F", CultureInfo.InvariantCulture));
                                 }
                                 else
                                 {
@@ -1585,23 +1638,29 @@ namespace ParticleDataVisualizerApp
                                     RT_Max3[index_chart][index_ID][1] = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
                                     RT_Min3[index_chart][index_ID][1] = RT_Max3[index_chart][index_ID][1];
 
+                                    
+
+
                                     if (MyDataTypes[index_chart].Contains(SensorUsageColumn[1]) || MyDataTypes[index_chart].Contains(SensorUsageColumn[2]))
                                     {
-                                        double dblVal = Convert.ToInt64(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]) / 100.0D;
-                                        double dblAvg = Convert.ToInt64(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]) / 100.0D;
+                                        double dblVal = Convert.ToDouble(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0]);
+                                        double dblAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0]);
+
                                         finalVal = (dblAvg != 0) && ((dblVal - dblAvg) >= 2 || (dblVal - dblAvg) <= -2) ? dblAvg : dblVal;
                                         ///RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
-
-                                        RT_Max3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
-                                        RT_Min3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                        RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
+                                        RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
 
                                     }
                                     else
                                     {
+                                        double dblVal = Convert.ToDouble(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
+                                        double dblAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
+                                        //Int64 intVal = Convert.ToInt64(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]); // MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
+                                        //double intAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
+                                        //finalVal = (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
 
-                                        Int64 intVal = Convert.ToInt64(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]); // MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
-                                        double intAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
-                                        finalVal = (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
+                                        finalVal = (dblAvg * 2 <= dblVal || dblVal <= dblAvg / 2) ? dblAvg : dblVal;
 
                                         //RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                         RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
@@ -1609,6 +1668,7 @@ namespace ParticleDataVisualizerApp
 
 
                                     }
+                                    
                                     G_Data[index_d].SetData(nextDataIndex, finalVal);
                                     G_Data[index_d].SetDateTime(nextDataIndex, dtime_min.ToString());
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
@@ -1780,11 +1840,11 @@ namespace ParticleDataVisualizerApp
 
                                         if (DataTypesNext[index_chart].Equals(SensorUsageColumn[1]) || DataTypesNext[index_chart].Equals(SensorUsageColumn[2]))
                                         {
-                                            printedData = (MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => Convert.ToDouble(x.Field<string>(dataTableColumns[4]))).ToArray()[0] / 100d).ToString();
+                                            printedData = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0].ToString();
                                         }
                                         else
                                         {
-                                            printedData = MyData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => Convert.ToDouble(x.Field<string>(dataTableColumns[4]))).ToArray()[0].ToString();
+                                            printedData = MyData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0].ToString();
                                         } // String.Concat( .Where(c => !Char.IsWhiteSpace(c)))
                                     }
                                     else { Console.WriteLine("Skipped number chart data settings = No Data"); }
@@ -1877,41 +1937,41 @@ namespace ParticleDataVisualizerApp
                                         //double dblVal = Convert.ToInt64(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>("sID") == MyIDs[index_ID]).Select(x => x.Field<string>("sDataValue")).ToArray()[0]) / 100.0D;
                                         //double dblAvg = Convert.ToInt64(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>("sID") == MyIDs[index_ID]).Select(x => x.Field<int>("sDataValue")).ToArray()[0]) / 100.0D;
 
-                                        dblVal = Convert.ToDouble(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]) / 100d;
-                                        avgVal = Convert.ToDouble(averageData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]) / 100d;
+                                        dblVal = Convert.ToDouble(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0]);
+                                        avgVal = Convert.ToDouble(averageData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0]);
 
                                         finalVal = (dblVal >= (avgVal + 2.0) || dblVal <= (avgVal - 2.0)) ? avgVal : dblVal;
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
-                                        if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                        if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]) || RT_Max3[index_chart][index_ID][0].Contains("NaN"))
                                         {
-                                            RT_Max3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                            RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
                                             RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
                                         }
 
-                                        if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                        if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]) || RT_Min3[index_chart][index_ID][0].Contains("NaN"))
                                         {
-                                            RT_Min3[index_chart][index_ID][0] = String.Format("{0:0.00}", finalVal);
+                                            RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
                                             RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
                                         }
-                                        displayCurrVal = String.Format("{0:0.00}", finalVal);
+                                        displayCurrVal = finalVal.ToString();
 
                                     }
                                     else
                                     {
                                         oldVal = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
-                                        dblVal = Convert.ToDouble(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]);
+                                        dblVal = Convert.ToDouble(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
                                         avgVal = Convert.ToDouble(averageData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
                                         finalVal = (dblVal >= avgVal * 2.0 || dblVal <= avgVal / 2.0) ? avgVal : dblVal;
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
 
-                                        if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]))
+                                        if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]) || RT_Max3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
                                             RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
                                         }
 
-                                        if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]))
+                                        if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]) || RT_Min3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Min3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
                                             RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
@@ -2023,7 +2083,7 @@ namespace ParticleDataVisualizerApp
         {
             List<long> response = new List<long>();
             string ifRangesSameStr = $"SELECT {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]}, COUNT(*) occurrences " +
-                                        $"FROM {tableName} WHERE ";
+                                        $"FROM {S_SanghanHahan.Item1} WHERE {S_SanghanHahan.Item2[2]} = '{tableName}' AND (";
             for (int j = 0; j < sensor_Id.Count; j++)
             {
                 ifRangesSameStr += $" {S_DeviceTableColumn[0]} = {sensor_Id[j]} ";
@@ -2032,7 +2092,7 @@ namespace ParticleDataVisualizerApp
                     ifRangesSameStr += $" or ";
                 }
             }
-            ifRangesSameStr += $" GROUP BY {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]} " +
+            ifRangesSameStr += $") GROUP BY {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]} " +
                                     $"HAVING COUNT(*) = {sensor_Id.Count}; ";
 
 
@@ -2090,8 +2150,9 @@ namespace ParticleDataVisualizerApp
             List<int> RangeLimitSame = new List<int>();
             for (int i = 0; i < dataTypesNow.Count; i++)
             {
+                //$"SELECT higherLimit2, higherLimit1, lowerLimit1, lowerLimit2, COUNT(*) occurrences FROM D_SanghanHahan WHERE(sID = 1  or sID = 2  or sID = 3  or sID = 4)  AND settingCategory = 'temperature' GROUP BY higherLimit2, higherLimit1, lowerLimit1, lowerLimit2"
                 string ifRangesSameStr = $"SELECT {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]}, COUNT(*) occurrences " +
-                                        $"FROM {dataTypesNow[i]} WHERE ";
+                                        $"FROM {S_SanghanHahan.Item1} WHERE {S_SanghanHahan.Item2[2]} = '{dataTypesNow[i]}' AND (";
                 for (int j = 0; j < IDs_now.Count; j++)
                 {
                     ifRangesSameStr += $" {S_DeviceTableColumn[0]} = {IDs_now[j]} ";
@@ -2100,7 +2161,7 @@ namespace ParticleDataVisualizerApp
                         ifRangesSameStr += $" or ";
                     }
                 }
-                ifRangesSameStr += $" GROUP BY {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]} " +
+                ifRangesSameStr += $") GROUP BY {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]} " +
                                         $"HAVING COUNT(*) = {IDs_now.Count}; ";
 
                 SqlCommand cmd = new SqlCommand(ifRangesSameStr, myConn);

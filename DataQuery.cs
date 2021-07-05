@@ -29,6 +29,10 @@ namespace ParticleDataVisualizerApp
 
         public int RTLimitTime { get; set; }
         public int AvgLimitTime { get; set; }
+        /// <summary>
+        /// 데이터저장되는 테이블의 Column명들의 리스트
+        /// [0]: DateAndTime, [1]: sDateTime, [2]: sID, [3]: sCode, [4]: sDataValue, [5]:Remarks
+        /// </summary>
         public List<string> dataTableColumns { get; set; }
         public string dataTable { get; set; }
 
@@ -44,7 +48,7 @@ namespace ParticleDataVisualizerApp
             sqlConStr = conStr;
         }
 
-        public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, List<string> whatToQuery, List<int> IDs)
+        public System.Data.DataSet GetValuesFromDB(string startTime, string endTime, List<string> tbNames, List<int> IDs)
         {
             SqlDataAdapter da = new SqlDataAdapter();
             System.Data.DataSet ds = new System.Data.DataSet();
@@ -59,31 +63,23 @@ namespace ParticleDataVisualizerApp
                 }
             }
 
+            string data_type = $"int";
 
-            for (int index = 0; index < whatToQuery.Count; index++)
+            for (int ind = 0; ind < tbNames.Count; ind++)
             {
 
-                string sql_head = $"SELECT * FROM {dataTable} WHERE {dataTableColumns[3]} = '{whatToQuery[index]}' AND {dataTableColumns[0]} BETWEEN '{startTime}' AND '{endTime}' AND {dataTableColumns[2]} IN ({ids}) ORDER BY {dataTableColumns[0]} ASC";
+                if (tbNames[ind].Equals(SensorUsageColumn[1]) || tbNames[ind].Equals(SensorUsageColumn[2]))
+                {
+                    data_type = "decimal(10,2)";
+                }
+                else
+                {
+                    data_type = $"int";
+                }
 
+                string sql_head = $"SELECT {dataTableColumns[0]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} FROM {dataTable} WHERE {dataTableColumns[3]} = '{tbNames[ind]}' AND {dataTableColumns[0]} BETWEEN '{startTime}' AND '{endTime}' AND {dataTableColumns[2]} IN ({ids}) ORDER BY {dataTableColumns[0]} ASC";
 
-
-                /* string sql_head = $"SELECT sensor_id, {whatToQuery[index]}, dateandtime FROM ( ";
-
-                 string sql_connector = " UNION ALL ";
-                 string sql_tail = ")a ORDER BY dateandtime";
-
-
-                 for (int i_sensorID = 0; i_sensorID < IDs.Count; i_sensorID++) // 1,2,3, ...
-                 {
-                     sql_head += $" SELECT {IDs[i_sensorID]} as sensor_id, AVG(CAST({whatToQuery[index]} AS int)) AS {whatToQuery[index]}, SUBSTRING(dateandtime, 1, 16) AS dateandtime " +
-                         $" FROM d_{whatToQuery[index].Substring(2)} WHERE {SensorUsageColumn[0]} = {IDs[i_sensorID]} AND dateandtime BETWEEN '{startTime}' AND '{endTime}' " +
-                         $" GROUP BY SUBSTRING(dateandtime, 1, 16) ";
-
-                     if (i_sensorID != (IDs.Count - 1)) { sql_head += sql_connector; }
-                 }*/
-
-
-                // sql_head += "";//sql_tail;
+                Console.WriteLine("\n\n\n" + sql_head);
 
                 try
                 {
@@ -94,7 +90,7 @@ namespace ParticleDataVisualizerApp
                     da.SelectCommand = new SqlCommand(sql_head, myConn);
 
                     ///conn.Open();
-                    da.Fill(ds, whatToQuery[index]);
+                    da.Fill(ds, tbNames[ind]);
                 }
                 catch (System.Exception ex)
                 {
@@ -128,30 +124,21 @@ namespace ParticleDataVisualizerApp
 
                     SqlTransaction transaction;
                     string queryTbName = $"{dbName[0]}_DATATABLE";
+                    string data_type = $"int";
                     for (int ind = 0; ind < tbNames.Count; ind++)
                     {
-                        //string queryTbName = $"{dbName[0]}_DATATABLE";
-                        string sqlStr = $"SELECT AVG(CONVERT(int, sDataValue)) as sDataValue, sID FROM {queryTbName} " +
-                            $"WHERE DateAndTime > DATEADD(MI, {AvgLimitTime}, GETDATE()) and sCode = '{tbNames[ind]}' GROUP BY sID;";
-
-                        /*string sqlStr = $"SELECT sensor_id, AVG(CONVERT(int, {tbNames[ind]})) AS {tbNames[ind]}  FROM( ";
-                        string unionStr = " UNION ALL "; // 테이블 연결하는 것
-
-                        for (int i = 0; i < IDs.Count; i++)
+                        
+                        if (tbNames[ind].Equals(SensorUsageColumn[1]) || tbNames[ind].Equals(SensorUsageColumn[2]))
                         {
-
-                            sqlStr += $" SELECT {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]} " +
-                                        $" FROM  {queryTbName} WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}'";
-                            if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
-                            {
-                                sqlStr += $" AND {tbNames[ind]} > 0 ";
-                            }
-                            if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
-
+                            data_type = "decimal(10,2)";
                         }
+                        else
+                        {
+                            data_type = $"int";
+                        }
+                        string sqlStr = $"SELECT CAST(AVG(CAST({dataTableColumns[4]} AS {data_type})) AS {data_type}) AS {dataTableColumns[4]}, {dataTableColumns[2]} FROM {queryTbName} " +
+                            $"WHERE {dataTableColumns[0]} > DATEADD(MI, {AvgLimitTime}, GETDATE()) AND {dataTableColumns[3]} = '{tbNames[ind]}' GROUP BY {dataTableColumns[2]};";
 
-                        sqlStr += $" )a GROUP BY sensor_id " +
-                        " ORDER BY sensor_id ;";*/
 
                         try
                         {
@@ -196,6 +183,7 @@ namespace ParticleDataVisualizerApp
                         try
                         {
                             conn.Open();
+                            string data_type = $"int";
 
                             for (int ind = 0; ind < tbNames.Count; ind++)
                             {
@@ -204,30 +192,17 @@ namespace ParticleDataVisualizerApp
                                     SqlTransaction RTDQ_transaction = conn.BeginTransaction();
                                     string queryTbName = $"{dbName[0]}_DATATABLE";
                                     //string queryTbName = $"{dbName[0]}_DATATABLE";
-                                    //sqlStr = "SELECT sensor_id, " + tbNames[ind] + ", dateandtime FROM( ";
-
-                                    sqlStr = $"SELECT * FROM(SELECT TOP {IDs.Count} DateAndTime,sID, sDataValue FROM {queryTbName} WHERE sCode = '{tbNames[ind]}' and DateAndTime > DATEADD(SS, {RTLimitTime}, GETDATE()) ORDER BY DateAndTime DESC) a ORDER BY a.sID;";
-                                    //                                    SELECT* FROM(SELECT TOP 4 * FROM D_DATATABLE WHERE sCode = 'particle05' and DateAndTime > DATEADD(SS, -120, GETDATE()) ORDER BY DateAndTime DESC) a ORDER BY a.sID
-                                    /*string unionStr = " UNION ALL "; // 테이블 연결하는 것
-                                    string sql_tail = " )a ";
-
-                                    for (int i = 0; i < IDs.Count; i++)
+                                    if (tbNames[ind].Equals(SensorUsageColumn[1]) || tbNames[ind].Equals(SensorUsageColumn[2]))
                                     {
-                                        sqlStr += $"SELECT TOP 1 {SensorUsageColumn[0]} AS sensor_id, {tbNames[ind]}, dateandtime " +
-                                                    $"FROM  {queryTbName} " +
-                                                    $"WHERE {SensorUsageColumn[0]} = {IDs[i]} AND dateandtime > '{currTime}' ";
-                                        *//*if (!tbNames[ind].Equals(SensorUsageColumn[1]) && !tbNames[ind].Equals(SensorUsageColumn[2]))
-                                        {
-                                            sqlStr += $" AND {tbNames[ind]} > 0 ";
-                                        }*//*
-
-                                        if (IDs.Count > 1 && i != (IDs.Count - 1)) { sqlStr += unionStr; }
-
+                                        data_type = "decimal(10,2)";
+                                    }
+                                    else
+                                    {
+                                        data_type = $"int";
                                     }
 
-                                    sqlStr += sql_tail;
-                                    sqlStr += " ORDER BY sensor_id ;";
-                                    */
+                                    sqlStr = $"SELECT * FROM(SELECT TOP {IDs.Count} {dataTableColumns[0]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} FROM {queryTbName} WHERE {dataTableColumns[3]} = '{tbNames[ind]}' and {dataTableColumns[0]} > DATEADD(SS, {RTLimitTime}, GETDATE()) ORDER BY {dataTableColumns[0]} DESC) a ORDER BY a.{dataTableColumns[2]};";
+                                   
                                     using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
                                     {
                                         sda.SelectCommand.Transaction = RTDQ_transaction;
