@@ -1,4 +1,4 @@
-﻿using ScottPlot;
+﻿ using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -95,7 +95,6 @@ namespace ParticleDataVisualizerApp
         public Bitmap btnUnClicked_big = ParticleDataVisualizerApp.Properties.Resources._04;
         public Bitmap btnClicked_small = ParticleDataVisualizerApp.Properties.Resources.btn_sm7;
         public Bitmap btnUnClicked_small = ParticleDataVisualizerApp.Properties.Resources.btn_sm6;
-        //public int S_INTERVAL { get; set; }
 
         /// <summary>
         /// [0]:Real Time Data Query Limit Time, [1]: Avg Data Query Limit Time, [2]: Chart Refresh Interval
@@ -138,12 +137,12 @@ namespace ParticleDataVisualizerApp
 
 
             // Initialize DB access variables
-            dbServerAddress = D_SERVERNAME; //"localhost\\SQLEXPRESS"; //"127.0.0.1";    //"10.1.55.174";
-            dbName = D_NAME; // "SensorData2"; //"SensorDataNewDB";
-            dbUID = D_ID; // "admin";
-            dbPWD = D_PW; // "admin";
+            dbServerAddress = D_SERVERNAME; 
+            dbName = D_NAME; 
+            dbUID = D_ID; 
+            dbPWD = D_PW; 
             sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
-            myConn = new SqlConnection(sqlConStr); // ; Integrated Security=True ");
+            myConn = new SqlConnection(sqlConStr); 
 
             try
             {
@@ -175,13 +174,13 @@ namespace ParticleDataVisualizerApp
                 }
             }
 
-            S_DeviceTable = dbName[0] + "_DEVICES"; //D_TABLENAME; // "SENSOR_INFO";
+            S_DeviceTable = dbName[0] + "_DEVICES"; 
 
-            SensorUsage = dbName[0] + "_Usage"; //D_USAGETABLENAME; // "SensorUsage";
+            SensorUsage = dbName[0] + "_Usage"; 
             SensorUsageColumn = new List<string>();
             S_DeviceTableColumn = GetTableColumnNames(S_DeviceTable);
             SensorUsageColumn = GetTableColumnNames(SensorUsage);
-            string sanghanHahantable = "D_SanghanHahan";
+            string sanghanHahantable = dbName[0]+ "_SanghanHahan";
             List<string> sH_Columnnames = GetTableColumnNames(sanghanHahantable);
             S_SanghanHahan = new ValueTuple<string, List<string>> (sanghanHahantable, sH_Columnnames);
 
@@ -213,20 +212,14 @@ namespace ParticleDataVisualizerApp
                             b += a[j];
                     }
                     int indeks = b.Length - 1;
-                    /*if(b.Length >= 2)
-                    {
-                        indeks = b.Length - 2;
-                    }*/
                     string pname = $"파티클 ({b.Insert(indeks, ".")}μm)";
                     SensorNames.Add(pname);
                 }
 
             }
-            //RangeLimitData = new Dictionary<int, Dictionary<string, long>>();
 
 
 
-            //this.SetBounds(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height - 50);
             this.WindowState = FormWindowState.Maximized;
             this.AutoScroll = true;
             datePicker1_start.Format = DateTimePickerFormat.Custom;
@@ -234,7 +227,7 @@ namespace ParticleDataVisualizerApp
             datePicker2_end.Format = DateTimePickerFormat.Custom;
             datePicker2_end.CustomFormat = "yyyy-MM-dd HH:mm";
 
-            colorset = new Color[] { Color.Black, Color.DarkOrange, Color.Blue, Color.Green, Color.Brown, Color.Yellow, Color.Purple, Color.Red, Color.Azure, Color.Chocolate, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
+            colorset = new Color[] { Color.DarkOrange, Color.Blue, Color.Chocolate, Color.Brown, Color.AliceBlue, Color.Purple, Color.CadetBlue, Color.Azure, Color.Green, Color.DarkCyan, Color.Gold, Color.Gray, Color.GreenYellow, Color.Ivory };
 
             ///////////////////////////////////////////////////
             // ini 읽기 //////
@@ -355,7 +348,7 @@ namespace ParticleDataVisualizerApp
                     MessageBox.Show(ex.Message + " " + ex.StackTrace, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
 
-                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable}";
+                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM [{dbName}].[dbo].[{S_DeviceTable}]";
                 btnNames = IDs_now.AsEnumerable().Select(x => x.ToString()).ToList();
                 List<string> btnTxt = GetButtonText(sqlStr);
 
@@ -448,7 +441,7 @@ namespace ParticleDataVisualizerApp
                             panel1_menu.Controls.Add(panel4peakVal);
                 */
 
-                string slq_query = $"SELECT * FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]}";
+                string slq_query = $"SELECT * FROM [{dbName}].[dbo].[{S_DeviceTable}] ORDER BY {S_DeviceTableColumn[0]}";
                 var cmd = new SqlCommand(slq_query, myConn);
                 cmd.CommandTimeout = 0;
                 try
@@ -503,7 +496,7 @@ namespace ParticleDataVisualizerApp
         private ValueTuple<int, int, int> GetTimeSettings()
         {
             ValueTuple<int, int, int> res = new ValueTuple<int, int, int>();
-            string sqlquery = $"SELECT * FROM {dbName[0]}_TimeSettings WHERE sensorCategory = 'particle' AND settingCategory = 'chart';";
+            string sqlquery = $"SELECT * FROM [{dbName}].[dbo].[{dbName[0]}_TimeSettings] WHERE sensorCategory = 'particle' AND settingCategory = 'chart';";
             int[] data = new int[3];
             DataSet ds = new DataSet();
             using (SqlConnection con = new SqlConnection(sqlConStr))
@@ -556,7 +549,7 @@ namespace ParticleDataVisualizerApp
 
             string tbName = S_DeviceTable[0] + "_FOUR_RANGES";
             List<string> fourRanges = new List<string>();
-            string sqlCreateIfNotExists = $"SELECT * FROM {tbName};";
+            string sqlCreateIfNotExists = $"SELECT * FROM [{dbName}].[dbo].[{tbName}];";
             try
             {
                 using (SqlConnection con = new SqlConnection(sqlConStr))
@@ -684,7 +677,7 @@ namespace ParticleDataVisualizerApp
 
 
 
-                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM {S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
+                string sqlStr = $"SELECT {S_DeviceTableColumn[2]}, {S_DeviceTableColumn[3]} FROM [{dbName}].[dbo].[{S_DeviceTable} WHERE {S_DeviceTableColumn[0]} = {btn_addresses[index_btn3]}";
 
                 //button1.Text = GetButtonText(sqlStr, btn_addresses[index_btn3]); //DeviceZoneLocInfo.ElementAt(index_btn3).Key + $"({devZoneLoc.Value[0]})" ;
                 button1.Font = new Font(button1.Font.FontFamily, 8);
@@ -1480,7 +1473,7 @@ namespace ParticleDataVisualizerApp
                                 {
                                     myData = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDouble(r.Field<int>(dataTableColumns[4]))).ToList();
                                 }
-                                xs_time = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>(dataTableColumns[0])).ToOADate()).ToArray();
+                                xs_time = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(r => r.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(r => Convert.ToDateTime(r.Field<string>(dataTableColumns[1])).ToOADate()).ToArray();
                                 ys_data = myData.ToArray();
 
 
@@ -1553,9 +1546,9 @@ namespace ParticleDataVisualizerApp
                         DateTime dtime_min = DateTime.Now;
                         double finalVal = 0.0;
 
-                        G_Data = new Data[MyDataTypes.Count * MyIDs.Count];
-                        Data[] G_DataMin = new Data[G_Data.Length];
-                        Data[] G_DataMax = new Data[G_Data.Length];
+                        //G_Data = new Data[MyDataTypes.Count * MyIDs.Count];
+                        //Data[] G_DataMin = new Data[G_Data.Length];
+                        //Data[] G_DataMax = new Data[G_Data.Length];
 
                         int index_d;
 
@@ -1563,13 +1556,13 @@ namespace ParticleDataVisualizerApp
 
                         for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
                         {
-                            for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
-                            {
-                                index_d = index_chart * MyDataTypes.Count + index_ID;
-                                G_Data[index_d] = new Data(10_000);
-                                G_Data[index_d].sID = MyIDs[index_ID];
-                                G_Data[index_d].sType = MyDataTypes[index_chart];
-                            }
+                            //for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
+                            //{
+                            //    index_d = index_chart * (MyDataTypes.Count-1) + index_ID;
+                            //    G_Data[index_d] = new Data(10_000);
+                            //    G_Data[index_d].sID = MyIDs[index_ID];
+                            //    G_Data[index_d].sType = MyDataTypes[index_chart];
+                            //}
 
 
                             plt_list.Add(new List<PlottableSignal>());
@@ -1592,7 +1585,7 @@ namespace ParticleDataVisualizerApp
 
                             for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
                             {
-                                index_d = index_chart * MyDataTypes.Count + index_ID;
+                                index_d = index_chart * (MyDataTypes.Count-1) + index_ID;
 
 
 
@@ -1635,7 +1628,7 @@ namespace ParticleDataVisualizerApp
                                 { // && 
 
                                     //Application.DoEvents();
-                                    RT_Max3[index_chart][index_ID][1] = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
+                                    RT_Max3[index_chart][index_ID][1] = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
                                     RT_Min3[index_chart][index_ID][1] = RT_Max3[index_chart][index_ID][1];
 
                                     
@@ -1669,8 +1662,8 @@ namespace ParticleDataVisualizerApp
 
                                     }
                                     
-                                    G_Data[index_d].SetData(nextDataIndex, finalVal);
-                                    G_Data[index_d].SetDateTime(nextDataIndex, dtime_min.ToString());
+                                    //G_Data[index_d].SetData(nextDataIndex, finalVal);
+                                    //G_Data[index_d].SetDateTime(nextDataIndex, dtime_min.ToString());
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                     RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
                                     //nextDataIndex += -1;
@@ -1680,15 +1673,15 @@ namespace ParticleDataVisualizerApp
                                 {
                                     if (nextDataIndex > 0)
                                     {
-                                        G_Data[index_d].SetData(nextDataIndex, G_Data[index_d].GetData(nextDataIndex - 1));
-                                        G_Data[index_d].SetDateTime(nextDataIndex, G_Data[index_d].GetDateTime(nextDataIndex - 1));
+                                        //G_Data[index_d].SetData(nextDataIndex, G_Data[index_d].GetData(nextDataIndex - 1));
+                                        //G_Data[index_d].SetDateTime(nextDataIndex, G_Data[index_d].GetDateTime(nextDataIndex - 1));
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = RTDataArray[index_chart][index_ID][1][nextDataIndex - 1];
                                     }
                                     else
                                     {
-                                        G_Data[index_d].SetData(nextDataIndex, double.NaN);
-                                        G_Data[index_d].SetDateTime(nextDataIndex, string.Empty);
+                                        //    G_Data[index_d].SetData(nextDataIndex, double.NaN);
+                                        //    G_Data[index_d].SetDateTime(nextDataIndex, string.Empty);
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
 
@@ -1704,7 +1697,7 @@ namespace ParticleDataVisualizerApp
                                 double samplesPerDay = TimeSpan.TicksPerDay / (TimeSpan.TicksPerMinute);
 
                                 //MyIDs[index_ID] - 51
-                                signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[index_ID].Text, color: colorset[index_ID]);
+                                signalPlot = formsPlots[index_chart].plt.PlotSignal(RTDataArray[index_chart][index_ID][0], samplesPerDay, xs, label: Btn3_SensorLocation[MyIDs[index_ID]-1].Text, color: colorset[index_ID]);
                                 //G_Data[index_d].GetData()
 
                                 plt_list[index_chart].Add(signalPlot);
@@ -1946,13 +1939,13 @@ namespace ParticleDataVisualizerApp
                                         if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]) || RT_Max3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
-                                            RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
+                                            RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
                                         }
 
                                         if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]) || RT_Min3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
-                                            RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
+                                            RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
                                         }
                                         displayCurrVal = finalVal.ToString();
 
@@ -1968,18 +1961,18 @@ namespace ParticleDataVisualizerApp
                                         if (finalVal > Convert.ToDouble(RT_Max3[index_chart][index_ID][0]) || RT_Max3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
-                                            RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
+                                            RT_Max3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
                                         }
 
                                         if (finalVal < Convert.ToDouble(RT_Min3[index_chart][index_ID][0]) || RT_Min3[index_chart][index_ID][0].Contains("NaN"))
                                         {
                                             RT_Min3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
-                                            RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0];
+                                            RT_Min3[index_chart][index_ID][1] = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
                                         }
                                         displayCurrVal = String.Format("{0:n0}", finalVal);
                                     }
 
-                                    DateTime dtime = DateTime.Parse(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[0])).ToArray()[0]);
+                                    DateTime dtime = DateTime.Parse(MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0]);
                                     RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime.ToOADate();
 
 
@@ -2152,7 +2145,7 @@ namespace ParticleDataVisualizerApp
             {
                 //$"SELECT higherLimit2, higherLimit1, lowerLimit1, lowerLimit2, COUNT(*) occurrences FROM D_SanghanHahan WHERE(sID = 1  or sID = 2  or sID = 3  or sID = 4)  AND settingCategory = 'temperature' GROUP BY higherLimit2, higherLimit1, lowerLimit1, lowerLimit2"
                 string ifRangesSameStr = $"SELECT {S_FourRangeColmn[0]}, {S_FourRangeColmn[1]}, {S_FourRangeColmn[2]}, {S_FourRangeColmn[3]}, COUNT(*) occurrences " +
-                                        $"FROM {S_SanghanHahan.Item1} WHERE {S_SanghanHahan.Item2[2]} = '{dataTypesNow[i]}' AND (";
+                                        $"FROM [{dbName}].[dbo].[{S_SanghanHahan.Item1}] WHERE {S_SanghanHahan.Item2[2]} = '{dataTypesNow[i]}' AND (";
                 for (int j = 0; j < IDs_now.Count; j++)
                 {
                     ifRangesSameStr += $" {S_DeviceTableColumn[0]} = {IDs_now[j]} ";
@@ -2471,7 +2464,7 @@ namespace ParticleDataVisualizerApp
 
         private List<int> GetAllIDs()
         {
-            string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {S_DeviceTable} ORDER BY {S_DeviceTableColumn[0]} ASC;";
+            string GetAllIdSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM [{dbName}].[dbo].[{S_DeviceTable}] ORDER BY {S_DeviceTableColumn[0]} ASC;";
             List<int> all_ids = GetColumnDataAsList("int", GetAllIdSqlStr, S_DeviceTableColumn[0]).Select(x => Convert.ToInt32(x)).ToList();
             return all_ids;
         }
@@ -2487,7 +2480,7 @@ namespace ParticleDataVisualizerApp
         {
             if (DataTypesNow.Count >= 1)
             {
-                string ClickablesBtnsSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM {sensorUsageTable} WHERE ";
+                string ClickablesBtnsSqlStr = $"SELECT {S_DeviceTableColumn[0]} FROM [{dbName}].[dbo].[{sensorUsageTable}] WHERE ";
                 for (int i = 0; i < DataTypesNow.Count; i++)
                 {
                     ClickablesBtnsSqlStr += $" {DataTypesNow[i]} = 'YES' ";
