@@ -53,16 +53,6 @@ namespace ParticleDataVisualizerApp
             SqlDataAdapter da = new SqlDataAdapter();
             System.Data.DataSet ds = new System.Data.DataSet();
 
-            string ids = "";
-            for (int id = 0; id < IDs.Count; id++)
-            {
-                ids += $"{IDs[id]}";
-                if (id + 1 < IDs.Count)
-                {
-                    ids += ",";
-                }
-            }
-
             string data_type = $"int";
 
             for (int ind = 0; ind < tbNames.Count; ind++)
@@ -77,7 +67,10 @@ namespace ParticleDataVisualizerApp
                     data_type = $"int";
                 }
 
-                string sql_head = $"SELECT {dataTableColumns[1]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} FROM [{dbName}].[dbo].[{dataTable}] WHERE {dataTableColumns[3]} = '{tbNames[ind]}' AND {dataTableColumns[1]} BETWEEN '{startTime}' AND '{endTime}' AND {dataTableColumns[2]} IN ({ids}) ORDER BY {dataTableColumns[1]} ASC";
+                string sql_head = $"SELECT {dataTableColumns[1]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} " +
+                    $" FROM [{dbName}].[dbo].[{dataTable}] WHERE {dataTableColumns[3]} = '{tbNames[ind]}' " +
+                    $" AND {dataTableColumns[1]} BETWEEN '{startTime}' AND '{endTime}'" +
+                    $" AND {dataTableColumns[2]} IN ({string.Join(",", IDs.ToArray())}) ORDER BY {dataTableColumns[2]} ASC";
 
                 Console.WriteLine("\n\n\n" + sql_head);
 
@@ -136,8 +129,11 @@ namespace ParticleDataVisualizerApp
                         {
                             data_type = $"int";
                         }
-                        string sqlStr = $"SELECT CAST(AVG(CAST({dataTableColumns[4]} AS {data_type})) AS {data_type}) AS {dataTableColumns[4]}, {dataTableColumns[2]} FROM [{dbName}].[dbo].[{queryTbName}] " +
-                            $"WHERE {dataTableColumns[1]} > DATEADD(MI, {AvgLimitTime}, GETDATE()) AND {dataTableColumns[3]} = '{tbNames[ind]}' GROUP BY {dataTableColumns[2]};";
+                        string sqlStr = $"SELECT CAST(AVG(CAST({dataTableColumns[4]} AS {data_type})) AS {data_type}) AS {dataTableColumns[4]}, {dataTableColumns[2]} " +
+                            $" FROM [{dbName}].[dbo].[{queryTbName}] " +
+                            $" WHERE {dataTableColumns[1]} > DATEADD(MI, {AvgLimitTime}, GETDATE()) " +
+                            $" AND {dataTableColumns[3]} = '{tbNames[ind]}' " +
+                            $" AND {dataTableColumns[2]} IN ({string.Join(",", IDs.ToArray())}) GROUP BY {dataTableColumns[2]} ORDER BY {dataTableColumns[2]};";
 
 
                         try
@@ -201,7 +197,10 @@ namespace ParticleDataVisualizerApp
                                         data_type = $"int";
                                     }
 
-                                    sqlStr = $"SELECT * FROM(SELECT TOP {IDs.Count} {dataTableColumns[1]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} FROM [{dbName}].[dbo].[{queryTbName}] WHERE {dataTableColumns[3]} = '{tbNames[ind]}' and {dataTableColumns[1]} > DATEADD(SS, {RTLimitTime}, GETDATE()) ORDER BY {dataTableColumns[1]} DESC) a ORDER BY a.{dataTableColumns[2]};";
+
+                                    sqlStr = $"SELECT * FROM(SELECT TOP {IDs.Count} {dataTableColumns[1]},{dataTableColumns[2]}, CAST({dataTableColumns[4]} AS {data_type}) AS {dataTableColumns[4]} " +
+                                        $"FROM [{dbName}].[dbo].[{queryTbName}] WHERE {dataTableColumns[3]} = '{tbNames[ind]}' and {dataTableColumns[1]} > DATEADD(SS, {RTLimitTime}, GETDATE()) AND {dataTableColumns[2]} IN ({string.Join(",", IDs.ToArray())}) " +
+                                        $" ORDER BY {dataTableColumns[1]} DESC) a ORDER BY a.{dataTableColumns[2]};";
                                    
                                     using (SqlDataAdapter sda = new SqlDataAdapter(sqlStr, conn))
                                     {

@@ -151,7 +151,7 @@ namespace ParticleDataVisualizerApp
             catch (Exception ex)
             {
                 Console.WriteLine($"Error while SQL connection: {ex.Message}. {ex.StackTrace}");
-                sqlConStr = $@"Data Source={D_IP};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
+                sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName}; Integrated Security=True"; 
                 myConn = new SqlConnection(sqlConStr);
                 try
                 {
@@ -161,8 +161,7 @@ namespace ParticleDataVisualizerApp
                 catch (Exception ex2)
                 {
                     Console.WriteLine($"Error while SQL connection 2: {ex2.Message}. {ex2.StackTrace}");
-                    //dbName = dbServerAddress + @"\SQLEXPRESS";
-                    sqlConStr = $@"Data Source={dbServerAddress};Initial Catalog={dbName}; Integrated Security=True";
+                    sqlConStr = $@"Data Source={D_IP};Initial Catalog={dbName};User id={dbUID};Password={dbPWD}; Min Pool Size=20";
                     myConn = new SqlConnection(sqlConStr);
                     try
                     {
@@ -398,18 +397,7 @@ namespace ParticleDataVisualizerApp
                     new List<string>() { "Confirm" },
                     new List<string>() { "확인" }, Coord, 15)[0];
 
-                /*button_show.Text = "확인";
-                button_show.Font = new Font(button_show.Font.FontFamily, 15);
-                button_show.Click += new EventHandler(this.button_show_Click);
-                panel1_menu.Controls.Add(button_show);
-                button_show.Visible = true;*/
-
                 button_show.Image = btnUnClicked_big;
-                /*button_show.SetBounds(panel1_menu.Bounds.Width / 2 - button1_realtime.Bounds.Width / 2,
-                                      Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Y + Btn3_SensorLocation[Btn3_SensorLocation.Length - 1].Bounds.Height * 3 / 2,
-                                      button1_realtime.Bounds.Width,
-                                      button1_realtime.Bounds.Height
-                                      );*/
                 button_show.Visible = true;
                 listView1.SetBounds(listView1.Left, button_show.Bottom + button_show.Height , listView1.Width, listView1.Height);
 
@@ -433,13 +421,7 @@ namespace ParticleDataVisualizerApp
                 Btn_MinimizeMenuPanel.Dock = DockStyle.Right;
                 toolTip1.SetToolTip(Btn_MinimizeMenuPanel, "선택메누 화면 숨기기");  // 마우스 포인팅 시 관련 내용 표시
                 panel1_menu.Controls.Add(Btn_MinimizeMenuPanel);
-                /*
-                            // Panel for peak values under the select menu
-                            panel4peakVal.SetBounds(15, 569, Btn_MinimizeMenuPanel.Bounds.X, 349);
-                            panel4peakVal.BorderStyle = BorderStyle.None;
-                            //panel4peakVal.Dock = DockStyle.Bottom;
-                            panel1_menu.Controls.Add(panel4peakVal);
-                */
+                
 
                 string slq_query = $"SELECT * FROM [{dbName}].[dbo].[{S_DeviceTable}] ORDER BY {S_DeviceTableColumn[0]}";
                 var cmd = new SqlCommand(slq_query, myConn);
@@ -818,7 +800,7 @@ namespace ParticleDataVisualizerApp
 
             if (MyDataTypes.Count == 1)
             {
-                formsPlots[index].plt.Style(figBg: Color.GhostWhite); //tick: Color.White, label: Color.White, title: Color.White
+                formsPlots[index].plt.Style(figBg: Color.GhostWhite);
             }
             else
             {
@@ -1004,47 +986,6 @@ namespace ParticleDataVisualizerApp
 
             }
         }
-
-
-        /*
-
-                private void MouseHover()
-                {
-                    var plottables = formsPlots[0].plt.GetPlottables();
-                    var signalPlot = (ScottPlot.PlottableSignal)plottables[0];
-                    var highlightSignal = (ScottPlot.PlottableSignal)plottables[1];
-                    var highlightText = (ScottPlot.PlottableSignal)plottables[2];
-
-
-                    // get mouse position on the screen
-                    Point mouseLoc = new Point(Cursor.Position.X, Cursor.Position.Y);
-
-                    //modify it to be mouse position on the ScottPlot
-                    mouseLoc.X -= this.PointToScreen(formsPlots[0].Location).X;
-                    mouseLoc.Y -= this.PointToScreen(formsPlots[0].Location).Y;
-
-
-                    //PointF mousePos = formsPlots[0].plt.CoordinateFromPixelY(mouseLoc.Y);
-
-                    int closestIndex = 0;
-                    double closestDistance = double.PositiveInfinity;
-                    for(int i=0; i < signalPlot.ys.Length; i++)
-                    {
-                        double dx = mouseLoc.X - formsPlots[0].plt.CoordinateToPixel(signalPlot. xs[i], 0).X;
-                        double dy = mouseLoc.Y - formsPlots[0].plt.CoordinateToPixel(0, signalPlot.ys[i]).Y;
-                        double distance = Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
-                        if (closestIndex < 0)
-                        {
-                            closestDistance = distance;
-                        }
-                        else if (distance < closestDistance)
-                        {
-                            closestDistance = distance;
-                            closestIndex = i;
-                        }
-                    }
-                }
-        */
 
 
 
@@ -1556,24 +1497,17 @@ namespace ParticleDataVisualizerApp
 
                         for (int index_chart = 0; index_chart < MyDataTypes.Count; index_chart++)
                         {
-                            //for (int index_ID = 0; index_ID < MyIDs.Count; index_ID++)
-                            //{
-                            //    index_d = index_chart * (MyDataTypes.Count-1) + index_ID;
-                            //    G_Data[index_d] = new Data(10_000);
-                            //    G_Data[index_d].sID = MyIDs[index_ID];
-                            //    G_Data[index_d].sType = MyDataTypes[index_chart];
-                            //}
-
+                          
 
                             plt_list.Add(new List<PlottableSignal>());
-                            //newNextDataIndex.Add(new List<int>());
+                            
 
                             RTDataArray.Add(new List<List<double[]>>());
 
-                            // new 
+                            
                             RT_Max3.Add(new List<List<string>>());
                             RT_Min3.Add(new List<List<string>>());
-                            //
+                            
 
 
                             for (int i = 1; i < SensorUsageColumn.Count; i++)
@@ -1615,17 +1549,9 @@ namespace ParticleDataVisualizerApp
                                 if (trueFalseCheck)
                                     trueFalseCheck = MyData.Tables[DataTypesNext[index_chart]].AsEnumerable().Any(x => x.Field<int>(dataTableColumns[2]) == IDs_next[index_ID]);
 
-                                /*
-                                                                int dsds = (MyData.Tables.Contains(MyDataTypes[index_chart]) && MyData.Tables[MyDataTypes[index_chart]].Columns.Contains(dataTableColumns[2]) && MyData.Tables[MyDataTypes[index_chart]].Rows.Count > 0) ? Convert.ToInt32(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[2])).ToArray()[0]) : 0;
-                                                                bool id_check = MyIDs.Contains(dsds);
-                                                                Console.WriteLine($"check if MyData.Tables.Contains({MyDataTypes[index_chart]}): {MyData.Tables.Contains(MyDataTypes[index_chart])}");
-                                                                Console.WriteLine($"check if MyData.Tables[{MyDataTypes[index_chart]}].Columns.Contains(dataTableColumns[2]): {MyData.Tables[MyDataTypes[index_chart]].Columns.Contains(dataTableColumns[2])}");
-                                                                Console.WriteLine($"check if MyData.Tables[{MyDataTypes[index_chart]}].Rows.Count > 0: {MyData.Tables[MyDataTypes[index_chart]].Rows.Count > 0}");
-                                                                Console.WriteLine($"check if id : {Convert.ToInt32(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[2])).ToArray()[0])} exists : {id_check}");
-                                */
-
+                             
                                 if (trueFalseCheck) // MyData.Tables[index_chart].Rows.Count > index_ID
-                                { // && 
+                                { 
 
                                     //Application.DoEvents();
                                     RT_Max3[index_chart][index_ID][1] = MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[1])).ToArray()[0];
@@ -1640,7 +1566,6 @@ namespace ParticleDataVisualizerApp
                                         double dblAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<decimal>(dataTableColumns[4])).ToArray()[0]);
 
                                         finalVal = (dblAvg != 0) && ((dblVal - dblAvg) >= 2 || (dblVal - dblAvg) <= -2) ? dblAvg : dblVal;
-                                        ///RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                         RT_Max3[index_chart][index_ID][0] = finalVal.ToString();
                                         RT_Min3[index_chart][index_ID][0] = finalVal.ToString();
 
@@ -1649,39 +1574,28 @@ namespace ParticleDataVisualizerApp
                                     {
                                         double dblVal = Convert.ToDouble(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
                                         double dblAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
-                                        //Int64 intVal = Convert.ToInt64(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<string>(dataTableColumns[4])).ToArray()[0]); // MyData.Tables[index_chart].Rows[index_ID].Field<string>(MyDataTypes[index_chart]));
-                                        //double intAvg = Convert.ToDouble(AvgData.Tables[index_chart].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[index_ID]).Select(x => x.Field<int>(dataTableColumns[4])).ToArray()[0]);
-                                        //finalVal = (intAvg * 2 <= intVal || intVal <= intAvg / 2) ? intAvg : intVal;
 
                                         finalVal = (dblAvg * 2 <= dblVal || dblVal <= dblAvg / 2) ? dblAvg : dblVal;
 
-                                        //RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                         RT_Max3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
                                         RT_Min3[index_chart][index_ID][0] = String.Format("{0:n0}", finalVal);
 
 
                                     }
                                     
-                                    //G_Data[index_d].SetData(nextDataIndex, finalVal);
-                                    //G_Data[index_d].SetDateTime(nextDataIndex, dtime_min.ToString());
                                     RTDataArray[index_chart][index_ID][0][nextDataIndex] = finalVal;
                                     RTDataArray[index_chart][index_ID][1][nextDataIndex] = dtime_min.ToOADate();
-                                    //nextDataIndex += -1;
 
                                 }
                                 else
                                 {
                                     if (nextDataIndex > 0)
                                     {
-                                        //G_Data[index_d].SetData(nextDataIndex, G_Data[index_d].GetData(nextDataIndex - 1));
-                                        //G_Data[index_d].SetDateTime(nextDataIndex, G_Data[index_d].GetDateTime(nextDataIndex - 1));
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = RTDataArray[index_chart][index_ID][0][nextDataIndex - 1];
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = RTDataArray[index_chart][index_ID][1][nextDataIndex - 1];
                                     }
                                     else
                                     {
-                                        //    G_Data[index_d].SetData(nextDataIndex, double.NaN);
-                                        //    G_Data[index_d].SetDateTime(nextDataIndex, string.Empty);
                                         RTDataArray[index_chart][index_ID][0][nextDataIndex] = double.NaN;
                                         RTDataArray[index_chart][index_ID][1][nextDataIndex] = double.NaN;
 
@@ -1731,27 +1645,14 @@ namespace ParticleDataVisualizerApp
                                 pltAnnot = formsPlots[index_chart].plt.PlotAnnotation(label: maxLabel + char.ConvertFromUtf32(0x2191), -10, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
                                 pltAnnot_min = formsPlots[index_chart].plt.PlotAnnotation(label: minLabel + char.ConvertFromUtf32(0x2193), -75, annotY, fontSize: 12, fontColor: colorset[i], fillAlpha: 0, lineWidth: 0, fillColor: Color.White);
 
-                                /*  int dsds = (MyData.Tables.Contains(MyDataTypes[index_chart]) && MyData.Tables[MyDataTypes[index_chart]].Columns.Contains(dataTableColumns[2]) && MyData.Tables[MyDataTypes[index_chart]].Rows.Count > 0) ? Convert.ToInt32(MyData.Tables[MyDataTypes[index_chart]].AsEnumerable().Where(x => x.Field<int>(dataTableColumns[2]) == MyIDs[i]).Select(x => x.Field<int>(dataTableColumns[2])).ToArray()[0]) : 0;
-                                  bool id_check = MyIDs.Contains(dsds);
-
-                                  if (id_check)
-                                  {*/
-                            /*    numberStrMax = RT_Max3[index_chart][i][0];
-                                numberStrMin = RT_Min3[index_chart][i][0];
-*/
-
-                                maxLabel = RT_Max3[index_chart][i][0];  //(numberStrMax.Contains(".") == false && numberStrMax.Length > 3) ? numberStrMax.Insert(numberStrMax.Length - 3, ",") : numberStrMax;
-                                minLabel = RT_Min3[index_chart][i][0];  //(numberStrMin.Contains(".") == false && numberStrMin.Length > 3) ? numberStrMin.Insert(numberStrMin.Length - 3, ",") : numberStrMin;
+                            
+                                maxLabel = RT_Max3[index_chart][i][0];  
+                                minLabel = RT_Min3[index_chart][i][0];  
 
 
                                 pltAnnot.label = maxLabel + " " + char.ConvertFromUtf32(0x2191);
                                 pltAnnot_min.label = minLabel + " " + char.ConvertFromUtf32(0x2193);
 
-                                /*}
-                                else
-                                {
-                                    Console.WriteLine("2. Skipped this annotation settings because there is no data to show.");
-                                }*/
                                 annotY += 23;
                                 plottableAnnotationsMaxVal2[index_chart].Add(pltAnnot);
                                 plottableAnnotationsMinVal2[index_chart].Add(pltAnnot_min);
@@ -1760,13 +1661,13 @@ namespace ParticleDataVisualizerApp
                             formsPlots[index_chart].Render();
                         }
                         nextDataIndex += 1;
-                        timer2.Interval = TimeSettings.Item3 * 1000; //S_INTERVAL * 1000;
+                        timer2.Interval = TimeSettings.Item3 * 1000; 
                         timer3_render.Interval = timer2.Interval;
                         timer2.Start();
                         timer3_render.Start();
 
 
-                        //timer_RT(MyDataTypes, MyIDs);
+                    
 
 
 
@@ -1778,7 +1679,7 @@ namespace ParticleDataVisualizerApp
                         timer3_render.Stop();
                         Console.WriteLine("Error: " + ex.Message + " " + ex.StackTrace);
                     }
-                    //Console.WriteLine(RTDataArray.Count);
+                    
                 }
             }
 
